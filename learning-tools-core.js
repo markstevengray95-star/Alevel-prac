@@ -27,8 +27,6 @@ function open(id,opts={}){
  if(!registry.has(+id)||!document.querySelector('#learningToolsRoot'))return;
  if(!document.querySelector('#view-tools.active')){
    navigate('tools');
-   // navigate('tools') schedules the home grid. Render the requested tool after that
-   // navigation work so it cannot be overwritten by the grid on the next tick.
    setTimeout(()=>renderTool(id,opts),0);
    return;
  }
@@ -48,5 +46,5 @@ const oldNavigate=window.navigate;window.navigate=function(view,id){const r=oldN
 addView();
 window.PracticalTools={register,open,renderHome,mark,esc,practical,data,suite,download,button,addPracticalButton,addLabButton,refreshDecorators};
 const files=Array.from({length:15},(_,i)=>`feature-${String(i+1).padStart(2,'0')}.js`);
-Promise.all(files.map(src=>new Promise(resolve=>{const s=document.createElement('script');s.src=src+'?v=20260915-suite1';s.async=false;s.onload=resolve;s.onerror=resolve;document.body.appendChild(s);}))).then(()=>{window.__learningToolsReady=true;renderHome();refreshDecorators();});
+Promise.all(files.map(src=>new Promise(resolve=>{const s=document.createElement('script');s.src=src+'?v=20260915-fullsuite3';s.async=false;s.onload=resolve;s.onerror=resolve;document.body.appendChild(s);}))).then(()=>{window.__learningToolsReady=true;renderHome();refreshDecorators();});
 })();
