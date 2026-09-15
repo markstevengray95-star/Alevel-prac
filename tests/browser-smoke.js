@@ -72,7 +72,7 @@ const { chromium } = require('playwright');
   if(await page.locator('.lb-card').count()!==12)throw new Error('Lab Book dashboard should show 12 practicals');
   if(await page.locator('[data-lb-step]').count()!==9)throw new Error('Lab Book should have 9 guided sections');
   if(await page.locator('#lbSelect option').count()!==12)throw new Error('Lab Book selector should cover all 12 practicals');
-  if(await page.locator('#workedExampleBtn').count()!==1)throw new Error('Completed-example launcher missing');
+  if(await page.locator('#lbModeMine').count()!==1||await page.locator('#lbModeExample').count()!==1)throw new Error('Lab Book My record / Completed example switch missing');
 
   await page.locator('[data-lb-step="4"]').click();await page.waitForTimeout(30);
   if(await page.locator('#lbImportSim').count()!==1||await page.locator('.lb-table').count()<1)throw new Error('Structured raw-data section missing');
@@ -87,20 +87,19 @@ const { chromium } = require('playwright');
   await page.locator('#lbDone').check();await page.waitForTimeout(30);
   if(!(await page.locator('[data-lb-step="7"]').evaluate(el=>el.classList.contains('done'))))throw new Error('Lab Book completion state did not persist');
 
-  // Completed worked example should exist for every required practical with results and evaluation.
-  await page.locator('#workedExampleBtn').click();await page.waitForTimeout(50);
-  if(await page.locator('#labExampleModal .ex-sheet').count()!==1)throw new Error('Completed-example viewer did not open');
-  if(await page.locator('#exSelect option').count()!==12)throw new Error('Example viewer should cover all 12 practicals');
+  await page.locator('#lbModeExample').click();await page.waitForTimeout(80);
+  if(await page.locator('#lbCompletedExamplePane .ex-sheet').count()!==1)throw new Error('Inline completed-example record did not render');
+  if(await page.locator('#lbCompletedExamplePane #exSelect option').count()!==12)throw new Error('Example viewer should cover all 12 practicals');
   for(let id=1;id<=12;id++){
-    await page.locator('#exSelect').selectOption(String(id));await page.waitForTimeout(25);
-    if(await page.locator('#labExampleModal').count()!==1)throw new Error(`P${id}: example modal missing`);
-    const text=await page.locator('#labExampleModal').innerText();
+    await page.locator('#lbCompletedExamplePane #exSelect').selectOption(String(id));await page.waitForTimeout(35);
+    const pane=page.locator('#lbCompletedExamplePane');
+    const text=await pane.innerText();
     if(!text.includes('COMPLETED EXAMPLE')||!text.includes('Conclusion')||!text.includes('Evaluation')||!text.includes('EXAMPLE RESULT'))throw new Error(`P${id}: completed example is incomplete`);
-    if(await page.locator('#labExampleModal .ex-table').count()<2)throw new Error(`P${id}: example should include results and uncertainty/evaluation tables`);
+    if(await pane.locator('.ex-table').count()<2)throw new Error(`P${id}: example should include results and uncertainty/evaluation tables`);
   }
-  await page.locator('#labExampleModal [data-ex-close]').last().click();
+  await page.locator('#lbModeMine').click();
 
   if(errors.length)throw new Error(`Browser errors:\n${errors.join('\n')}`);
-  console.log('Chromium validation passed: animations, all practicals/modes, AQA setup checks, Lab Book v2 and completed worked examples for all 12 practicals.');
+  console.log('Chromium validation passed: animations, all practicals/modes, AQA setup checks, Lab Book v2 and inline worked examples for all 12 practicals.');
   await browser.close();
 })().catch(e=>{console.error(e.stack||e);process.exit(1);});
