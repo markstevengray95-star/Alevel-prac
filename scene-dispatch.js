@@ -15,3 +15,7 @@ theoretical=function(vals=getVals()){
 };
 function renderScene(){if(!current)return;let renderer=window['renderP'+current.id+'Scene'];let svg=renderer?renderer():sceneBase('');$('#scene').innerHTML=svg;$('#benchTitle').textContent=`Practical ${current.id} · ${current.modes[currentMode]}`;$('#benchStatus').textContent=running?'RUNNING · LIVE MODEL':'READY · CLICK RUN EXPERIMENT';$('#scene').querySelectorAll('[data-part]').forEach(g=>g.addEventListener('click',()=>inspect(g.dataset.part)));updateReadouts();}
 function inspect(name){let a=current.apparatus.find(x=>x[0].toLowerCase().includes(name.toLowerCase())||name.toLowerCase().includes(x[0].toLowerCase()));$('#equipmentInspector').innerHTML=a?`<b>${a[0]}</b><p>${a[1]}</p><p><strong>Student detail:</strong> ${a[2]}</p>`:`<b>${name}</b><p>This component is part of the current AQA-style geometry.</p>`;}
+window.addEventListener('load',()=>{
+  if(!document.querySelector('link[data-physical-interactions]')){const l=document.createElement('link');l.rel='stylesheet';l.href='physical-interactions.css';l.dataset.physicalInteractions='1';document.head.appendChild(l);}
+  if(!document.querySelector('script[data-physical-interactions]')){const s=document.createElement('script');s.src='physical-interactions.js';s.dataset.physicalInteractions='1';document.body.appendChild(s);}
+});
