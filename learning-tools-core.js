@@ -11,25 +11,22 @@ function addView(){
  const nav=document.querySelector('.lab-header nav');if(nav&&!nav.querySelector('[data-view="tools"]')){const b=document.createElement('button');b.dataset.view='tools';b.textContent='Learning tools';b.onclick=()=>navigate('tools');nav.appendChild(b);}
 }
 function pct(){const n=[...registry.keys()].filter(k=>suite.completed[k]).length,d=Math.max(1,registry.size);return Math.round(n/d*100);}
+function card([id,m]){return `<button class="tool-card" data-tool="${id}" type="button"><span class="tool-icon">${m.icon||'◆'}</span><small>TOOL ${String(id).padStart(2,'0')}</small><h3>${esc(m.title)}</h3><p>${esc(m.description||'')}</p><span class="tool-state">${suite.completed[id]?'Completed ✓':'Open tool →'}</span></button>`;}
 function renderHome(){
  const root=document.querySelector('#learningToolsRoot');if(!root)return;
- const items=[...registry.entries()].sort((a,b)=>a[0]-b[0]);
- root.innerHTML=`<div class="tools-hero"><div><span class="eyebrow">PRACTICAL LEARNING SUITE</span><h1>Learning tools</h1><p>Coach, analyse, troubleshoot, practise exam skills and build a stronger practical record across all 12 AQA required practicals.</p></div><div class="tools-progress"><b>${pct()}%</b><small>feature activities completed</small><div class="tool-meter"><i style="width:${pct()}%"></i></div></div></div><div class="tools-grid">${items.map(([id,m])=>`<button class="tool-card" data-tool="${id}" type="button"><span class="tool-icon">${m.icon||'◆'}</span><small>TOOL ${String(id).padStart(2,'0')}</small><h3>${esc(m.title)}</h3><p>${esc(m.description||'')}</p><span class="tool-state">${suite.completed[id]?'Completed ✓':'Open tool →'}</span></button>`).join('')}</div>`;
+ const items=[...registry.entries()].sort((a,b)=>a[0]-b[0]),core=items.filter(([id])=>id<=15),deep=items.filter(([id])=>id>=16);
+ root.innerHTML=`<div class="tools-hero"><div><span class="eyebrow">PRACTICAL LEARNING SUITE</span><h1>Learning tools</h1><p>Coach, analyse, troubleshoot, measure and master all 12 AQA required practicals.</p></div><div class="tools-progress"><b>${pct()}%</b><small>${[...registry.keys()].filter(k=>suite.completed[k]).length} of ${registry.size} feature activities completed</small><div class="tool-meter"><i style="width:${pct()}%"></i></div></div></div><div class="tools-section-head"><div><span class="eyebrow">CORE LEARNING TOOLS</span><h2>Plan · analyse · revise</h2></div><span>${core.length} tools</span></div><div class="tools-grid">${core.map(card).join('')}</div><div class="tools-section-head deep"><div><span class="eyebrow">PRACTICAL DEEP-DIVE</span><h2>Measure · diagnose · master</h2></div><span>${deep.length} tools</span></div><div class="tools-grid tools-grid-deep">${deep.map(card).join('')}</div>`;
  root.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>open(+b.dataset.tool));
 }
 function renderTool(id,opts={}){
  const m=registry.get(+id),root=document.querySelector('#learningToolsRoot');if(!m||!root)return;
- root.innerHTML=`<div class="tool-workspace"><div class="tool-workspace-head"><button class="secondary-btn" id="toolBack">← Learning tools</button><div><span class="eyebrow">${esc(m.kicker||'PRACTICAL SKILLS')}</span><h2>${esc(m.title)}</h2></div></div><div id="toolBody"></div></div>`;
+ root.innerHTML=`<div class="tool-workspace"><div class="tool-workspace-head"><button class="secondary-btn" id="toolBack">← Learning tools</button><div><span class="eyebrow">${esc(m.kicker||'PRACTICAL SKILLS')}</span><h2>${esc(m.title)}</h2></div><span class="tool-workspace-number">${String(id).padStart(2,'0')}</span></div><div id="toolBody"></div></div>`;
  root.querySelector('#toolBack').onclick=renderHome;
  try{m.render(root.querySelector('#toolBody'),opts);}catch(e){console.error(e);root.querySelector('#toolBody').innerHTML='<div class="tool-panel"><b>This tool could not load.</b><p>Please refresh and try again.</p></div>';}
 }
 function open(id,opts={}){
  if(!registry.has(+id)||!document.querySelector('#learningToolsRoot'))return;
- if(!document.querySelector('#view-tools.active')){
-   navigate('tools');
-   setTimeout(()=>renderTool(id,opts),0);
-   return;
- }
+ if(!document.querySelector('#view-tools.active')){navigate('tools');setTimeout(()=>renderTool(id,opts),0);return;}
  renderTool(id,opts);
 }
 function register(id,meta){registry.set(+id,meta);if(document.querySelector('#view-tools.active')&&!document.querySelector('.tool-workspace'))renderHome();}
@@ -45,6 +42,6 @@ const obs=new MutationObserver(()=>refreshDecorators());obs.observe(document.bod
 const oldNavigate=window.navigate;window.navigate=function(view,id){const r=oldNavigate.apply(this,arguments);if(view==='tools')setTimeout(renderHome,0);setTimeout(refreshDecorators,0);return r;};
 addView();
 window.PracticalTools={register,open,renderHome,mark,esc,practical,data,suite,download,button,addPracticalButton,addLabButton,refreshDecorators};
-const files=Array.from({length:15},(_,i)=>`feature-${String(i+1).padStart(2,'0')}.js`);
-Promise.all(files.map(src=>new Promise(resolve=>{const s=document.createElement('script');s.src=src+'?v=20260915-fullsuite3';s.async=false;s.onload=resolve;s.onerror=resolve;document.body.appendChild(s);}))).then(()=>{window.__learningToolsReady=true;renderHome();refreshDecorators();});
+const files=Array.from({length:25},(_,i)=>`feature-${String(i+1).padStart(2,'0')}.js`);
+Promise.all(files.map(src=>new Promise(resolve=>{const s=document.createElement('script');s.src=src+'?v=20260915-practicalplus1';s.async=false;s.onload=resolve;s.onerror=()=>{console.error('Failed to load '+src);resolve();};document.body.appendChild(s);}))).then(()=>{window.__learningToolsReady=true;window.__learningToolsCount=registry.size;renderHome();refreshDecorators();});
 })();
