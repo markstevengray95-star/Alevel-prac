@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
 
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>typeof window.navigate==='function'&&typeof window.theoretical==='function');
-  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__animationRuntime&&window.__labBookV2,{timeout:10000});
+  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__animationRuntime&&window.__labBookV2&&window.LAB_BOOK_EXAMPLES,{timeout:10000});
   await page.waitForTimeout(180);
 
   const mustMove=new Set([1,3,4,5,7,8,9,10,11,12]);
@@ -55,7 +55,6 @@ const { chromium } = require('playwright');
     }
   }
 
-  // Boyle's law must use the AQA vertical syringe + hanging masses arrangement and correct force balance.
   await page.evaluate(()=>navigate('practical',8));
   await page.waitForTimeout(160);
   for(const part of ['Gas syringe','Mass holder + slotted masses','String loop'])if(await page.locator(`#scene [data-part="${part}"]`).count()!==1)throw new Error(`P8 Boyle missing ${part}`);
@@ -63,18 +62,17 @@ const { chromium } = require('playwright');
   const boyle=await page.evaluate(()=>{const vals=getVals();vals[0]=200;const light=theoretical();vals[0]=1000;const heavy=theoretical();vals[0]=400;renderControls();renderScene();return {pLight:light.x,pHeavy:heavy.x,invVLight:light.y,invVHeavy:heavy.y};});
   if(!(boyle.pHeavy<boyle.pLight&&boyle.invVHeavy<boyle.invVLight))throw new Error(`P8 Boyle force balance incorrect: ${JSON.stringify(boyle)}`);
 
-  // Hands-on and circuit builder still load.
   await page.evaluate(()=>navigate('practical',5));await page.waitForTimeout(180);
   if(await page.locator('#handsTool').count()!==1)throw new Error('Hands-on toolbar failed to load');
   await page.evaluate(()=>navigate('circuit'));await page.waitForTimeout(100);
   if(await page.locator('.builder-shell').count()!==1||await page.locator('.build-slot').count()<5)throw new Error('Circuit builder failed to load');
 
-  // Lab Book v2: dashboard, all practicals, structured data/uncertainty/evaluation and completion.
-  await page.evaluate(()=>navigate('labbook'));await page.waitForTimeout(160);
+  await page.evaluate(()=>navigate('labbook'));await page.waitForTimeout(180);
   if(await page.locator('#view-labbook.active .labbook-v2').count()!==1)throw new Error('Lab Book v2 did not render');
   if(await page.locator('.lb-card').count()!==12)throw new Error('Lab Book dashboard should show 12 practicals');
   if(await page.locator('[data-lb-step]').count()!==9)throw new Error('Lab Book should have 9 guided sections');
   if(await page.locator('#lbSelect option').count()!==12)throw new Error('Lab Book selector should cover all 12 practicals');
+  if(await page.locator('#workedExampleBtn').count()!==1)throw new Error('Completed-example launcher missing');
 
   await page.locator('[data-lb-step="4"]').click();await page.waitForTimeout(30);
   if(await page.locator('#lbImportSim').count()!==1||await page.locator('.lb-table').count()<1)throw new Error('Structured raw-data section missing');
@@ -89,7 +87,20 @@ const { chromium } = require('playwright');
   await page.locator('#lbDone').check();await page.waitForTimeout(30);
   if(!(await page.locator('[data-lb-step="7"]').evaluate(el=>el.classList.contains('done'))))throw new Error('Lab Book completion state did not persist');
 
+  // Completed worked example should exist for every required practical with results and evaluation.
+  await page.locator('#workedExampleBtn').click();await page.waitForTimeout(50);
+  if(await page.locator('#labExampleModal .ex-sheet').count()!==1)throw new Error('Completed-example viewer did not open');
+  if(await page.locator('#exSelect option').count()!==12)throw new Error('Example viewer should cover all 12 practicals');
+  for(let id=1;id<=12;id++){
+    await page.locator('#exSelect').selectOption(String(id));await page.waitForTimeout(25);
+    if(await page.locator('#labExampleModal').count()!==1)throw new Error(`P${id}: example modal missing`);
+    const text=await page.locator('#labExampleModal').innerText();
+    if(!text.includes('COMPLETED EXAMPLE')||!text.includes('Conclusion')||!text.includes('Evaluation')||!text.includes('EXAMPLE RESULT'))throw new Error(`P${id}: completed example is incomplete`);
+    if(await page.locator('#labExampleModal .ex-table').count()<2)throw new Error(`P${id}: example should include results and uncertainty/evaluation tables`);
+  }
+  await page.locator('#labExampleModal [data-ex-close]').last().click();
+
   if(errors.length)throw new Error(`Browser errors:\n${errors.join('\n')}`);
-  console.log('Chromium validation passed: animation time/movement, all practicals/modes, AQA setup checks, Boyle syringe+masses, hands-on controls, circuit builder and Lab Book v2.');
+  console.log('Chromium validation passed: animations, all practicals/modes, AQA setup checks, Lab Book v2 and completed worked examples for all 12 practicals.');
   await browser.close();
 })().catch(e=>{console.error(e.stack||e);process.exit(1);});
