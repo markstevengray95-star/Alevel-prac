@@ -24,6 +24,7 @@ jobs:
           node --check tests/model-checks.js
           node --check tests/browser-smoke.js
           node --check tests/labbook-toggle-smoke.js
+          node --check tests/learning-suite-smoke.js
       - name: Check HTML local asset references
         run: |
           python - <<'PY'
@@ -50,3 +51,4 @@ jobs:
           sleep 1
           node tests/browser-smoke.js
           node tests/labbook-toggle-smoke.js
+          node tests/learning-suite-smoke.js
