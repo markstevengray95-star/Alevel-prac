@@ -21,7 +21,7 @@ async function start(){
   await loadScript('lab-book.js','labBookScript');
   await loadScript('lab-book-v2.js','labBookV2Script');
   await loadScript('lab-book-examples.js','labBookExamplesScript');
-  await loadScript('lab-book-example-launcher.js','labBookExampleLauncher');
+  await loadScript('lab-book-inline-switch.js','labBookInlineSwitch');
   await loadScript('animation-runtime-v2.js','animationRuntimeV2');
   try{if(document.querySelector('#view-labbook.active')&&window.renderLabBook)window.renderLabBook();}catch(e){console.error(e);}
   window.__enhancementStackReady=true;
