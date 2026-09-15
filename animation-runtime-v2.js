@@ -3,7 +3,7 @@
 let engineRaf=0,engineLast=0,lastPaint=0,lastReadout=0,wasRunning=false;
 const FRAME_MS=1000/30;
 
-function rendererForCurrent(){return current&&window['renderP'+current.id+'Scene];}
+function rendererForCurrent(){return current&&window['renderP'+current.id+'Scene'];}
 function setRunUi(){
   const status=document.querySelector('#benchStatus');
   if(status){status.innerHTML=running?'<i class="status-lamp on"></i>RUNNING · LIVE MODEL':'<i class="status-lamp"></i>READY · CLICK RUN EXPERIMENT';status.classList.toggle('running',!!running);}
@@ -49,7 +49,6 @@ function ensureEngine(){
   engineRaf=requestAnimationFrame(engineLoop);
 }
 
-// Replace the older scene-rebuild loop with a single persistent scheduler.
 startLoop=function(){
   if(raf){cancelAnimationFrame(raf);raf=0;}
   ensureEngine();
@@ -59,7 +58,6 @@ function runFromButton(){
   if(!current)return;
   const before=simT;
   try{runExperiment();}catch(err){console.error(err);running=true;}
-  // Experiments that depend on an obvious start transient should begin at t=0.
   if([3,4,8,9,10,12].includes(current.id)&&(!running||simT===before))simT=0;
   running=true;
   ensureEngine();
@@ -84,7 +82,6 @@ function bindControls(){
   setRunUi();
 }
 
-// Keep the engine alive when a practical/mode is opened and ensure controls use the current handlers.
 const previousOpen=openPractical;
 openPractical=function(id){
   const out=previousOpen(id);bindControls();ensureEngine();fullPaint();return out;
@@ -101,7 +98,6 @@ renderModeTabs=function(){
 document.addEventListener('visibilitychange',()=>{engineLast=performance.now();});
 window.addEventListener('load',()=>{bindControls();ensureEngine();},{once:true});
 
-// Debug hooks used by the browser validation suite.
 window.__animationRuntime={
   running:()=>!!running,
   time:()=>simT,
