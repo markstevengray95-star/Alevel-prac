@@ -14,8 +14,10 @@ function loadScript(src,key,onload){if(document.querySelector(`script[data-${key
 function start(){
   addLabView();loadStyle('lab-book.css','labBookStyle');
   loadScript('aqa-setup-alignment.js','aqaSetupAlignment',()=>{
-    try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
-    loadScript('lab-book.js','labBookScript',()=>{try{if(document.querySelector('#view-labbook.active')&&typeof renderLabBook==='function')renderLabBook();}catch(e){console.error(e);}});
+    loadScript('aqa-setup-visual-fixes.js','aqaSetupVisualFixes',()=>{
+      try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
+      loadScript('lab-book.js','labBookScript',()=>{try{if(document.querySelector('#view-labbook.active')&&typeof renderLabBook==='function')renderLabBook();}catch(e){console.error(e);}});
+    });
   });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
