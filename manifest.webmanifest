@@ -1,0 +1,11 @@
+{
+  "name":"Practical Lab · AQA A-Level Physics",
+  "short_name":"Practical Lab",
+  "start_url":"./index.html",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f6f7f3",
+  "theme_color":"#234e40",
+  "description":"Interactive AQA A-Level Physics required-practical simulations, Lab Book and practical-skills tools.",
+  "icons":[{"src":"app-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
