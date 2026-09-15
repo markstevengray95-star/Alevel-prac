@@ -19,5 +19,7 @@ window.addEventListener('load',()=>{
   if(!document.querySelector('link[data-physical-interactions]')){const l=document.createElement('link');l.rel='stylesheet';l.href='physical-interactions.css';l.dataset.physicalInteractions='1';document.head.appendChild(l);}
   const loadGeometry=()=>{if(document.querySelector('script[data-interaction-geometry]'))return;const g=document.createElement('script');g.src='interaction-geometry.js';g.async=false;g.dataset.interactionGeometry='1';document.body.appendChild(g);};
   const loadLearningExtensions=()=>{if(document.querySelector('script[data-lab-book-bootstrap]'))return;const x=document.createElement('script');x.src='lab-book-bootstrap.js';x.async=false;x.dataset.labBookBootstrap='1';document.body.appendChild(x);};
-  if(!document.querySelector('script[data-physical-interactions]')){const s=document.createElement('script');s.src='physical-interactions.js';s.async=false;s.dataset.physicalInteractions='1';s.onload=()=>{loadGeometry();loadLearningExtensions();};document.body.appendChild(s);}else{loadGeometry();loadLearningExtensions();}
+  // The lab-book/AQA/animation stack must not depend on the optional hands-on script succeeding.
+  loadLearningExtensions();
+  if(!document.querySelector('script[data-physical-interactions]')){const s=document.createElement('script');s.src='physical-interactions.js';s.async=false;s.dataset.physicalInteractions='1';s.onload=loadGeometry;document.body.appendChild(s);}else loadGeometry();
 });
