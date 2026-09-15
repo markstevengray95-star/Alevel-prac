@@ -41,7 +41,7 @@
         <div class="control-grid" id="controls"></div><div class="readouts" id="readouts"></div>
         <div class="action-strip"><button class="success-btn" id="recordBtn">Record reading</button><button class="secondary-btn" id="repeatsBtn">Take 3 repeats</button><button class="secondary-btn" id="clearDataBtn">Clear data</button><button class="secondary-btn" id="exportBtn">Export CSV</button></div>
       </div>
-      <aside class="panel coach-panel"><div class="coach-head"><div><span class="eyebrow">METHOD COACH</span><h3>AQA-aligned sequence</h3></div><span id="stepCounter" class="step-counter"></span></div><div id="methodCoach"></div><div class="equipment-inspector" id="equipmentInspector"><b>Equipment inspector</b><p>Click a labelled item in the apparatus to see what it does and the measurement issue students should notice.</p></div><div class="safety-note" id="safetyNote"></div></aside>
+      <aside class="panel coach-panel"><div class="coach-head"><div><span class="eyebrow">METHOD COACH</span><h3>AQA-aligned sequence</h3></div><span id="stepCounter" class="step-counter"></span></div><div id="methodCoach"></div><div class="equipment-inspector" id="equipmentInspector"><b>Equipment inspector</b><p>Click a labelled item in the apparatus to see its purpose and a measurement detail.</p></div><div class="safety-note" id="safetyNote"></div></aside>
     </div>
     <div class="data-grid"><section class="data-card"><h3>Results table</h3><div id="resultsTable"></div></section><section class="data-card"><div class="graph-head"><h3>Live graph</h3><span id="fitText"></span></div><canvas id="graphCanvas" class="graph" width="700" height="320"></canvas><div class="analysis-summary" id="analysisSummary"></div></section></div>
     <section class="learning-panel"><div class="learning-tabs"><button class="tab-btn active" data-tab="understand">Understand</button><button class="tab-btn" data-tab="calculate">Calculate</button><button class="tab-btn" data-tab="test">Test yourself</button><button class="tab-btn" data-tab="evaluate">Evaluate</button><button class="tab-btn" data-tab="record">Practical record</button></div><div id="learningContent" class="tab-content"></div></section>
@@ -79,6 +79,7 @@
 <script src="accuracy-p2-p6.js"></script>
 <script src="accuracy-p7-p12.js"></script>
 <script src="accuracy-final.js"></script>
+<script src="accuracy-browser-fixes.js"></script>
 <script src="visual-upgrades.js"></script>
 </body>
 </html>
