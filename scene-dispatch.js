@@ -17,5 +17,6 @@ function renderScene(){if(!current)return;let renderer=window['renderP'+current.
 function inspect(name){let a=current.apparatus.find(x=>x[0].toLowerCase().includes(name.toLowerCase())||name.toLowerCase().includes(x[0].toLowerCase()));$('#equipmentInspector').innerHTML=a?`<b>${a[0]}</b><p>${a[1]}</p><p><strong>Student detail:</strong> ${a[2]}</p>`:`<b>${name}</b><p>This component is part of the current AQA-style geometry.</p>`;}
 window.addEventListener('load',()=>{
   if(!document.querySelector('link[data-physical-interactions]')){const l=document.createElement('link');l.rel='stylesheet';l.href='physical-interactions.css';l.dataset.physicalInteractions='1';document.head.appendChild(l);}
-  if(!document.querySelector('script[data-physical-interactions]')){const s=document.createElement('script');s.src='physical-interactions.js';s.dataset.physicalInteractions='1';document.body.appendChild(s);}
+  const loadGeometry=()=>{if(document.querySelector('script[data-interaction-geometry]'))return;const g=document.createElement('script');g.src='interaction-geometry.js';g.async=false;g.dataset.interactionGeometry='1';document.body.appendChild(g);};
+  if(!document.querySelector('script[data-physical-interactions]')){const s=document.createElement('script');s.src='physical-interactions.js';s.async=false;s.dataset.physicalInteractions='1';s.onload=loadGeometry;document.body.appendChild(s);}else loadGeometry();
 });
