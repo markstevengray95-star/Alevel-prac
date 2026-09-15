@@ -1,0 +1,39 @@
+(()=>{
+'use strict';
+const T=window.PracticalTools;if(!T)return;
+const specs={
+1:{name:'Frequency display',unit:'Hz',min:18,max:65,step:.1,tol:.15,type:'digital',tip:'Read the resonant frequency only after the standing-wave pattern is judged stable.'},
+2:{name:'Screen ruler',unit:'mm',min:2,max:18,step:.1,tol:.15,type:'ruler',tip:'Measure a span across several fringes where possible, then divide by the number of fringe spacings.'},
+3:{name:'Electronic timer',unit:'s',min:.18,max:.62,step:.0001,tol:.00015,type:'digital',tip:'Record the electronic timing exactly as displayed and repeat at the same height.'},
+4:{name:'Micrometer',unit:'mm',min:.32,max:.68,step:.01,tol:.006,type:'micrometer',tip:'Use the sleeve and thimble scales together; in a real practical take diameter readings in several positions and orientations.'},
+5:{name:'Digital voltmeter',unit:'V',min:.6,max:3.8,step:.01,tol:.012,type:'meter',tip:'Read the displayed p.d. with its unit and record it alongside the matching current and wire length.'},
+6:{name:'Digital voltmeter',unit:'V',min:.7,max:1.55,step:.001,tol:.002,type:'meter',tip:'Record terminal p.d. for the same instant as the current reading.'},
+7:{name:'Stopwatch',unit:'s',min:8,max:24,step:.01,tol:.015,type:'digital',tip:'Time many oscillations, then divide by the number of cycles rather than timing one oscillation.'},
+8:{name:'Gas syringe scale',unit:'mL',min:18,max:48,step:.5,tol:.3,type:'syringe',tip:'Read the plunger position at eye level from the syringe scale after the gas has settled.'},
+9:{name:'Voltmeter',unit:'V',min:.4,max:5.5,step:.01,tol:.015,type:'meter',tip:'Take voltage readings at known times so the later log-linear processing is meaningful.'},
+10:{name:'Top-pan balance',unit:'g',min:-1.5,max:1.5,step:.001,tol:.002,type:'balance',tip:'Record the change from the reference balance reading, including the sign.'},
+11:{name:'Oscilloscope amplitude',unit:'V',min:.1,max:2.4,step:.02,tol:.025,type:'scope',tip:'Read the vertical amplitude using the displayed volts-per-division scale. The coil angle is set and held while the alternating signal is observed.'},
+12:{name:'Virtual scaler count',unit:'counts',min:90,max:620,step:1,tol:.1,type:'counter',tip:'Simulation only. Record the virtual count for the stated count time, then process background-corrected count rate.'}
+};
+function round(v,s){return Math.round(v/s)*s;}
+function makeTarget(s){let v=s.min+Math.random()*(s.max-s.min);return round(v,s.step);}
+function fmt(v,s){const d=String(s.step).includes('.')?Math.min(4,(String(s.step).split('.')[1]||'').length):0;return Number(v).toFixed(d);}
+function instrument(s,v){
+ const frac=(v-s.min)/(s.max-s.min),x=42+frac*516;
+ if(s.type==='digital'||s.type==='meter'||s.type==='balance'||s.type==='counter')return `<div class="measure-device ${s.type}"><div class="measure-device-top">${T.esc(s.name)}</div><div class="measure-display">${fmt(v,s)} <small>${T.esc(s.unit)}</small></div><div class="measure-keys"><i></i><i></i><i></i></div></div>`;
+ if(s.type==='scope'){const div=0.5,amp=Math.max(.5,Math.min(3.7,v/div)),mid=150,pts=Array.from({length:121},(_,i)=>{const px=20+i*4.6,py=mid-Math.sin(i/8)*amp*34;return `${px.toFixed(1)},${py.toFixed(1)}`}).join(' ');return `<div class="measure-scope"><div class="scope-screen"><svg viewBox="0 0 600 300" role="img" aria-label="Oscilloscope trace"><defs><pattern id="mg" width="60" height="50" patternUnits="userSpaceOnUse"><path d="M60 0H0V50" fill="none" stroke="currentColor" stroke-opacity=".18"/></pattern></defs><rect width="600" height="300" rx="18" fill="currentColor" opacity=".05"/><rect width="600" height="300" fill="url(#mg)"/><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="4"/></svg></div><div class="scope-settings"><b>0.50 V/div</b><span>Read peak amplitude from centre line</span></div></div>`;}
+ if(s.type==='micrometer'){const whole=Math.floor(v),hund=Math.round((v-whole)*100);return `<div class="measure-micrometer"><div class="micro-frame"><span class="micro-anvil"></span><span class="micro-spindle"></span><div class="micro-sleeve"><b>${whole}.0</b><span class="micro-line"></span></div><div class="micro-thimble"><b>${String(hund).padStart(2,'0')}</b><small>×0.01 mm</small></div></div></div>`;}
+ if(s.type==='syringe'){return `<div class="measure-syringe"><div class="syringe-barrel"><div class="syringe-scale">${Array.from({length:7},(_,i)=>`<span style="left:${i/6*100}%"><i></i><b>${Math.round(s.min+(s.max-s.min)*i/6)}</b></span>`).join('')}</div><div class="syringe-plunger" style="left:${frac*100}%"></div></div></div>`;}
+ return `<div class="measure-ruler"><svg viewBox="0 0 600 120"><line x1="40" y1="70" x2="560" y2="70" stroke="currentColor" stroke-width="4"/>${Array.from({length:21},(_,i)=>{const px=40+i*26;return `<line x1="${px}" y1="70" x2="${px}" y2="${i%5===0?36:52}" stroke="currentColor" stroke-width="2"/>`}).join('')}<line x1="${x}" y1="18" x2="${x}" y2="90" stroke="currentColor" stroke-width="5"/><path d="M${x-9} 18h18l-9 12z" fill="currentColor"/></svg><small>${T.esc(s.name)} · scale spans ${s.min}–${s.max} ${T.esc(s.unit)}</small></div>`;
+}
+function render(root,opts={}){
+ let id=+(opts.practicalId||state.last||1),s=specs[id],target=makeTarget(s),attempts=0;
+ function draw(){const p=T.practical(id);s=specs[id];root.innerHTML=`<div class="tool-panel"><div class="tool-row"><label><b>Practical</b> <select id="lmP">${practicals.map(x=>`<option value="${x.id}" ${x.id===id?'selected':''}>${x.id}. ${T.esc(x.title)}</option>`).join('')}</select></label><span class="tool-pill">Instrument-reading practice</span></div></div><div class="tool-two"><div class="tool-panel"><span class="eyebrow">READ THE INSTRUMENT</span><h3>${T.esc(s.name)}</h3>${instrument(s,target)}<p class="tool-callout">${T.esc(s.tip)}</p>${id===12?'<div class="tool-feedback warn"><b>Simulation only</b><p>This virtual scaler is for data-reading practice only; the app does not provide radioactive-source handling instructions.</p></div>':''}</div><div class="tool-panel"><h3>Record the reading</h3><label>Reading <input id="lmAnswer" type="number" step="any" inputmode="decimal"> <b>${T.esc(s.unit)}</b></label><div class="tool-actions"><button class="primary-btn" id="lmCheck">Check reading</button><button class="secondary-btn" id="lmNew">New reading</button></div><div id="lmOut"></div><hr><h3>Lab-book habit</h3><p>Copy the value with a unit into the raw-data table. Keep the raw reading separate from later processed quantities.</p></div></div>`;
+ root.querySelector('#lmP').onchange=e=>{id=+e.target.value;s=specs[id];target=makeTarget(s);attempts=0;draw();};
+ root.querySelector('#lmNew').onclick=()=>{target=makeTarget(s);attempts=0;draw();};
+ root.querySelector('#lmCheck').onclick=()=>{attempts++;const a=+root.querySelector('#lmAnswer').value,ok=Number.isFinite(a)&&Math.abs(a-target)<=s.tol;root.querySelector('#lmOut').innerHTML=`<div class="tool-feedback ${ok?'':'warn'}"><b>${ok?'Reading accepted':'Check the scale again'}</b><p>${ok?`You recorded ${fmt(target,s)} ${T.esc(s.unit)} correctly.`:`Look at the scale/display resolution and include the unit. The target reading is not revealed until a correct reading is entered.`}</p></div>`;if(ok){T.mark(16,true);}};
+ }
+ draw();
+}
+T.register(16,{title:'Live Measurement mode',kicker:'READ THE APPARATUS',description:'Read practical-specific simulated instruments instead of receiving measurements automatically.',icon:'🎛️',render,decorate({addPracticalButton,open}){addPracticalButton('live-measure','Live measurement',()=>open(16,{practicalId:current?.id||state.last}));}});
+})();
