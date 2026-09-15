@@ -14,11 +14,13 @@ async function start(){
   addLabView();
   loadStyle('lab-book.css','labBookStyle');
   loadStyle('lab-book-v2.css','labBookV2Style');
+  loadStyle('lab-book-examples.css','labBookExamplesStyle');
   await loadScript('aqa-setup-alignment.js','aqaSetupAlignment');
   await loadScript('aqa-setup-visual-fixes.js','aqaSetupVisualFixes');
   try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
   await loadScript('lab-book.js','labBookScript');
   await loadScript('lab-book-v2.js','labBookV2Script');
+  await loadScript('lab-book-examples.js','labBookExamplesScript');
   await loadScript('animation-runtime-v2.js','animationRuntimeV2');
   try{if(document.querySelector('#view-labbook.active')&&window.renderLabBook)window.renderLabBook();}catch(e){console.error(e);}
   window.__enhancementStackReady=true;
