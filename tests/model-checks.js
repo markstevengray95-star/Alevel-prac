@@ -50,11 +50,15 @@ const close=(a,b,tol=1e-9,msg='')=>assert.ok(Math.abs(a-b)<=tol,`${msg} expected
   const m=.4,k=8,Ts=2*Math.PI*Math.sqrt(m/k);
   close(Ts*Ts/m,4*Math.PI*Math.PI/k,1e-12,'P7 spring T^2/m');
 }
-// P8 gas laws.
+// P8 AQA gas laws. In the hanging-mass syringe arrangement, the load lowers trapped-gas pressure below atmospheric pressure.
 {
-  const patm=101,V0=4,load=400,area=.00032;
-  const p=patm+(load/1000*9.81/area)/1000,V=patm*V0/p;
-  close(p*V,patm*V0,1e-9,'P8 Boyle pV');
+  const patm=101,d=.020,A=Math.PI*d*d/4,refMass=.2,Vref=4;
+  const pressure=m=>patm-(m*9.81/A)/1000;
+  const pref=pressure(refMass),p400=pressure(.4),p1000=pressure(1.0);
+  const V400=Vref*pref/p400,V1000=Vref*pref/p1000;
+  close(p400*V400,pref*Vref,1e-9,'P8 Boyle pV');
+  assert.ok(p1000<p400,'P8 AQA hanging mass should reduce trapped-gas pressure');
+  assert.ok(V1000>V400,'P8 lower pressure should give larger gas volume');
   const L0=4,T0=293.15,T=333.15,L=L0*T/T0;
   close(L/T,L0/T0,1e-12,'P8 Charles L/T');
 }
@@ -87,4 +91,4 @@ const close=(a,b,tol=1e-9,msg='')=>assert.ok(Math.abs(a-b)<=tol,`${msg} expected
   const frac=t=>Math.sqrt(rate*t/60)/(rate*t/60);
   assert.ok(frac(120)<frac(30),'P12 longer count time should reduce fractional uncertainty');
 }
-console.log('All 12 practical physics model checks passed.');
+console.log('All 12 practical physics model checks passed, including the AQA hanging-mass Boyle setup.');
