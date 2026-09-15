@@ -23,6 +23,7 @@ jobs:
           find . -maxdepth 1 -name '*.js' -print0 | xargs -0 -n1 node --check
           node --check tests/model-checks.js
           node --check tests/browser-smoke.js
+          node --check tests/labbook-toggle-smoke.js
       - name: Check HTML local asset references
         run: |
           python - <<'PY'
@@ -48,3 +49,4 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           sleep 1
           node tests/browser-smoke.js
+          node tests/labbook-toggle-smoke.js
