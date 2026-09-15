@@ -2,6 +2,7 @@
 'use strict';
 let mode='mine';
 let decorating=false;
+let redecorateTimer=0;
 
 function ensureStyle(){
   if(document.querySelector('#labBookInlineSwitchStyle'))return;
@@ -64,34 +65,52 @@ function switchMode(next){
   mode='example';updateSwitch();renderExample(selectedId());
 }
 function decorate(){
-  if(decorating)return;const r=root();if(!r||r.querySelector('#lbModeSwitch'))return;
-  decorating=true;ensureStyle();cleanLegacy();
-  const mine=document.createElement('div');mine.id='lbMinePane';
-  while(r.firstChild)mine.appendChild(r.firstChild);
-  mine.querySelector('#exampleLibraryPanel')?.remove();mine.querySelector('.ex-launch')?.remove();
-  const sw=document.createElement('div');sw.id='lbModeSwitch';sw.className='lb-mode-switch';sw.innerHTML=`<div class="lb-mode-switch-copy"><b>Choose what to view</b><small>Switch between the student's editable record and a fully completed worked example for the same practical.</small></div><div class="lb-mode-buttons" role="group" aria-label="Lab book view"><button id="lbModeMine" type="button">My lab book</button><button id="lbModeExample" type="button">Completed example</button></div>`;
-  const example=document.createElement('div');example.id='lbCompletedExamplePane';example.hidden=true;
-  r.append(sw,mine,example);
-  sw.querySelector('#lbModeMine').onclick=()=>switchMode('mine');
-  sw.querySelector('#lbModeExample').onclick=()=>switchMode('example');
-  updateSwitch();
-  if(mode==='example')renderExample(selectedId());
-  decorating=false;
+  if(decorating)return;
+  const r=root();if(!r||r.querySelector('#lbModeSwitch'))return;
+  decorating=true;
+  try{
+    ensureStyle();cleanLegacy();
+    const chosen=selectedId();
+    const mine=document.createElement('div');mine.id='lbMinePane';
+    while(r.firstChild)mine.appendChild(r.firstChild);
+    mine.querySelector('#exampleLibraryPanel')?.remove();mine.querySelector('.ex-launch')?.remove();
+    const sw=document.createElement('div');sw.id='lbModeSwitch';sw.className='lb-mode-switch';sw.innerHTML=`<div class="lb-mode-switch-copy"><b>Choose what to view</b><small>Switch between the student's editable record and a fully completed worked example for the same practical.</small></div><div class="lb-mode-buttons" role="group" aria-label="Lab book view"><button id="lbModeMine" type="button">My lab book</button><button id="lbModeExample" type="button">Completed example</button></div>`;
+    const example=document.createElement('div');example.id='lbCompletedExamplePane';example.hidden=true;
+    r.append(sw,mine,example);
+    sw.querySelector('#lbModeMine').onclick=()=>switchMode('mine');
+    sw.querySelector('#lbModeExample').onclick=()=>switchMode('example');
+    updateSwitch();
+    if(mode==='example')renderExample(chosen);
+  } finally {decorating=false;}
+}
+function scheduleDecorate(delay=0){
+  clearTimeout(redecorateTimer);
+  redecorateTimer=setTimeout(()=>{if(!root()?.querySelector('#lbModeSwitch'))decorate();},delay);
 }
 
 const modalObserver=new MutationObserver(()=>{if(mode==='example')adoptModal();});
 modalObserver.observe(document.body,{childList:true});
 
+const labRoot=root();
+if(labRoot){
+  const rootObserver=new MutationObserver(()=>{if(!decorating)scheduleDecorate(0);});
+  rootObserver.observe(labRoot,{childList:true});
+}
+
 const prior=window.renderLabBook;
 if(typeof prior==='function'){
-  window.renderLabBook=function(){const out=prior.apply(this,arguments);setTimeout(decorate,0);return out;};
+  window.renderLabBook=function(){const out=prior.apply(this,arguments);scheduleDecorate(0);return out;};
+}
+const priorNavigate=window.navigate;
+if(typeof priorNavigate==='function'){
+  window.navigate=function(view,id){const out=priorNavigate.apply(this,arguments);if(view==='labbook')scheduleDecorate(0);return out;};
 }
 document.addEventListener('change',e=>{
   if(e.target?.id==='exSelect'&&mode==='example')setTimeout(adoptModal,0);
 });
 document.addEventListener('click',e=>{
-  if(e.target.closest?.('[data-view="labbook"]'))setTimeout(decorate,30);
+  if(e.target.closest?.('[data-view="labbook"]'))scheduleDecorate(20);
 });
-setTimeout(decorate,0);setTimeout(decorate,250);
-window.__labBookInlineSwitch={mode:()=>mode,switchTo:switchMode};
+scheduleDecorate(0);setTimeout(()=>scheduleDecorate(0),250);
+window.__labBookInlineSwitch={mode:()=>mode,switchTo:switchMode,refresh:()=>scheduleDecorate(0)};
 })();
