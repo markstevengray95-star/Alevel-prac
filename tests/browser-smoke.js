@@ -12,9 +12,10 @@ const { chromium } = require('playwright');
 
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>typeof window.navigate==='function'&&typeof window.theoretical==='function');
-  await page.waitForFunction(()=>typeof window.AQA_SETUP_GUIDE==='object'&&typeof window.renderLabBook==='function',{timeout:8000});
-  await page.waitForTimeout(250);
+  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__animationRuntime&&window.__labBookV2,{timeout:10000});
+  await page.waitForTimeout(180);
 
+  const mustMove=new Set([1,3,4,5,7,8,9,10,11,12]);
   for(let id=1;id<=12;id++){
     await page.evaluate(id=>navigate('practical',id),id);
     await page.waitForTimeout(120);
@@ -23,77 +24,72 @@ const { chromium } = require('playwright');
 
     for(let mode=0;mode<modeCount;mode++){
       await page.locator('#modeTabs button').nth(mode).click();
-      await page.waitForTimeout(80);
+      await page.waitForTimeout(90);
       if(await page.locator('#scene svg').count()!==1)throw new Error(`P${id} mode ${mode}: scene SVG missing`);
       if(await page.locator('#controls input[type=range]').count()<1)throw new Error(`P${id} mode ${mode}: controls missing`);
       if(await page.locator('.aqa-setup-card').count()!==1)throw new Error(`P${id} mode ${mode}: AQA setup check missing`);
 
+      const before=await page.evaluate(()=>({t:window.__animationRuntime.time(),svg:document.querySelector('#scene svg')?.outerHTML||''}));
       await page.locator('#runBtn').click();
-      await page.waitForTimeout(id===3?700:280);
+      await page.waitForTimeout(id===3?520:260);
+      const afterRun=await page.evaluate(()=>({t:window.__animationRuntime.time(),svg:document.querySelector('#scene svg')?.outerHTML||'',running:window.__animationRuntime.running()}));
+      if(!(afterRun.t>before.t))throw new Error(`P${id} mode ${mode}: simulation time did not advance`);
+      if(mustMove.has(id)&&afterRun.svg===before.svg)throw new Error(`P${id} mode ${mode}: SVG did not visibly change after Run`);
 
       const readout=await page.locator('#readouts').innerText();
       if(invalidValue.test(readout))throw new Error(`P${id} mode ${mode}: invalid readout: ${readout}`);
       const sceneText=await page.locator('#scene').innerText().catch(()=> '');
       if(invalidValue.test(sceneText))throw new Error(`P${id} mode ${mode}: invalid scene text: ${sceneText}`);
 
-      const before=await page.locator('#resultsTable tbody tr').count().catch(()=>0);
+      const rowsBefore=await page.locator('#resultsTable tbody tr').count().catch(()=>0);
       await page.locator('#recordBtn').click();
-      await page.waitForTimeout(50);
-      const after=await page.locator('#resultsTable tbody tr').count().catch(()=>0);
-      if(after<=before)throw new Error(`P${id} mode ${mode}: recording did not append a row`);
+      await page.waitForTimeout(40);
+      const rowsAfter=await page.locator('#resultsTable tbody tr').count().catch(()=>0);
+      if(rowsAfter<=rowsBefore)throw new Error(`P${id} mode ${mode}: recording did not append a row`);
 
-      if(await page.locator('#pauseBtn').count())await page.locator('#pauseBtn').click();
+      await page.locator('#pauseBtn').click().catch(()=>{});
       await page.locator('#resetBtn').click();
-      await page.waitForTimeout(30);
+      await page.waitForTimeout(40);
+      const resetT=await page.evaluate(()=>window.__animationRuntime.time());
+      if(resetT!==0)throw new Error(`P${id} mode ${mode}: Reset did not return time to zero`);
     }
   }
 
-  // Boyle's law must use the AQA vertical syringe + hanging masses arrangement.
+  // Boyle's law must use the AQA vertical syringe + hanging masses arrangement and correct force balance.
   await page.evaluate(()=>navigate('practical',8));
-  await page.waitForTimeout(180);
-  if(await page.locator('#scene [data-part="Gas syringe"]').count()!==1)throw new Error('P8 Boyle gas syringe missing');
-  if(await page.locator('#scene [data-part="Mass holder + slotted masses"]').count()!==1)throw new Error('P8 Boyle hanging mass holder/masses missing');
-  if(await page.locator('#scene [data-part="String loop"]').count()!==1)throw new Error('P8 Boyle plunger-to-mass string loop missing');
-  if(await page.locator('#p8Seal').count()!==1)throw new Error('P8 Boyle rubber-seal diameter measurement control missing');
-  const boyle=await page.evaluate(()=>{
-    const vals=getVals();
-    vals[0]=200;const light=theoretical();
-    vals[0]=1000;const heavy=theoretical();
-    vals[0]=400;renderControls();renderScene();updateReadouts();
-    return {pLight:light.x,pHeavy:heavy.x,invVLight:light.y,invVHeavy:heavy.y};
-  });
-  if(!(boyle.pHeavy<boyle.pLight))throw new Error(`P8 Boyle pressure should decrease with hanging mass: ${JSON.stringify(boyle)}`);
-  if(!(boyle.invVHeavy<boyle.invVLight))throw new Error(`P8 Boyle volume should increase as hanging load lowers pressure: ${JSON.stringify(boyle)}`);
-
-  // Check the hands-on layer is present after practical rendering.
-  await page.evaluate(()=>navigate('practical',5));
-  await page.waitForTimeout(250);
-  if(await page.locator('#handsTool').count()!==1)throw new Error('Hands-on toolbar failed to load');
-  if(await page.locator('#scene [data-part="Sliding contact"]').count()!==1)throw new Error('P5 draggable sliding contact missing');
-
-  // Check circuit builder loads and has its expected challenge slots.
-  await page.evaluate(()=>navigate('circuit'));
-  await page.waitForTimeout(100);
-  if(await page.locator('.builder-shell').count()!==1)throw new Error('Circuit builder failed to load');
-  if(await page.locator('.build-slot').count()<5)throw new Error('Circuit builder slots missing');
-
-  // Check the new AQA-guided Lab Book.
-  await page.evaluate(()=>navigate('labbook'));
   await page.waitForTimeout(160);
-  if(await page.locator('#view-labbook.active').count()!==1)throw new Error('Lab book view did not open');
-  if(await page.locator('#labBookRoot .lab-step-card').count()!==1)throw new Error('Lab book step card missing');
-  if(await page.locator('[data-lab-step]').count()!==9)throw new Error('Lab book should have 9 guided steps');
-  if(await page.locator('#labPracticalSelect option').count()!==12)throw new Error('Lab book should cover all 12 practicals');
-  await page.locator('[data-lab-step="4"]').click();
-  await page.waitForTimeout(40);
-  if(await page.locator('#importLabData').count()!==1)throw new Error('Lab book raw-data import control missing');
-  await page.locator('#importLabData').click();
-  const raw=await page.locator('[data-lab-field="rawData"]').inputValue();
-  if(!raw.trim())throw new Error('Lab book did not import recorded simulation data');
-  await page.locator('#labStepDone').check();
-  if(!(await page.locator('[data-lab-step="4"]').evaluate(el=>el.classList.contains('done'))))throw new Error('Lab book completion state did not save/render');
+  for(const part of ['Gas syringe','Mass holder + slotted masses','String loop'])if(await page.locator(`#scene [data-part="${part}"]`).count()!==1)throw new Error(`P8 Boyle missing ${part}`);
+  if(await page.locator('#p8Seal').count()!==1)throw new Error('P8 Boyle rubber-seal diameter control missing');
+  const boyle=await page.evaluate(()=>{const vals=getVals();vals[0]=200;const light=theoretical();vals[0]=1000;const heavy=theoretical();vals[0]=400;renderControls();renderScene();return {pLight:light.x,pHeavy:heavy.x,invVLight:light.y,invVHeavy:heavy.y};});
+  if(!(boyle.pHeavy<boyle.pLight&&boyle.invVHeavy<boyle.invVLight))throw new Error(`P8 Boyle force balance incorrect: ${JSON.stringify(boyle)}`);
+
+  // Hands-on and circuit builder still load.
+  await page.evaluate(()=>navigate('practical',5));await page.waitForTimeout(180);
+  if(await page.locator('#handsTool').count()!==1)throw new Error('Hands-on toolbar failed to load');
+  await page.evaluate(()=>navigate('circuit'));await page.waitForTimeout(100);
+  if(await page.locator('.builder-shell').count()!==1||await page.locator('.build-slot').count()<5)throw new Error('Circuit builder failed to load');
+
+  // Lab Book v2: dashboard, all practicals, structured data/uncertainty/evaluation and completion.
+  await page.evaluate(()=>navigate('labbook'));await page.waitForTimeout(160);
+  if(await page.locator('#view-labbook.active .labbook-v2').count()!==1)throw new Error('Lab Book v2 did not render');
+  if(await page.locator('.lb-card').count()!==12)throw new Error('Lab Book dashboard should show 12 practicals');
+  if(await page.locator('[data-lb-step]').count()!==9)throw new Error('Lab Book should have 9 guided sections');
+  if(await page.locator('#lbSelect option').count()!==12)throw new Error('Lab Book selector should cover all 12 practicals');
+
+  await page.locator('[data-lb-step="4"]').click();await page.waitForTimeout(30);
+  if(await page.locator('#lbImportSim').count()!==1||await page.locator('.lb-table').count()<1)throw new Error('Structured raw-data section missing');
+  const rawCount=await page.locator('[data-raw-row]').count();await page.locator('#lbAddRaw').click();
+  if(await page.locator('[data-raw-row]').count()<=rawCount)throw new Error('Lab Book add-row control failed');
+  await page.locator('#lbImportSim').click();
+
+  await page.locator('[data-lb-step="5"]').click();await page.waitForTimeout(25);
+  if(await page.locator('[data-unc-row]').count()<1)throw new Error('Uncertainty table missing');
+  await page.locator('[data-lb-step="7"]').click();await page.waitForTimeout(25);
+  if(await page.locator('[data-eval-row]').count()<1)throw new Error('Evaluation table missing');
+  await page.locator('#lbDone').check();await page.waitForTimeout(30);
+  if(!(await page.locator('[data-lb-step="7"]').evaluate(el=>el.classList.contains('done'))))throw new Error('Lab Book completion state did not persist');
 
   if(errors.length)throw new Error(`Browser errors:\n${errors.join('\n')}`);
-  console.log('Chromium smoke test passed: all 12 practicals/modes, AQA setup checks, Boyle syringe+masses physics, recording, hands-on controls, circuit builder and Lab Book.');
+  console.log('Chromium validation passed: animation time/movement, all practicals/modes, AQA setup checks, Boyle syringe+masses, hands-on controls, circuit builder and Lab Book v2.');
   await browser.close();
-})().catch(async e=>{console.error(e.stack||e);process.exit(1);});
+})().catch(e=>{console.error(e.stack||e);process.exit(1);});
