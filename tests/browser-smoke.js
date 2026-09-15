@@ -5,6 +5,7 @@ const { chromium } = require('playwright');
   const browser=await chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   const errors=[];
+  const invalidValue=/\b(?:NaN|undefined|Infinity|null)\b/i;
   page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));
   page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/i.test(m.text()))errors.push(`console: ${m.text()}`);});
   page.on('dialog',async d=>{errors.push(`unexpected dialog: ${d.message()}`);await d.dismiss();});
@@ -29,9 +30,9 @@ const { chromium } = require('playwright');
       await page.waitForTimeout(id===3?700:280);
 
       const readout=await page.locator('#readouts').innerText();
-      if(/NaN|undefined|Infinity|null/i.test(readout))throw new Error(`P${id} mode ${mode}: invalid readout: ${readout}`);
+      if(invalidValue.test(readout))throw new Error(`P${id} mode ${mode}: invalid readout: ${readout}`);
       const sceneText=await page.locator('#scene').innerText().catch(()=> '');
-      if(/NaN|undefined|Infinity/i.test(sceneText))throw new Error(`P${id} mode ${mode}: invalid scene text: ${sceneText}`);
+      if(invalidValue.test(sceneText))throw new Error(`P${id} mode ${mode}: invalid scene text: ${sceneText}`);
 
       // Default P1 drive starts at resonance; recording should therefore be valid.
       const before=await page.locator('#resultsTable tbody tr').count().catch(()=>0);
