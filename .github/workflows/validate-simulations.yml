@@ -1,0 +1,37 @@
+name: Validate practical simulations
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          find . -maxdepth 1 -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Check HTML local asset references
+        run: |
+          python - <<'PY'
+          import os, re
+          html=open('index.html',encoding='utf-8').read()
+          refs=re.findall(r'(?:src|href)="([^"]+)"',html)
+          local=[r for r in refs if not r.startswith(('http://','https://','#','data:'))]
+          missing=[r for r in local if not os.path.exists(r)]
+          if missing:
+              raise SystemExit('Missing local assets: '+', '.join(missing))
+          print('All local index.html assets exist:', ', '.join(local))
+          PY
+      - name: Check physics models
+        run: node tests/model-checks.js
