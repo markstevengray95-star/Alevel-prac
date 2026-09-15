@@ -1,0 +1,23 @@
+(()=>{
+'use strict';const T=window.PracticalTools;if(!T)return;
+const G={
+1:{good:'Plot resonant frequency f against 1/L when length is the varied quantity.',why:'For fixed T and μ, f=(1/2L)√(T/μ), so f is proportional to 1/L.'},
+2:{good:'Young slits: process fringe spacing with the measured geometry; grating: use d sinθ = nλ with the defined angle.',why:'The useful graph/processing depends on which interference mode is selected, so the axes must come from the rearranged interference equation.'},
+3:{good:'Plot h on the y-axis against t² on the x-axis.',why:'From h=½gt², the graph should be linear with gradient g/2.'},
+4:{good:'Plot stress on the y-axis against strain on the x-axis in the elastic region.',why:'Young modulus E=stress/strain, so the gradient is E.'},
+5:{good:'Plot resistance R on the y-axis against wire length L on the x-axis.',why:'R=ρL/A, so the gradient is ρ/A for constant cross-sectional area.'},
+6:{good:'Plot terminal p.d. V on the y-axis against current I on the x-axis.',why:'V=ε−Ir, so intercept=ε and gradient=−r.'},
+7:{good:'Plot T² against L for the pendulum, or T² against m for the spring.',why:'Squaring the period gives a linear relationship for both SHM investigations.'},
+8:{good:'Boyle: plot 1/V against P. Charles: plot gas volume/air-column length against absolute temperature T/K.',why:'These transformations test the gas-law proportionalities directly.'},
+9:{good:'For discharge, plot ln(V) on the y-axis against time t on the x-axis.',why:'ln(V)=ln(V₀)−t/RC, so the gradient is −1/RC.'},
+10:{good:'Plot force F against whichever of I, L or B is changed, while holding the other two constant.',why:'F=BIL is linear in each variable separately.'},
+11:{good:'Plot induced emf amplitude against the appropriate angular factor for the stated angle convention.',why:'The graph must match how the angle is defined relative to the field/coil orientation.'},
+12:{good:'Plot background-corrected count rate against 1/r².',why:'An inverse-square relationship becomes linear when the independent variable is transformed to 1/r².'}
+};
+function render(root,opts={}){let id=+(opts.practicalId||state.last||1),answered=false;
+ function draw(){const g=G[id],p=T.practical(id),bad1='Plot the two raw columns on arbitrary axes and force a straight line through them.',bad2='Try several transformations and keep whichever gives the largest R², without using the physics equation.',arr=[g.good,bad1,bad2].sort(()=>Math.random()-.5);root.innerHTML=`<div class="tool-panel"><div class="tool-row"><label><b>Practical</b> <select id="gcP">${practicals.map(x=>`<option value="${x.id}" ${x.id===id?'selected':''}>${x.id}. ${T.esc(x.title)}</option>`).join('')}</select></label><span class="tool-pill">Graph reasoning</span></div></div><div class="tool-two"><div class="tool-panel"><span class="eyebrow">CHOOSE THE GRAPH</span><h3>${T.esc(p.title)}</h3><p>Which graph or processing choice is justified by the physics?</p>${arr.map((x,i)=>`<label class="tool-choice"><input type="radio" name="gc" value="${i}"> ${T.esc(x)}</label>`).join('')}<div class="tool-actions"><button class="primary-btn" id="gcCheck">Check graph</button></div><div id="gcOut"></div></div><div class="tool-panel"><h3>Explain it from the equation</h3><textarea id="gcExplain" rows="7" placeholder="Rearrange the governing equation. State the x- and y-axes, expected gradient/intercept and what physical quantity they give."></textarea><div class="tool-callout">Do not choose a graph only because it looks straight. The equation should predict the transformation before the data are plotted.</div></div></div>`;
+ root.querySelector('#gcP').onchange=e=>{id=+e.target.value;answered=false;draw();};root.querySelector('#gcCheck').onclick=()=>{const q=root.querySelector('input[name=gc]:checked');if(!q)return;const choice=arr[+q.value],ok=choice===g.good;root.querySelector('#gcOut').innerHTML=`<div class="tool-feedback ${ok?'':'warn'}"><b>${ok?'Correct graph choice':'Return to the physics relationship'}</b><p>${ok?T.esc(g.why):'A high R² or a visually straight graph is not enough. Rearrange the equation first, then choose axes that test that model.'}</p></div>`;if(ok){answered=true;T.mark(20,true);}};
+ }
+ draw();}
+T.register(20,{title:'Graph Choice Challenge',kicker:'LINEARISE FROM THE PHYSICS',description:'Choose the correct graph/transformation and justify it from the governing equation.',icon:'📐',render,decorate({open}){const h=document.querySelector('#view-practical .graph-head');if(h&&!h.querySelector('[data-suite-graph-choice]')){const b=document.createElement('button');b.className='secondary-btn';b.dataset.suiteGraphChoice='1';b.textContent='Choose graph';b.onclick=()=>open(20,{practicalId:current?.id||state.last});h.appendChild(b);}}});
+})();
