@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260915-fullsuite3';
+const REV='20260915-practicalplus1';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
@@ -18,6 +18,7 @@ async function start(){
   loadStyle(versioned('lab-book-v2.css'),'labBookV2Style');
   loadStyle(versioned('lab-book-examples.css'),'labBookExamplesStyle');
   loadStyle(versioned('learning-tools.css'),'learningToolsStyle');
+  loadStyle(versioned('ui-polish-v3.css'),'uiPolishV3');
   await loadScript(versioned('aqa-setup-alignment.js'),'aqaSetupAlignment');
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
   try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
