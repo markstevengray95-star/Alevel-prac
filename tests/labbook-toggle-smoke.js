@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__labBookInlineSwitch&&window.__labBookExampleDetailV2&&typeof window.navigate==='function',{timeout:12000});
+  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__labBookInlineSwitch&&window.__labBookExampleDetailV2&&window.__labBookExampleDetailV3&&typeof window.navigate==='function',{timeout:12000});
   await page.evaluate(()=>navigate('labbook'));
   await page.waitForTimeout(200);
 
@@ -16,6 +16,7 @@ const { chromium } = require('playwright');
   if(!(await page.locator('#lbModeMine').evaluate(el=>el.classList.contains('active'))))throw new Error('My lab book should be the default view');
   if(await page.locator('#lbMinePane').isHidden())throw new Error('My lab book pane should be visible by default');
   if(await page.evaluate(()=>window.__labBookExampleDetailV2.count)!==12)throw new Error('Detailed example data should cover all 12 practicals');
+  if(await page.evaluate(()=>window.__labBookExampleDetailV3.count)!==12)throw new Error('Sketch/reporting detail should cover all 12 practicals');
 
   await page.locator('#lbModeExample').click();
   await page.waitForTimeout(220);
@@ -25,18 +26,21 @@ const { chromium } = require('playwright');
   if(await page.locator('#lbCompletedExamplePane .ex-table').count()<2)throw new Error('Completed example is missing worked result/uncertainty tables');
   if(!(await page.locator('#lbCompletedExamplePane').innerText()).includes('EXAMPLE RESULT'))throw new Error('Completed example result is missing');
 
-  const requiredDetail=['Detailed apparatus record','Example contemporaneous notes','Worked example calculations','Uncertainty analysis in more detail','What should be written beside the graph','Practical-skills evidence shown by this record','Exam-style link'];
+  const requiredDetail=['Detailed apparatus record','Example contemporaneous notes','Worked example calculations','Uncertainty analysis in more detail','What should be written beside the graph','Practical-skills evidence shown by this record','Exam-style link','What to label on the apparatus sketch','Example final-result wording','Common lab-book mistakes to avoid'];
   const exSelect=page.locator('#lbCompletedExamplePane #exSelect');
   if(await exSelect.count()!==1)throw new Error('Example practical selector missing');
 
   for(let id=1;id<=12;id++){
     await exSelect.selectOption(String(id));
-    await page.waitForTimeout(150);
+    await page.waitForTimeout(160);
     const pane=page.locator('#lbCompletedExamplePane');
     if(await pane.locator('.ex-detail-v2').count()!==1)throw new Error(`P${id}: detailed example enrichment missing`);
+    if(await pane.locator('.ex-detail-v3').count()!==1)throw new Error(`P${id}: sketch/reporting enrichment missing`);
     if(await pane.locator('.ex-detail-table').count()<1)throw new Error(`P${id}: detailed apparatus table missing`);
     if(await pane.locator('.ex-working li').count()<2)throw new Error(`P${id}: worked calculations are too sparse`);
     if(await pane.locator('.ex-cpac span').count()<3)throw new Error(`P${id}: practical-skills evidence is too sparse`);
+    if(await pane.locator('.ex-sketch-list span').count()<4)throw new Error(`P${id}: apparatus sketch labels are too sparse`);
+    if(await pane.locator('.ex-mistakes div').count()<3)throw new Error(`P${id}: common-mistake guidance is too sparse`);
     const txt=await pane.innerText();
     for(const heading of requiredDetail)if(!txt.includes(heading))throw new Error(`P${id}: missing detailed heading ${heading}`);
   }
@@ -47,6 +51,6 @@ const { chromium } = require('playwright');
   if(await page.locator('#lbMinePane').isHidden())throw new Error('My lab book pane did not return');
 
   if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));
-  console.log('Lab Book inline switch passed with enriched worked records for all 12 practicals.');
+  console.log('Lab Book inline switch passed with enriched worked records, sketch labels, reporting and common mistakes for all 12 practicals.');
   await browser.close();
 })().catch(e=>{console.error(e.stack||e);process.exit(1);});
