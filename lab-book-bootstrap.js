@@ -15,6 +15,7 @@ async function start(){
   loadStyle('lab-book.css','labBookStyle');
   loadStyle('lab-book-v2.css','labBookV2Style');
   loadStyle('lab-book-examples.css','labBookExamplesStyle');
+  loadStyle('learning-tools.css','learningToolsStyle');
   await loadScript('aqa-setup-alignment.js','aqaSetupAlignment');
   await loadScript('aqa-setup-visual-fixes.js','aqaSetupVisualFixes');
   try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
@@ -24,6 +25,7 @@ async function start(){
   await loadScript('lab-book-example-detail-v2b.js','labBookExampleDetailV2');
   await loadScript('lab-book-example-detail-v3.js','labBookExampleDetailV3');
   await loadScript('lab-book-inline-switch.js','labBookInlineSwitch');
+  await loadScript('learning-tools-core.js','learningToolsCore');
   await loadScript('animation-runtime-v2.js','animationRuntimeV2');
   try{if(document.querySelector('#view-labbook.active')&&window.renderLabBook)window.renderLabBook();}catch(e){console.error(e);}
   window.__enhancementStackReady=true;
