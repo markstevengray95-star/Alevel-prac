@@ -21,7 +21,7 @@ async function start(){
   await loadScript('lab-book.js','labBookScript');
   await loadScript('lab-book-v2.js','labBookV2Script');
   await loadScript('lab-book-examples.js','labBookExamplesScript');
-  await loadScript('lab-book-example-detail-v2.js','labBookExampleDetailV2');
+  await loadScript('lab-book-example-detail-v2b.js','labBookExampleDetailV2');
   await loadScript('lab-book-example-detail-v3.js','labBookExampleDetailV3');
   await loadScript('lab-book-inline-switch.js','labBookInlineSwitch');
   await loadScript('animation-runtime-v2.js','animationRuntimeV2');
