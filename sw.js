@@ -1,4 +1,4 @@
-const CACHE='practical-lab-v20260915-2';
+const CACHE='practical-lab-v20260915-3';
 const ASSETS=[
 './','./index.html','./styles.css','./visual-upgrades.css','./learning-tools.css','./app-icon.svg','./manifest.webmanifest',
 './data-base.js','./data-extra.js','./core-a.js','./core-b.js','./scene-helpers.js','./scene-p1-4.js','./scene-p5-8.js','./scene-p9-12.js','./scene-dispatch.js','./scenes-b.js','./visual-upgrades.js','./animation-runtime-v2.js',
