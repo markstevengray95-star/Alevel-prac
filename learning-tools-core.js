@@ -17,7 +17,23 @@ function renderHome(){
  root.innerHTML=`<div class="tools-hero"><div><span class="eyebrow">PRACTICAL LEARNING SUITE</span><h1>Learning tools</h1><p>Coach, analyse, troubleshoot, practise exam skills and build a stronger practical record across all 12 AQA required practicals.</p></div><div class="tools-progress"><b>${pct()}%</b><small>feature activities completed</small><div class="tool-meter"><i style="width:${pct()}%"></i></div></div></div><div class="tools-grid">${items.map(([id,m])=>`<button class="tool-card" data-tool="${id}" type="button"><span class="tool-icon">${m.icon||'◆'}</span><small>TOOL ${String(id).padStart(2,'0')}</small><h3>${esc(m.title)}</h3><p>${esc(m.description||'')}</p><span class="tool-state">${suite.completed[id]?'Completed ✓':'Open tool →'}</span></button>`).join('')}</div>`;
  root.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>open(+b.dataset.tool));
 }
-function open(id,opts={}){const m=registry.get(+id);const root=document.querySelector('#learningToolsRoot');if(!m||!root)return;if(!document.querySelector('#view-tools.active'))navigate('tools');root.innerHTML=`<div class="tool-workspace"><div class="tool-workspace-head"><button class="secondary-btn" id="toolBack">← Learning tools</button><div><span class="eyebrow">${esc(m.kicker||'PRACTICAL SKILLS')}</span><h2>${esc(m.title)}</h2></div></div><div id="toolBody"></div></div>`;root.querySelector('#toolBack').onclick=renderHome;try{m.render(root.querySelector('#toolBody'),opts);}catch(e){console.error(e);root.querySelector('#toolBody').innerHTML='<div class="tool-panel"><b>This tool could not load.</b><p>Please refresh and try again.</p></div>';}}
+function renderTool(id,opts={}){
+ const m=registry.get(+id),root=document.querySelector('#learningToolsRoot');if(!m||!root)return;
+ root.innerHTML=`<div class="tool-workspace"><div class="tool-workspace-head"><button class="secondary-btn" id="toolBack">← Learning tools</button><div><span class="eyebrow">${esc(m.kicker||'PRACTICAL SKILLS')}</span><h2>${esc(m.title)}</h2></div></div><div id="toolBody"></div></div>`;
+ root.querySelector('#toolBack').onclick=renderHome;
+ try{m.render(root.querySelector('#toolBody'),opts);}catch(e){console.error(e);root.querySelector('#toolBody').innerHTML='<div class="tool-panel"><b>This tool could not load.</b><p>Please refresh and try again.</p></div>';}
+}
+function open(id,opts={}){
+ if(!registry.has(+id)||!document.querySelector('#learningToolsRoot'))return;
+ if(!document.querySelector('#view-tools.active')){
+   navigate('tools');
+   // navigate('tools') schedules the home grid. Render the requested tool after that
+   // navigation work so it cannot be overwritten by the grid on the next tick.
+   setTimeout(()=>renderTool(id,opts),0);
+   return;
+ }
+ renderTool(id,opts);
+}
 function register(id,meta){registry.set(+id,meta);if(document.querySelector('#view-tools.active')&&!document.querySelector('.tool-workspace'))renderHome();}
 function mark(id,value=true){suite.completed[id]=value;save();}
 function practical(id){return practicals.find(p=>p.id===+(id||state.last||1))||practicals[0];}
