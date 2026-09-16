@@ -1,4 +1,4 @@
-const CACHE='practical-lab-v20260916-6';
+const CACHE='practical-lab-v20260916-7';
 const ASSETS=[
 './','./index.html','./styles.css','./visual-upgrades.css','./learning-tools.css','./ui-polish-v3.css','./app-icon.svg','./manifest.webmanifest','./assets/rp02-double-slit.png','./assets/rp02-double-slit.glb','./assets/rp04-young-modulus.png','./assets/rp04-young-modulus.glb','./assets/rp05-resistivity-wire.png','./assets/rp08-boyle-syringe.png','./assets/rp10-wire-balance.png','./assets/rp11-search-coil.png',
 './data-base.js','./data-extra.js','./core-a.js','./core-b.js','./scene-helpers.js','./scene-p1-4.js','./scene-p5-8.js','./scene-p9-12.js','./scene-dispatch.js','./scenes-b.js','./visual-upgrades.js','./animation-runtime-v2.js',
