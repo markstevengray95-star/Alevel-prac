@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260916-double-slit-3d1';
+const REV='20260916-first-three-physics-fixes1';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){

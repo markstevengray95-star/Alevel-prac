@@ -34,7 +34,7 @@ renderControls=function(){
   if(!current||current.id!==1)return;
   const f0=p1Resonance();
   let box=document.createElement('div');box.className='control resonance-control';
-  box.innerHTML=`<label><span>Drive frequency</span><b id="p1DriveVal">${p1Drive().toFixed(1)} Hz</b></label><input id="p1Drive" type="range" min="${Math.max(5,f0*.55).toFixed(1)}" max="${(f0*1.45).toFixed(1)}" step="0.1" value="${p1Drive().toFixed(1)}"><small style="display:block;margin-top:7px;color:var(--muted);font-size:9px">Tune for the largest stable amplitude.</small>`;
+  box.innerHTML=`<label><span>Drive frequency</span><b id="p1DriveVal">${p1Drive().toFixed(1)} Hz</b></label><input id="p1Drive" type="range" min="5" max="300" step="0.1" value="${p1Drive().toFixed(1)}"><small style="display:block;margin-top:7px;color:var(--muted);font-size:9px">Tune for the largest stable amplitude.</small>`;
   document.querySelector('#controls').appendChild(box);
   const input=box.querySelector('#p1Drive');
   input.oninput=e=>{state[`p1_drive_${currentMode}`]=+e.target.value;box.querySelector('#p1DriveVal').textContent=`${(+e.target.value).toFixed(1)} Hz`;save();renderScene();updateReadouts();};

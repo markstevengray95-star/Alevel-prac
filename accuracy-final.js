@@ -3,23 +3,24 @@ const previousRunExperiment=runExperiment;
 const previousResetExperiment=resetExperiment;
 
 function p3FallTime(){
-  const [h,,off]=getVals();
-  return Math.sqrt(2*h/9.81)+off/1000;
+  const [h]=getVals();
+  return Math.sqrt(2*h/9.81);
 }
 
 renderP3Scene=function(){
   const v=getVals(),h=v[0],fallTime=p3FallTime();
-  const elapsed=running?Math.min(simT,fallTime):Math.min(simT,fallTime);
+  const measuredTime=parseFloat(theoretical(v).read.Time);
+  const elapsed=Math.min(simT,fallTime);
   const frac=fallTime>0?Math.min(1,(elapsed/fallTime)**2):0;
   const yy=104+frac*226;
   const hasLanded=simT>=fallTime;
   const sensorFlash=simT>=Math.max(0,fallTime-.035)&&simT<=fallTime+.09;
   if(running&&simT>fallTime+.12)running=false;
   const detector=currentMode===0
-    ?`<g data-part="Light gate" filter="url(#softShadow)"><rect x="171" y="300" width="95" height="14" rx="4" fill="#2e3937"/><rect x="171" y="300" width="10" height="45" fill="#2e3937"/><rect x="255" y="300" width="10" height="45" fill="#2e3937"/><line x1="181" y1="321" x2="255" y2="321" stroke="${sensorFlash?'#d3eca6':'#81958e'}" stroke-width="2" opacity="${sensorFlash?1:.45}"/></g>`
-    :`<g data-part="Impact pad" filter="url(#softShadow)"><rect x="175" y="324" width="88" height="22" rx="6" fill="${hasLanded?'#d3eca6':'#d7ddd9'}" stroke="#4d5955" stroke-width="3"/><circle cx="219" cy="335" r="12" fill="#222a27"/></g>`;
-  const shownTime=Math.min(simT,fallTime);
-  return sceneBase(`${stand(205,250,190)}<g data-part="Release mechanism" filter="url(#shadow)"><rect x="184" y="70" width="70" height="32" rx="5" fill="#3b5a60"/><circle cx="219" cy="104" r="10" fill="#697975"/><rect x="205" y="78" width="28" height="8" rx="4" fill="${running?'#d3eca6':'#94a7a0'}"/></g><g data-part="Ball bearing" filter="url(#softShadow)"><circle cx="219" cy="${yy}" r="12" fill="url(#metal)" stroke="#4d5a57" stroke-width="2"/></g>${detector}<g data-part="Data logger" filter="url(#shadow)"><rect x="390" y="178" width="130" height="82" rx="9" fill="url(#orange)"/><rect x="414" y="194" width="80" height="30" rx="3" class="meter-screen"/><text x="454" y="215" text-anchor="middle" font-family="monospace" font-size="13">${shownTime.toFixed(4)} s</text><text x="454" y="243" text-anchor="middle" fill="#f2eadf" font-size="8">${hasLanded?'CAPTURED':'TIMING'}</text></g>${ruler(286,92,238,12,true)}<g data-part="Plumb line"><line x1="330" y1="92" x2="330" y2="330" stroke="#d8e1de" stroke-width="2" stroke-dasharray="5 5"/><circle cx="330" cy="333" r="5" fill="#777"/></g><g pointer-events="none"><rect x="535" y="168" width="175" height="64" rx="8" fill="#14293c" opacity=".9"/><text x="622" y="187" text-anchor="middle" fill="#8faab4" font-size="8">FALL MODEL</text><text x="622" y="207" text-anchor="middle" fill="#d8efbf" font-family="monospace" font-size="12">h = ${h.toFixed(2)} m</text><text x="622" y="224" text-anchor="middle" fill="#d8efbf" font-family="monospace" font-size="10">t = ${fallTime.toFixed(4)} s</text></g>${label(140,58,'release')}${label(376,165,'data logger')}${label(278,81,'distance scale')}${label(338,92,'plumb line')}`);
+    ?`<g data-part="Impact pad" filter="url(#softShadow)"><rect x="175" y="324" width="88" height="22" rx="6" fill="${hasLanded?'#d3eca6':'#d7ddd9'}" stroke="#4d5955" stroke-width="3"/><circle cx="219" cy="335" r="12" fill="#222a27"/></g>`
+    :`<g data-part="Light gate" filter="url(#softShadow)"><rect x="171" y="300" width="95" height="14" rx="4" fill="#2e3937"/><rect x="171" y="300" width="10" height="45" fill="#2e3937"/><rect x="255" y="300" width="10" height="45" fill="#2e3937"/><line x1="181" y1="321" x2="255" y2="321" stroke="${sensorFlash?'#d3eca6':'#81958e'}" stroke-width="2" opacity="${sensorFlash?1:.45}"/></g>`;
+  const shownTime=hasLanded?measuredTime:simT>0?Math.min(simT+v[2]/1000,measuredTime):0;
+  return sceneBase(`${stand(205,250,190)}<g data-part="Release mechanism" filter="url(#shadow)"><rect x="184" y="70" width="70" height="32" rx="5" fill="#3b5a60"/><circle cx="219" cy="104" r="10" fill="#697975"/><rect x="205" y="78" width="28" height="8" rx="4" fill="${running?'#d3eca6':'#94a7a0'}"/></g><g data-part="Ball bearing" filter="url(#softShadow)"><circle cx="219" cy="${yy}" r="12" fill="url(#metal)" stroke="#4d5a57" stroke-width="2"/></g>${detector}<g data-part="Data logger" filter="url(#shadow)"><rect x="390" y="178" width="130" height="82" rx="9" fill="url(#orange)"/><rect x="414" y="194" width="80" height="30" rx="3" class="meter-screen"/><text x="454" y="215" text-anchor="middle" font-family="monospace" font-size="13">${shownTime.toFixed(4)} s</text><text x="454" y="243" text-anchor="middle" fill="#f2eadf" font-size="8">${hasLanded?'CAPTURED':simT>0?'TIMING':'READY'}</text></g>${ruler(286,92,238,12,true)}<g data-part="Plumb line"><line x1="330" y1="92" x2="330" y2="330" stroke="#d8e1de" stroke-width="2" stroke-dasharray="5 5"/><circle cx="330" cy="333" r="5" fill="#777"/></g><g pointer-events="none"><rect x="535" y="168" width="175" height="64" rx="8" fill="#14293c" opacity=".9"/><text x="622" y="187" text-anchor="middle" fill="#8faab4" font-size="8">FALL MODEL</text><text x="622" y="207" text-anchor="middle" fill="#d8efbf" font-family="monospace" font-size="12">h = ${h.toFixed(2)} m</text><text x="622" y="224" text-anchor="middle" fill="#d8efbf" font-family="monospace" font-size="10">timer = ${measuredTime.toFixed(4)} s</text></g>${label(140,58,'release')}${label(376,165,'data logger')}${label(278,81,'distance scale')}${label(338,92,'plumb line')}`);
 };
 
 renderP4Scene=function(){

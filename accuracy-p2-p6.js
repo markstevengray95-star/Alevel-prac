@@ -45,9 +45,10 @@ function p2Theory(vals=getVals()){
 function p3Theory(vals=getVals()){
   const [h,res,off]=vals;
   const ideal=Math.sqrt(2*h/9.81);
-  const t=ideal+off/1000;
+  const resolution=Math.max(0.0001,res/1000);
+  const t=Math.round((ideal+off/1000)/resolution)*resolution;
   const gest=2*h/(t*t);
-  return {x:t*t,y:h,read:{Time:`${t.toFixed(4)} s`,Height:`${h.toFixed(2)} m`,'t²':`${(t*t).toFixed(4)} s²`,'g estimate':`${gest.toFixed(3)} m s⁻²`}};
+  return {x:t*t,y:h,read:{Time:`${t.toFixed(4)} s`,Height:`${h.toFixed(2)} m`,Resolution:`${res.toFixed(1)} ms`,'t²':`${(t*t).toFixed(4)} s²`,'g estimate':`${gest.toFixed(3)} m s⁻²`}};
 }
 
 function p4Theory(vals=getVals()){

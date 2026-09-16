@@ -17,6 +17,7 @@ function fastPaint(force=false){
   if(!scene||typeof renderer!=='function')return;
   try{
     scene.innerHTML=renderer();
+    window.applyInteractionGeometry?.();
     scene.dataset.animating=running?'1':'0';
     setRunUi();
     const now=performance.now();

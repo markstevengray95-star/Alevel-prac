@@ -11,5 +11,6 @@ function applyGeometry(){if(!current)return;let svg=document.querySelector('#sce
  if(current.id===7&&currentMode===1){let r=ratio(0);translatePart('Mass hanger',0,(r-.5)*26);}
 }
 const prev=renderScene;renderScene=function(){prev();applyGeometry();};
+window.applyInteractionGeometry=applyGeometry;
 setTimeout(applyGeometry,0);
 })();
