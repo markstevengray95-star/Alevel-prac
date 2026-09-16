@@ -55,6 +55,15 @@ const { chromium } = require('playwright');
     }
   }
 
+  await page.evaluate(()=>navigate('practical',2));
+  await page.waitForFunction(()=>document.querySelector('#doubleSlit3d')?.dataset.modelLoaded==='true');
+  const slitCheck=await page.evaluate(()=>{const v=getVals(),w=+document.querySelector('#scene [data-fringe-mm]').dataset.fringeMm;const expected=v[0]*1e-9*v[1]/(v[2]*1e-3)*1000;return {w,expected,central:p2DoubleSlitIntensity(0,...v),dark:p2DoubleSlitIntensity(expected/2,...v)};});
+  if(Math.abs(slitCheck.w-slitCheck.expected)>0.0001||slitCheck.central<0.99||slitCheck.dark>0.01)throw new Error(`P2 double-slit pattern inconsistent with optics: ${JSON.stringify(slitCheck)}`);
+  if(await page.locator('#doubleSlit3dTool').count()!==1)throw new Error('P2 Blender 3D button missing');
+  await page.locator('#doubleSlit3dTool').click();
+  const slitExpanded=await page.locator('#doubleSlit3d').evaluate(el=>({parent:el.parentElement.tagName,width:el.getBoundingClientRect().width}));
+  if(slitExpanded.parent!=='BODY'||slitExpanded.width<700)throw new Error(`P2 Blender 3D enlarged view failed: ${JSON.stringify(slitExpanded)}`);
+  await page.locator('#doubleSlit3d [data-young-expand]').click();
   await page.evaluate(()=>navigate('practical',4));
   await page.waitForFunction(()=>document.querySelector('#young3d')?.dataset.modelLoaded==='true');
   if(await page.locator('#young3d canvas').count()!==1)throw new Error('P4 Blender 3D canvas missing');

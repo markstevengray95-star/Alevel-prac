@@ -418,6 +418,73 @@ def young_modulus():
     )
 
 
+def double_slit():
+    """AQA RP2 part 1: aligned laser, double-slit holder, screen and D rule."""
+    clear()
+    studio(target=(0, 0, 1.20), eye=(-7.5, -10.5, 6.0), scale=9.1)
+    bench(width=9.0, depth=4.7)
+    cube("Optical rail", (0, 0.48, 0.18), (7.25, 0.44, 0.18), dark_metal, 0.035)
+
+    # The beam runs from left to right along a common optical axis.
+    cube("Laser weighted foot", (-2.75, 0.48, 0.38), (1.05, 0.78, 0.15), dark_metal)
+    rod("Laser support post", (-2.75, 0.48, 0.43), (-2.75, 0.48, 1.03), 0.045, metal)
+    cube("Low-power monochromatic laser", (-2.80, 0.48, 1.25), (0.96, 0.43, 0.34), plastic, 0.07)
+    cyl("Laser aperture", (-2.26, 0.48, 1.25), 0.11, 0.14, dark_metal, rotation=(0, math.pi / 2, 0))
+    cyl("Laser emitting lens", (-2.18, 0.48, 1.25), 0.065, 0.02, red, rotation=(0, math.pi / 2, 0))
+
+    # The two narrow vertical openings are deliberately enlarged in this
+    # teaching model: their real sub-millimetre separation is not visible at
+    # the scale of the entire optical bench.
+    cube("Double-slit slide foot", (-0.72, 0.48, 0.38), (0.62, 0.72, 0.15), dark_metal)
+    rod("Slide holder post", (-0.72, 0.48, 0.43), (-0.72, 0.48, 0.64), 0.045, metal)
+    for y, width in ((0.14, 0.34), (0.48, 0.12), (0.82, 0.34)):
+        cube("Opaque double-slit slide section", (-0.72, y, 1.25), (0.085, width, 1.15), dark_metal, 0.008)
+    for y in (0.02, 0.94):
+        cube("Double-slit slide edge", (-0.72, y, 1.25), (0.11, 0.06, 1.27), metal, 0.008)
+    for z in (0.63, 1.87):
+        cube("Double-slit slide edge", (-0.72, 0.48, z), (0.11, 1.0, 0.07), metal, 0.008)
+    # On the model the clear slots lie either side of the centre strip.
+    for y in (0.36, 0.60):
+        cube("Two vertical slit openings", (-0.77, y, 1.25), (0.009, 0.045, 1.07), white, 0)
+
+    cube("Screen weighted foot", (2.85, 0.48, 0.38), (0.82, 1.10, 0.15), dark_metal)
+    rod("Screen support post", (2.85, 0.48, 0.45), (2.85, 0.48, 0.75), 0.055, metal)
+    cube("Projection screen frame", (2.85, 0.48, 1.49), (0.14, 2.02, 1.55), metal, 0.035)
+    cube("Projection screen face", (2.75, 0.48, 1.49), (0.02, 1.84, 1.40), white, 0.007)
+    for i in range(-5, 6):
+        width = 0.050 if i == 0 else 0.031
+        m = red if abs(i) < 4 else copper
+        cube("Magnified interference fringe", (2.73, 0.48 + i * 0.143, 1.49), (0.015, width, 1.25), m, 0.004)
+
+    rod("Incident beam", (-2.12, 0.48, 1.25), (-0.77, 0.48, 1.25), 0.018, red, 12)
+    for y in (0.36, 0.60):
+        for screen_y in (0.08, 0.48, 0.88):
+            rod("Diffracted ray guide", (-0.67, y, 1.25), (2.70, screen_y, 1.49), 0.006, red, 6)
+
+    # Read D from the plane of the slide to the face of the screen.
+    cube("Metre rule along optical axis", (1.06, -0.47, 0.28), (3.72, 0.22, 0.12), cream, 0.015)
+    for i in range(31):
+        x = -0.72 + i * 0.116
+        tick = 0.10 if i % 5 == 0 else 0.055
+        rod("Distance rule graduation", (x, -0.50, 0.35), (x, -0.50 - tick, 0.35), 0.006, dark_metal, 6)
+    cube("Slit plane distance marker", (-0.72, -0.52, 0.47), (0.04, 0.28, 0.19), red, 0.004)
+    cube("Screen plane distance marker", (2.75, -0.52, 0.47), (0.04, 0.28, 0.19), red, 0.004)
+
+    # Calipers are separate from the aligned beam path. Real slit separation
+    # is read from the slide in the AQA set-up guide.
+    cube("Vernier caliper main scale", (-0.74, -1.47, 0.28), (2.00, 0.15, 0.12), metal, 0.014)
+    cube("Caliper fixed jaw", (-1.65, -1.46, 0.46), (0.10, 0.20, 0.40), metal)
+    cube("Caliper sliding jaw", (-0.92, -1.46, 0.46), (0.10, 0.20, 0.40), metal)
+    cube("Caliper slider", (-0.92, -1.47, 0.27), (0.28, 0.26, 0.22), dark_metal)
+
+    save("rp02-double-slit.png")
+    bpy.ops.export_scene.gltf(
+        filepath=os.path.join(OUT, "rp02-double-slit.glb"),
+        export_format="GLB", export_yup=False, export_apply=True,
+        export_cameras=False, export_lights=False,
+    )
+
+
 if SELECT in ("all", "rp08"):
     boyle()
 if SELECT in ("all", "rp10"):
@@ -428,3 +495,5 @@ if SELECT in ("all", "rp05"):
     resistivity_wire()
 if SELECT in ("all", "rp04"):
     young_modulus()
+if SELECT in ("all", "rp02"):
+    double_slit()
