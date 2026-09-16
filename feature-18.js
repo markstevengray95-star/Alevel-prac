@@ -20,7 +20,7 @@ function perturb(id,t,index){const c=cfg(id),p=profile(id),level=Math.max(1,Math
 }
 const baseRecord=window.record;
 if(typeof baseRecord==='function'&&!window.__imperfectRecordWrapped){
- window.record=function(repeats=1){const id=current?.id,c=id&&cfg(id);if(!id||!c?.enabled)return baseRecord.apply(this,arguments);for(let i=0;i<repeats;i++){const t=theoretical(),idx=getData().length,y=perturb(id,t,idx);getData().push({x:t.x,y,rep:i+1,imperfect:true,imperfection:c.profile});}save();renderData();if(typeof beep==='function')beep();};
+ window.record=function(repeats=1){const id=current?.id,c=id&&cfg(id);if(!id||!c?.enabled)return baseRecord.apply(this,arguments);const t=theoretical();if(!Number.isFinite(t.x)||!Number.isFinite(t.y)){alert('This setting cannot produce a valid graph point. Adjust the controls and try again.');return;}for(let i=0;i<repeats;i++){const idx=getData().length,y=perturb(id,t,idx);if(!Number.isFinite(y))continue;getData().push({x:t.x,y,rep:i+1,imperfect:true,imperfection:c.profile});}save();renderData();if(typeof beep==='function')beep();};
  window.__imperfectRecordWrapped=true;
 }
 function render(root,opts={}){let id=+(opts.practicalId||state.last||1),revealed=false;

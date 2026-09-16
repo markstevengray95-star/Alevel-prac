@@ -1,8 +1,17 @@
 const KEY='aqaPracticalLabRealisticV6';
-let state=JSON.parse(localStorage.getItem(KEY)||'{}');state.items=state.items||{};state.saved=state.saved||[];state.last=state.last||1;state.theme=state.theme||'light';state.sound=!!state.sound;state.data=state.data||{};state.cpac=state.cpac||{};state.notes=state.notes||{};
+let state;try{state=JSON.parse(localStorage.getItem(KEY)||'{}');}catch{state={};}
+const isRecord=v=>v&&typeof v==='object'&&!Array.isArray(v);
+if(!isRecord(state))state={};
+state.items=isRecord(state.items)?state.items:{};
+state.saved=Array.isArray(state.saved)?state.saved:[];
+state.last=Number.isInteger(state.last)&&state.last>=1&&state.last<=12?state.last:1;
+state.theme=state.theme==='dark'?'dark':'light';state.sound=!!state.sound;
+state.data=isRecord(state.data)?state.data:{};
+state.cpac=isRecord(state.cpac)?state.cpac:{};
+state.notes=isRecord(state.notes)?state.notes:{};
 let current=null,currentMode=0,currentTab='understand',filter='all',running=false,simT=0,lastTs=0,raf=0,methodStep=0,speed=1;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-function itemState(id){return state.items[id]||(state.items[id]={status:'new',confidence:'started'});}function save(){localStorage.setItem(KEY,JSON.stringify(state));updateSummary();}
+function itemState(id){return state.items[id]||(state.items[id]={status:'new',confidence:'started'});}function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){console.warn('Progress could not be saved on this device.',e);}updateSummary();}
 function beep(){if(!state.sound)return;try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.frequency.value=520;g.gain.value=.025;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.06)}catch(e){}}
 function setTheme(){document.documentElement.classList.toggle('dark',state.theme==='dark');}
 function navigate(view,id){$$('.view').forEach(v=>v.classList.remove('active'));$(`#view-${view}`).classList.add('active');$$('.lab-header nav button').forEach(b=>b.toggleAttribute('aria-current',b.dataset.view===view));if(view==='practical'&&id)openPractical(id);if(view==='skills')renderSkills();if(view==='quiz')renderGlobalQuiz();if(view==='equations')renderEquations();if(view==='circuit')renderCircuitLab();window.scrollTo({top:0,behavior:'smooth'});}
@@ -12,7 +21,8 @@ function updateSummary(){const started=practicals.filter(p=>itemState(p.id).stat
 function renderGlossary(){const q=$('#glossarySearch').value.toLowerCase();$('#glossaryGrid').innerHTML=glossary.filter(x=>(x[0]+' '+x[1]).toLowerCase().includes(q)).map(x=>`<div class="gloss-item"><b>${x[0]}</b><p>${x[1]}</p></div>`).join('');}
 function openPractical(id){cancelAnimationFrame(raf);running=false;current=practicals.find(p=>p.id===id);currentMode=0;currentTab='understand';methodStep=0;simT=0;state.last=id;const s=itemState(id);if(s.status==='new')s.status='started';save();$('#practicalEyebrow').textContent=`AQA REQUIRED PRACTICAL ${id} · ${current.topic.toUpperCase()}`;$('#practicalTitle').textContent=current.title;$('#practicalSpec').textContent=current.short;$('#confidenceSelect').value=s.status==='confident'?'confident':'started';$('#savePracticalBtn').textContent=state.saved.includes(id)?'★ Saved':'☆ Save';renderModeTabs();renderPractical();startLoop();}
 function renderModeTabs(){$('#modeTabs').innerHTML=current.modes.map((m,i)=>`<button class="${i===currentMode?'active':''}" data-mode="${i}">${m}</button>`).join('');$$('[data-mode]').forEach(b=>b.onclick=()=>{currentMode=+b.dataset.mode;methodStep=0;simT=0;renderModeTabs();renderPractical()});}
-function getVals(){const key=`vals_${current.id}_${currentMode}`;if(!state[key])state[key]=current.vars.map(v=>v[4]);return state[key];}
+function normaliseVals(key,specs){const values=Array.isArray(state[key])?state[key]:[];for(let i=0;i<specs.length;i++){const v=specs[i],n=values[i];values[i]=typeof n==='number'&&Number.isFinite(n)?Math.min(v[3],Math.max(v[2],n)):v[4];}values.length=specs.length;state[key]=values;return values;}
+function getVals(){return normaliseVals(`vals_${current.id}_${currentMode}`,current.vars);}
 function renderPractical(){renderControls();renderCoach();renderApparatusKey();renderLearning();renderData();renderScene();}
 function displayVarName(i){if(current.id===7&&i===0)return currentMode===0?'Pendulum length':'Oscillating mass';if(current.id===8&&i===0)return currentMode===0?'Added load':'Bath temperature';if(current.id===2&&i===2)return currentMode===0?'Slit separation':'Grating spacing';return current.vars[i][0];}
 function formatVal(v,u){if(!u)return Number(v).toFixed(Math.abs(v)<10&&Math.abs(v-Math.round(v))>.001?2:0);const d=Math.abs(v)<10&&Math.abs(v-Math.round(v))>.001?2:Math.abs(v-Math.round(v))>.001?1:0;return `${Number(v).toFixed(d)} ${u}`;}

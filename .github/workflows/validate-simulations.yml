@@ -25,6 +25,9 @@ jobs:
           node --check tests/browser-smoke.js
           node --check tests/labbook-toggle-smoke.js
           node --check tests/learning-suite-smoke.js
+          node --check tests/audit-model-sweep.js
+          node --check tests/labbook-integrity.cjs
+          node --check tests/test-worked-examples-complete.cjs
       - name: Check HTML local asset references
         run: |
           python - <<'PY'
@@ -38,7 +41,11 @@ jobs:
           print('All local index.html assets exist:', ', '.join(local))
           PY
       - name: Check physics models
-        run: node tests/model-checks.js
+        run: |
+          node tests/model-checks.js
+          node tests/audit-model-sweep.js
+          node tests/labbook-integrity.cjs
+          node tests/test-worked-examples-complete.cjs
       - name: Install Chromium smoke-test dependency
         run: |
           npm install --no-save playwright@1.55.0

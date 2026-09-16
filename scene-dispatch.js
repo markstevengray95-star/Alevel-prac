@@ -4,7 +4,7 @@ function modeVar(i){
   if(current.id===8&&currentMode===1){if(i===0)return ['Bath temperature','°C',10,80,20,2];if(i===1)return ['Initial air length','cm',3,8,4,0.2];}
   return current.vars[i];
 }
-getVals=function(){const key=`vals_${current.id}_${currentMode}`;if(!state[key])state[key]=current.vars.map((v,i)=>modeVar(i)[4]);return state[key];};
+getVals=function(){return normaliseVals(`vals_${current.id}_${currentMode}`,current.vars.map((_,i)=>modeVar(i)));};
 displayVarName=function(i){return modeVar(i)[0];};
 formatVal=function(v,u){if(!u)return Number(v).toFixed(Math.abs(v)<10&&Math.abs(v-Math.round(v))>.001?2:0);let a=Math.abs(v),d=a>0&&a<.01?5:a<10&&Math.abs(v-Math.round(v))>.001?2:Math.abs(v-Math.round(v))>.001?1:0;return `${Number(v).toFixed(d)} ${u}`;};
 renderControls=function(){const vals=getVals();$('#controls').innerHTML=current.vars.map((_,i)=>{let v=modeVar(i);return `<div class="control"><label><span>${v[0]}</span><b id="val${i}">${formatVal(vals[i],v[1])}</b></label><input id="rng${i}" type="range" min="${v[2]}" max="${v[3]}" step="${v[5]}" value="${vals[i]}"></div>`}).join('');current.vars.forEach((_,i)=>{let v=modeVar(i);$(`#rng${i}`).oninput=e=>{vals[i]=+e.target.value;$(`#val${i}`).textContent=formatVal(vals[i],v[1]);save();renderScene();updateReadouts();};});updateReadouts();};

@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const src=fs.readFileSync(path.join(__dirname,'..','lab-book-v2.js'),'utf8').replace(/\}\)\(\);\s*$/,`window.__test={entry,rowsTableV3,printRecordHtml,sanitiseEntry,restoreLabBook,sourceLinks,logCorrection};})();`);
+const state={labBook:{},data:{},last:1};
+const practicals=Array.from({length:12},(_,i)=>({id:i+1,title:`Practical ${i+1}`,topic:'Physics',at:['ATa'],modes:['Mode'],x:'x',y:'y'}));
+let saved=0,downloads=0;
+const context={state,practicals,fmt:n=>String(n),save:()=>saved++,navigate:()=>{},console,setTimeout:()=>0,clearTimeout:()=>{},Blob:class{},URL:{createObjectURL:()=>{downloads++;return 'blob:test';},revokeObjectURL:()=>{}},document:{querySelector:()=>null,createElement:()=>({click:()=>{},set href(x){},set download(x){}})},window:{confirm:()=>true},Date};
+vm.createContext(context);vm.runInContext(src,context);
+const t=context.window.__test;
+assert.ok(t);
+for(let i=1;i<=12;i++)assert.match(t.sourceLinks(i),new RegExp(`SUG-P${i}\\.PDF`));
+const e=t.entry(5);e.date='2026-09-16';e.aim='<script>alert(1)</script>';e.rawRows=[['0.50','1.2','0.30','1.3']];e.processedTable='R = V/I = 4.0 Ω';e.simRows=[{mode:'virtual',x:'1',y:'2'}];t.logCorrection(e,'Edited','Original kept');
+const html=t.printRecordHtml(5);
+for(const label of ['Raw data and observations','Uncertainty and processing','Graph and result','Conclusion and evaluation','Correction history','Simulation practice (separate from real observations)','AQA apparatus guide'])assert.ok(html.includes(label),label);
+assert.ok(html.includes('4.0 Ω'));
+assert.ok(!html.includes('<script>alert(1)</script>'));
+assert.ok(html.includes('&lt;script&gt;'));
+assert.ok(t.rowsTableV3(5,e).includes('practice only'));
+const poisoned=JSON.parse('{"__proto__":{"polluted":true},"aim":"x","rawRows":[["1"]]}');
+const clean=t.sanitiseEntry(poisoned);assert.equal(Object.prototype.polluted,undefined);assert.equal(clean.aim,'x');
+const backup={version:3,labBook:{'5':{aim:'restored',rawRows:[['1','2','3','4']]},'13':{aim:'ignore'}}};
+Promise.resolve(t.restoreLabBook({size:500,text:async()=>JSON.stringify(backup)})).then(n=>{
+ assert.equal(n,1);assert.equal(state.labBook['5'].aim,'restored');assert.equal(state.labBook['13'],undefined);assert.ok(saved>0);assert.ok(downloads>0);
+ console.log('Lab book: all 12 AQA links, full record, XSS escaping, separate simulation readings, correction history and backup restore passed.');
+}).catch(e=>{console.error(e);process.exitCode=1;});

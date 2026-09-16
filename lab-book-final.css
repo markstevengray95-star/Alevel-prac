@@ -1,0 +1,17 @@
+/* Lab book fidelity and readable source/correction sections. */
+.lb-source-links{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 17px}
+.lb-source-links a,.aqa-source-links a{display:inline-flex;align-items:center;border:1px solid var(--line,#d9e1dc);border-radius:9px;padding:7px 10px;color:var(--green,#234e40);background:var(--paper,#fff);font-size:12px;font-weight:700;text-decoration:none}
+.lb-source-links a:hover,.aqa-source-links a:hover{border-color:#7aab73;text-decoration:underline}
+.lb-sim-practice,.lb-correction-history{border:1px solid var(--line,#d9e1dc);border-radius:12px;margin-top:12px;padding:10px 13px;background:var(--paper,#fff)}
+.lb-sim-practice summary,.lb-correction-history summary{cursor:pointer;font-weight:700;color:var(--green,#234e40)}
+.lb-correction-history ol{max-height:240px;overflow:auto;padding-left:21px;font-size:12px;line-height:1.6}
+.lb-correction-history li{overflow-wrap:anywhere;margin:7px 0}
+.lb-correction-history time{font-variant-numeric:tabular-nums;color:var(--muted,#68776e)}
+.lb-toolbar button{white-space:nowrap}
+.aqa-render{margin-top:12px;border-top:1px solid var(--line,#d9e1dc);padding-top:10px}
+.aqa-render summary{cursor:pointer;font-weight:700;color:var(--green,#234e40)}
+.aqa-render img{display:block;width:100%;height:auto;border-radius:12px;margin-top:10px;background:#15231f}
+.aqa-render p{font-size:11px;line-height:1.45;color:var(--muted,#68776e)}
+.lb-table input:focus-visible,.lb-table textarea:focus-visible,.lb-field input:focus-visible,.lb-field textarea:focus-visible,.lb-source-links a:focus-visible{outline:3px solid #d89d43;outline-offset:2px}
+@media(max-width:650px){.lb-source-links{display:grid;grid-template-columns:1fr}.lb-toolbar{display:grid;grid-template-columns:1fr 1fr}.lb-toolbar select{grid-column:1/-1}.lb-toolbar button{white-space:normal;min-height:42px}}
+@media print{.lb-source-links a{border:0;padding:0}.lb-sim-practice,.lb-correction-history{border:0}}

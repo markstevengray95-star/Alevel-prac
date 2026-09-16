@@ -19,10 +19,16 @@ const axisMeta=()=>{
   return null;
 };
 
-function gratingOrder(){
+function gratingOrder(vals=getVals()){
   const k='p2_grating_order';
   if(state[k]==null)state[k]=1;
-  return Math.max(1,Math.round(+state[k]));
+  // A once-valid order may disappear when wavelength rises or spacing falls.
+  // Keep the saved order in the physically allowed range used by the slider.
+  const [wavelength,,spacing]=vals;
+  const maxOrder=Math.max(1,Math.min(5,Math.floor((spacing*1e-3)/(wavelength*1e-9))));
+  const order=Math.max(1,Math.min(maxOrder,Math.round(+state[k]||1)));
+  state[k]=order;
+  return order;
 }
 
 function p2Theory(vals=getVals()){
@@ -31,7 +37,7 @@ function p2Theory(vals=getVals()){
     const s=smm*1e-3,w=lam*D/s;
     return {x:D,y:w*1000,read:{Fringe:`${(w*1000).toFixed(2)} mm`,Distance:`${D.toFixed(2)} m`,Wavelength:`${lnm.toFixed(0)} nm`,Span5:`${(w*5000).toFixed(1)} mm`}};
   }
-  const d=smm*1e-3,n=gratingOrder(),sintheta=n*lam/d;
+  const d=smm*1e-3,n=gratingOrder(vals),sintheta=n*lam/d;
   const valid=sintheta<=1,theta=valid?Math.asin(sintheta):NaN;
   return {x:n,y:valid?sintheta:NaN,read:{Order:`n = ${n}`,Angle:valid?`${(theta*180/Math.PI).toFixed(2)}°`:'not allowed',sinθ:valid?sintheta.toFixed(4):'—',Wavelength:`${lnm.toFixed(0)} nm`}};
 }
