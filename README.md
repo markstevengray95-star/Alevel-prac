@@ -6,7 +6,7 @@ The practical library includes animated apparatus, controls for the specified va
 
 The **Completed example** view contains illustrative results for all 12 practicals, including repeated raw readings, processed tables, substituted calculations, graph interpretation, uncertainty and evaluation. Some practicals have multiple investigations (for example the three string sweeps, both SHM systems and both gas laws). These values are invented teaching examples, not student evidence.
 
-Four optional Blender-rendered apparatus views complement the interactive diagrams for Practical 5 (resistivity wire, meter connections and micrometer), Practical 8 (Boyle syringe), Practical 10 (wire and top-pan balance) and Practical 11 (search coil and oscilloscope). They are illustrative geometry references; use the linked AQA guides and your school’s instructions for real equipment arrangements.
+Five Blender-rendered apparatus views complement the interactive diagrams for Practical 4 (Young modulus twin-wire comparison), Practical 5 (resistivity wire, meter connections and micrometer), Practical 8 (Boyle syringe), Practical 10 (wire and top-pan balance) and Practical 11 (search coil and oscilloscope). The Practical 4 view opens alongside its AQA set-up check. These are illustrative geometry references; use the linked AQA guides and your school’s instructions for real equipment arrangements.
 
 ## AQA sources
 

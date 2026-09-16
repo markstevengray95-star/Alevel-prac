@@ -356,6 +356,59 @@ def resistivity_wire():
     save("rp05-resistivity-wire.png")
 
 
+def young_modulus():
+    """AQA RP4: matched reference and loaded test wires with a levelled vernier."""
+    clear()
+    studio(target=(0, 0, 2.65), eye=(7.2, -11.4, 7.4), scale=9.7)
+    bench(width=8.3, depth=4.3)
+
+    # A single rigid overhead support carries two independent, parallel wires.
+    for x in (-2.45, 2.45):
+        stand(x, 0.62, 5.43)
+    cube("Rigid overhead support", (0, 0.62, 5.28), (5.05, 0.42, 0.25), metal, 0.035)
+    for x in (-0.92, 0.92):
+        cube("Upper wire clamp", (x, 0.41, 5.06), (0.32, 0.30, 0.32), dark_metal, 0.025)
+        rod("Long suspended wire", (x, 0.38, 4.91), (x, 0.38, 1.25), 0.014, copper, 12)
+        cube("Lower wire grip", (x, 0.38, 1.21), (0.20, 0.18, 0.20), dark_metal, 0.018)
+        rod("Mass hanger stem", (x, 0.38, 1.12), (x, 0.38, 0.48), 0.022, metal)
+        cyl("Mass hanger tray", (x, 0.38, 0.48), 0.31, 0.065, metal)
+
+    # The reference hanger stays at its initial load. Only the test hanger
+    # receives extra slotted masses during a loading run.
+    for z in (0.58, 0.69):
+        cyl("Fixed reference preload", (-0.92, 0.38, z), 0.25, 0.082, dark_metal)
+    for z in (0.58, 0.69, 0.80, 0.91, 1.02):
+        cyl("Added test-wire load", (0.92, 0.38, z), 0.25, 0.082, dark_metal)
+
+    # Travelling scale spans the two wires. A spirit level and adjusting screw
+    # let the observer bring the bridge horizontal before reading the vernier.
+    cube("Vernier comparison bridge", (0, 0.16, 2.17), (2.18, 0.26, 0.19), white, 0.022)
+    cube("Reference-wire scale mount", (-0.92, 0.24, 2.17), (0.25, 0.28, 0.30), metal)
+    cube("Test-wire sliding mount", (0.92, 0.24, 2.17), (0.25, 0.28, 0.30), dark_metal)
+    for i in range(21):
+        x = -0.73 + i * 0.073
+        z0 = 2.275
+        z1 = z0 + (0.095 if i % 5 == 0 else 0.048)
+        rod("Vernier graduation", (x, 0.01, z0), (x, 0.01, z1), 0.005, dark_metal, 6)
+    cube("Vernier moving cursor", (0.56, -0.035, 2.20), (0.18, 0.045, 0.30), red, 0.015)
+    rod("Fine adjustment screw", (0.98, 0.05, 2.17), (1.32, 0.05, 2.17), 0.046, metal)
+    cyl("Adjustment knob", (1.35, 0.05, 2.17), 0.105, 0.11, dark_metal, rotation=(0, math.pi / 2, 0))
+    cube("Spirit level housing", (-0.03, -0.075, 2.56), (1.08, 0.30, 0.25), dark_metal, 0.045)
+    cube("Spirit level vial", (-0.03, -0.24, 2.57), (0.80, 0.04, 0.14), liquid, 0.055)
+    cube("Centred bubble", (-0.03, -0.27, 2.57), (0.18, 0.015, 0.095), white, 0.045)
+    for x in (-0.19, 0.13):
+        rod("Bubble centre mark", (x, -0.277, 2.49), (x, -0.277, 2.65), 0.006, dark_metal, 6)
+
+    # Diameter is measured separately at several positions and orientations.
+    line("Micrometer C frame", [(2.74, -1.03, 0.40), (3.20, -1.03, 0.49), (3.43, -1.03, 0.90), (3.34, -1.03, 1.24), (2.96, -1.03, 1.35)], 0.063, dark_metal)
+    rod("Micrometer anvil", (2.92, -1.03, 1.30), (2.70, -1.03, 1.30), 0.044, metal)
+    rod("Micrometer spindle", (2.09, -1.03, 1.30), (2.55, -1.03, 1.30), 0.046, metal)
+    cyl("Micrometer thimble", (2.08, -1.03, 1.30), 0.17, 0.42, metal, rotation=(0, math.pi / 2, 0))
+    rod("Separate wire sample", (2.64, -1.16, 1.18), (2.64, -0.91, 1.42), 0.012, copper)
+
+    save("rp04-young-modulus.png")
+
+
 if SELECT in ("all", "rp08"):
     boyle()
 if SELECT in ("all", "rp10"):
@@ -364,3 +417,5 @@ if SELECT in ("all", "rp11"):
     search_coil()
 if SELECT in ("all", "rp05"):
     resistivity_wire()
+if SELECT in ("all", "rp04"):
+    young_modulus()
