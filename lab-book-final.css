@@ -11,6 +11,8 @@
 .aqa-render{margin-top:12px;border-top:1px solid var(--line,#d9e1dc);padding-top:10px}
 .aqa-render summary{cursor:pointer;font-weight:700;color:var(--green,#234e40)}
 .aqa-render img{display:block;width:100%;height:auto;border-radius:12px;margin-top:10px;background:#15231f}
+.aqa-render ul{margin:10px 0 0;padding-left:20px;font-size:11px;line-height:1.45;color:var(--text,#20342d)}
+.aqa-render li{margin:4px 0}
 .aqa-render p{font-size:11px;line-height:1.45;color:var(--muted,#68776e)}
 .lb-table input:focus-visible,.lb-table textarea:focus-visible,.lb-field input:focus-visible,.lb-field textarea:focus-visible,.lb-source-links a:focus-visible{outline:3px solid #d89d43;outline-offset:2px}
 @media(max-width:650px){.lb-source-links{display:grid;grid-template-columns:1fr}.lb-toolbar{display:grid;grid-template-columns:1fr 1fr}.lb-toolbar select{grid-column:1/-1}.lb-toolbar button{white-space:normal;min-height:42px}}

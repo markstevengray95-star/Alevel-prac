@@ -1,6 +1,6 @@
-const CACHE='practical-lab-v20260916-2';
+const CACHE='practical-lab-v20260916-3';
 const ASSETS=[
-'./','./index.html','./styles.css','./visual-upgrades.css','./learning-tools.css','./ui-polish-v3.css','./app-icon.svg','./manifest.webmanifest','./assets/rp08-boyle-syringe.png','./assets/rp10-wire-balance.png','./assets/rp11-search-coil.png',
+'./','./index.html','./styles.css','./visual-upgrades.css','./learning-tools.css','./ui-polish-v3.css','./app-icon.svg','./manifest.webmanifest','./assets/rp05-resistivity-wire.png','./assets/rp08-boyle-syringe.png','./assets/rp10-wire-balance.png','./assets/rp11-search-coil.png',
 './data-base.js','./data-extra.js','./core-a.js','./core-b.js','./scene-helpers.js','./scene-p1-4.js','./scene-p5-8.js','./scene-p9-12.js','./scene-dispatch.js','./scenes-b.js','./visual-upgrades.js','./animation-runtime-v2.js',
 './accuracy-fixes.js','./accuracy-p2-p6.js','./accuracy-p7-p12.js','./accuracy-final.js','./accuracy-browser-fixes.js','./physical-interactions.js','./physical-interactions.css','./interaction-geometry.js',
 './aqa-setup-alignment.js','./aqa-setup-visual-fixes.js','./lab-book.js','./lab-book-v2.js','./lab-book.css','./lab-book-v2.css','./lab-book-final.css','./lab-book-examples.js','./lab-book-examples-complete.js','./lab-book-examples.css','./lab-book-example-detail-v2b.js','./lab-book-example-detail-v3.js','./lab-book-inline-switch.js','./lab-book-bootstrap.js','./learning-tools-core.js',

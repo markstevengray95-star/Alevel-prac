@@ -15,6 +15,7 @@ from mathutils import Vector
 
 
 OUT = os.path.abspath(sys.argv[sys.argv.index("--") + 1]) if "--" in sys.argv else os.path.abspath("assets")
+SELECT = sys.argv[sys.argv.index("--") + 2] if "--" in sys.argv and len(sys.argv) > sys.argv.index("--") + 2 else "all"
 os.makedirs(OUT, exist_ok=True)
 
 
@@ -299,6 +300,67 @@ def search_coil():
     save("rp11-search-coil.png")
 
 
-boyle()
-magnetic_force()
-search_coil()
+def resistivity_wire():
+    """AQA RP5: series ammeter, parallel voltmeter across a selected wire length."""
+    clear()
+    studio(target=(0, 0, 0.55), eye=(6.4, -9.5, 6.2), scale=8.8)
+    bench(width=8.3, depth=4.8)
+
+    # The resistance wire is straight and parallel to a metre rule. The left
+    # crocodile clip fixes the electrical zero; the red probe selects L = 0.60 m.
+    left, right, selected = -2.75, 2.45, 0.37
+    cube("Metre rule", (-0.15, 0.86, 0.24), (5.62, 0.29, 0.15), white, 0.025)
+    for i in range(51):
+        x = left + i * (right - left) / 50
+        tick = 0.13 if i % 10 == 0 else 0.075 if i % 5 == 0 else 0.045
+        rod("Ruler millimetre and centimetre graduation", (x, 0.87, 0.33), (x, 0.87 - tick, 0.33), 0.007, dark_metal, 8)
+    for cm, x in ((0, left), (20, -1.71), (40, -0.67), (60, selected), (80, 1.41), (100, right)):
+        text_object("Ruler numeric mark", str(cm), (x, 0.99, 0.337), 0.10, dark_metal, rotation=(0, 0, 0))
+    cube("Insulating wire support", (-0.15, 0.45, 0.39), (5.62, 0.14, 0.17), dark_metal, 0.02)
+    rod("Straight test wire", (left, 0.45, 0.50), (right, 0.45, 0.50), 0.022, copper)
+    for x, name in ((left, "Fixed crocodile clip"), (right, "Wire end terminal")):
+        cube(name, (x, 0.45, 0.56), (0.26, 0.22, 0.16), dark_metal, 0.018)
+    # A movable voltmeter probe touches the wire at the 60 cm graduation.
+    cube("Movable contact probe body", (selected, 0.44, 0.88), (0.18, 0.23, 0.23), red, 0.025)
+    rod("Movable contact needle", (selected, 0.44, 0.76), (selected, 0.44, 0.52), 0.025, metal)
+    rod("Selected length indicator", (left, 0.13, 0.45), (selected, 0.13, 0.45), 0.012, liquid, 12)
+
+    # Three separate instruments. Their leads are physically modelled so the
+    # ammeter is in the main series loop, and the voltmeter is a separate branch
+    # across only the fixed clip and movable probe, not across the whole wire.
+    cube("Low voltage DC supply", (-2.40, -1.25, 0.35), (1.15, 0.76, 0.56), plastic)
+    cube("Supply display", (-2.42, -1.65, 0.43), (0.53, 0.03, 0.18), liquid, 0.02)
+    text_object("Supply label", "DC", (-2.42, -1.68, 0.35), 0.14, dark_metal)
+    cube("Series ammeter", (-0.75, -1.25, 0.35), (1.04, 0.76, 0.56), plastic)
+    cube("Ammeter screen", (-0.75, -1.65, 0.43), (0.53, 0.03, 0.18), liquid, 0.02)
+    text_object("Ammeter label", "A", (-0.75, -1.68, 0.35), 0.15, dark_metal)
+    cube("Parallel voltmeter", (1.15, -1.25, 0.35), (1.04, 0.76, 0.56), plastic)
+    cube("Voltmeter screen", (1.15, -1.65, 0.43), (0.53, 0.03, 0.18), liquid, 0.02)
+    text_object("Voltmeter label", "V", (1.15, -1.68, 0.35), 0.15, dark_metal)
+    # Series path: PSU+ -> A -> left clip -> resistance wire -> right end -> PSU-.
+    line("Series supply to ammeter positive", [(-2.65, -1.66, 0.47), (-2.25, -2.04, 0.55), (-1.22, -2.03, 0.55), (-0.98, -1.67, 0.47)], 0.018, red)
+    line("Series ammeter to fixed clip", [(-0.53, -1.67, 0.47), (-0.36, -1.91, 0.53), (-2.91, -0.12, 0.68), (left, 0.45, 0.59)], 0.018, rubber)
+    line("Series wire end to supply negative", [(right, 0.45, 0.59), (2.91, 0.12, 0.58), (2.84, -2.13, 0.52), (-1.96, -2.15, 0.54), (-2.15, -1.66, 0.47)], 0.018, rubber)
+    # High resistance voltmeter branches to the two selected contact points.
+    line("Voltmeter negative to fixed contact", [(0.91, -1.67, 0.47), (0.65, -1.82, 0.78), (-2.92, -0.39, 0.79), (left, 0.45, 0.59)], 0.015, blue)
+    line("Voltmeter positive to movable probe", [(1.38, -1.67, 0.47), (1.80, -0.58, 0.67), (selected, 0.24, 0.99), (selected, 0.44, 0.88)], 0.016, red)
+
+    # Micrometer is shown away from the energised circuit because diameter is
+    # measured separately at several points and orientations along the wire.
+    line("Micrometer C frame", [(2.9, 1.31, 0.35), (3.33, 1.31, 0.45), (3.52, 1.31, 0.86), (3.45, 1.31, 1.23), (3.08, 1.31, 1.36)], 0.068, dark_metal)
+    rod("Micrometer anvil", (3.04, 1.31, 1.30), (2.82, 1.31, 1.30), 0.044, metal)
+    rod("Micrometer spindle", (2.18, 1.31, 1.30), (2.66, 1.31, 1.30), 0.047, metal)
+    cyl("Micrometer thimble", (2.17, 1.31, 1.30), 0.17, 0.42, metal, rotation=(0, math.pi / 2, 0))
+    rod("Separate sample for diameter", (2.73, 1.20, 1.19), (2.73, 1.42, 1.41), 0.013, copper)
+
+    save("rp05-resistivity-wire.png")
+
+
+if SELECT in ("all", "rp08"):
+    boyle()
+if SELECT in ("all", "rp10"):
+    magnetic_force()
+if SELECT in ("all", "rp11"):
+    search_coil()
+if SELECT in ("all", "rp05"):
+    resistivity_wire()
