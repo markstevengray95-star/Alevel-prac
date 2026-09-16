@@ -55,6 +55,15 @@ const { chromium } = require('playwright');
     }
   }
 
+  await page.evaluate(()=>navigate('practical',4));
+  await page.waitForFunction(()=>document.querySelector('#young3d')?.dataset.modelLoaded==='true');
+  if(await page.locator('#young3d canvas').count()!==1)throw new Error('P4 Blender 3D canvas missing');
+  if(await page.locator('#young3dTool').count()!==1)throw new Error('P4 main Blender 3D button missing');
+  await page.locator('#young3dTool').click();
+  const expanded=await page.locator('#young3d').evaluate(el=>({parent:el.parentElement.tagName,width:el.getBoundingClientRect().width}));
+  if(expanded.parent!=='BODY'||expanded.width<700)throw new Error(`P4 Blender 3D enlarged view failed: ${JSON.stringify(expanded)}`);
+  await page.locator('[data-young-reset]').click();
+  await page.locator('[data-young-expand]').click();
   await page.evaluate(()=>navigate('practical',8));
   await page.waitForTimeout(160);
   for(const part of ['Gas syringe','Mass holder + slotted masses','String loop'])if(await page.locator(`#scene [data-part="${part}"]`).count()!==1)throw new Error(`P8 Boyle missing ${part}`);

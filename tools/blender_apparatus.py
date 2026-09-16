@@ -407,6 +407,15 @@ def young_modulus():
     rod("Separate wire sample", (2.64, -1.16, 1.18), (2.64, -0.91, 1.42), 0.012, copper)
 
     save("rp04-young-modulus.png")
+    # Preserve the real geometry for the browser's orbitable WebGL view.
+    bpy.ops.export_scene.gltf(
+        filepath=os.path.join(OUT, "rp04-young-modulus.glb"),
+        export_format="GLB",
+        export_yup=False,
+        export_apply=True,
+        export_cameras=False,
+        export_lights=False,
+    )
 
 
 if SELECT in ("all", "rp08"):
