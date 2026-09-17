@@ -27,8 +27,8 @@ async function start(){
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
   await loadScript(versioned('p2-visual-accuracy.js'),'p2VisualAccuracy');
   await loadScript(versioned('p4-p6-run-accuracy.js'),'p4P6RunAccuracy');
-  /* Install the shared simulation engine before the heavier learning/lab-book stack. */
   await loadScript(versioned('animation-runtime-v2.js'),'animationRuntimeV2');
+  await loadScript(versioned('feature-27-setup-snapshots.js'),'feature27SetupSnapshots');
   try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
   await loadScript(versioned('lab-book.js'),'labBookScript');
   await loadScript(versioned('lab-book-v2.js'),'labBookV2Script');
