@@ -33,6 +33,7 @@ jobs:
           node --check tests/labbook-integrity.cjs
           node --check tests/test-worked-examples-complete.cjs
           node --check tests/sandbox-v3-smoke.js
+          node --check tests/sandbox-v4-smoke.js
       - name: Check HTML local asset references
         run: |
           python - <<'PY'
@@ -65,5 +66,6 @@ jobs:
           sleep 1
           node tests/browser-smoke.js
           node tests/sandbox-v3-smoke.js
+          node tests/sandbox-v4-smoke.js
           node tests/labbook-toggle-smoke.js
           node tests/learning-suite-smoke.js
