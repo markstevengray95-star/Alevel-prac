@@ -13,6 +13,14 @@ const interactiveParts={
   6:['Switch','Variable resistor'],7:['Pendulum','Mass hanger'],8:['Gas syringe','Thermometer'],
   9:['Two-position switch','Resistor'],10:['Variable resistor'],11:['Search coil'],12:['Virtual source holder']
 };
+function installSandboxAsset(tag,attrs,key){
+  if(document.querySelector(`[data-${key}]`))return;
+  const el=document.createElement(tag);Object.entries(attrs).forEach(([k,v])=>el[k]=v);el.dataset[key]='1';document.head.appendChild(el);
+}
+function installSandboxTools(){
+  installSandboxAsset('link',{rel:'stylesheet',href:'sandbox-tools-v3.css?v=20260917-sandbox-v3'},'sandboxToolsV3');
+  if(!document.querySelector('script[data-feature26LiveScope]')){const s=document.createElement('script');s.src='feature-26-live-scope.js?v=20260917-sandbox-v3';s.async=false;s.dataset.feature26LiveScope='1';document.body.appendChild(s);}
+}
 
 function rendererForCurrent(){return current&&window['renderP'+current.id+'Scene'];}
 function frameBudget(){
@@ -67,18 +75,14 @@ function paintScene(force=false){
       scene.dataset.animating=running?'1':'0';
       restoreToast(scene,toast);
       afterFrame();
-    }else{
-      scene.dataset.animating=running?'1':'0';
-    }
+    }else scene.dataset.animating=running?'1':'0';
     setRunUi();
     const now=performance.now();
     if(force||now-lastReadout>80){updateReadouts();lastReadout=now;}
     const cost=performance.now()-started;
     avgRenderMs=avgRenderMs?avgRenderMs*.88+cost*.12:cost;
     document.dispatchEvent(new CustomEvent('practicallab:frame',{detail:{id:current.id,mode:currentMode,time:simT,running:!!running,renderMs:cost}}));
-  }catch(err){
-    console.error('Animation frame failed',err);running=false;setRunUi();
-  }
+  }catch(err){console.error('Animation frame failed',err);running=false;setRunUi();}
 }
 function fullPaint(){
   if(!current)return;
@@ -104,32 +108,17 @@ function ensureEngine(){
   engineRaf=requestAnimationFrame(engineLoop);
 }
 
-startLoop=function(){
-  if(raf){cancelAnimationFrame(raf);raf=0;}
-  ensureEngine();requestPaint(true);
-};
-
-function emitRunState(action){
-  document.dispatchEvent(new CustomEvent('practicallab:runstate',{detail:{action,id:current?.id,mode:currentMode,time:simT,running:!!running}}));
-}
+startLoop=function(){if(raf){cancelAnimationFrame(raf);raf=0;}ensureEngine();requestPaint(true);};
+function emitRunState(action){document.dispatchEvent(new CustomEvent('practicallab:runstate',{detail:{action,id:current?.id,mode:currentMode,time:simT,running:!!running}}));}
 function runFromButton(){
-  if(!current)return;
-  const before=simT,was=running;
+  if(!current)return;const before=simT,was=running;
   try{runExperiment();}catch(err){console.error(err);running=true;}
   if(!running)running=true;
   if(!was&&simT===before&&[3,4,5,6,8,9,10,12].includes(current.id))simT=0;
   ensureEngine();requestPaint(true);setRunUi();emitRunState('run');
 }
-function pauseFromButton(){
-  if(!current)return;
-  try{pauseExperiment();}catch(err){running=false;}
-  running=false;requestPaint(true);setRunUi();emitRunState('pause');
-}
-function resetFromButton(){
-  if(!current)return;
-  try{resetExperiment();}catch(err){running=false;simT=0;methodStep=0;}
-  running=false;simT=0;lastHtml='';requestPaint(true);setRunUi();emitRunState('reset');
-}
+function pauseFromButton(){if(!current)return;try{pauseExperiment();}catch(err){running=false;}running=false;requestPaint(true);setRunUi();emitRunState('pause');}
+function resetFromButton(){if(!current)return;try{resetExperiment();}catch(err){running=false;simT=0;methodStep=0;}running=false;simT=0;lastHtml='';requestPaint(true);setRunUi();emitRunState('reset');}
 function bindControls(){
   const run=document.querySelector('#runBtn'),pause=document.querySelector('#pauseBtn'),reset=document.querySelector('#resetBtn');
   if(run)run.onclick=runFromButton;if(pause)pause.onclick=pauseFromButton;if(reset)reset.onclick=resetFromButton;
@@ -138,33 +127,17 @@ function bindControls(){
 }
 
 const previousOpen=openPractical;
-openPractical=function(id){
-  lastHtml='';requestedPaint=true;requestedFullPaint=true;
-  const out=previousOpen(id);bindControls();ensureEngine();requestPaint(true);return out;
-};
+openPractical=function(id){lastHtml='';requestedPaint=true;requestedFullPaint=true;const out=previousOpen(id);bindControls();ensureEngine();requestPaint(true);return out;};
 const previousModes=renderModeTabs;
 renderModeTabs=function(){
   previousModes();
-  document.querySelectorAll('[data-mode]').forEach(b=>{
-    const old=b.onclick;
-    b.onclick=e=>{running=false;simT=0;lastHtml='';if(old)old.call(b,e);bindControls();requestPaint(true);};
-  });
+  document.querySelectorAll('[data-mode]').forEach(b=>{const old=b.onclick;b.onclick=e=>{running=false;simT=0;lastHtml='';if(old)old.call(b,e);bindControls();requestPaint(true);};});
 };
 
 document.addEventListener('visibilitychange',()=>{engineLast=performance.now();if(document.visibilityState==='visible')requestPaint(true);});
 window.addEventListener('resize',()=>requestPaint(true),{passive:true});
 window.addEventListener('load',()=>{bindControls();ensureEngine();requestPaint(true);},{once:true});
 
-window.__animationRuntime={
-  version:'3.0',
-  running:()=>!!running,
-  time:()=>simT,
-  renderCost:()=>avgRenderMs,
-  forceFrame:()=>paintScene(true),
-  requestPaint:()=>requestPaint(false),
-  requestFullPaint:()=>requestPaint(true),
-  start:runFromButton,
-  pause:pauseFromButton,
-  reset:resetFromButton
-};
+window.__animationRuntime={version:'3.0',running:()=>!!running,time:()=>simT,renderCost:()=>avgRenderMs,forceFrame:()=>paintScene(true),requestPaint:()=>requestPaint(false),requestFullPaint:()=>requestPaint(true),start:runFromButton,pause:pauseFromButton,reset:resetFromButton};
+installSandboxTools();
 })();
