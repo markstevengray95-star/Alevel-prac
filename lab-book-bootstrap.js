@@ -15,10 +15,11 @@ function addLabView(){
 }
 function loadScript(src,key){return new Promise(resolve=>{const found=document.querySelector(`script[data-${key}]`);if(found){if(found.dataset.loaded==='1')resolve();else found.addEventListener('load',resolve,{once:true});return;}const s=document.createElement('script');s.src=src;s.async=false;s.dataset[key]='1';s.onload=()=>{s.dataset.loaded='1';resolve();};s.onerror=()=>{console.error('Failed to load '+src);resolve();};document.body.appendChild(s);});}
 function refineAqaSandbox(){
-  const p9=window.__AQA_SANDBOX_V4?.config?.[9];
-  if(!p9)return;
-  if(!p9.at.includes('ATh'))p9.at.splice(3,0,'ATh');
-  const readout=p9.items.find(x=>x[0]==='volt');
+  const api=window.__AQA_SANDBOX_V4;
+  if(!api?.config||!Array.isArray(window.practicals))return;
+  practicals.forEach(p=>{const c=api.config[p.id];if(c)c.at=[...(p.at||[])];});
+  const p9=api.config[9];
+  const readout=p9?.items?.find(x=>x[0]==='volt');
   if(readout)readout[1]='Voltmeter / oscilloscope / data logger';
 }
 async function start(){
