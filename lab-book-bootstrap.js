@@ -14,6 +14,13 @@ function addLabView(){
   if(hero&&!hero.querySelector('#openLabBookHome')){const b=document.createElement('button');b.id='openLabBookHome';b.className='secondary-btn';b.textContent='Open my lab book →';b.onclick=()=>navigate('labbook');hero.insertBefore(b,hero.querySelector('.hero-note'));}
 }
 function loadScript(src,key){return new Promise(resolve=>{const found=document.querySelector(`script[data-${key}]`);if(found){if(found.dataset.loaded==='1')resolve();else found.addEventListener('load',resolve,{once:true});return;}const s=document.createElement('script');s.src=src;s.async=false;s.dataset[key]='1';s.onload=()=>{s.dataset.loaded='1';resolve();};s.onerror=()=>{console.error('Failed to load '+src);resolve();};document.body.appendChild(s);});}
+function refineAqaSandbox(){
+  const p9=window.__AQA_SANDBOX_V4?.config?.[9];
+  if(!p9)return;
+  if(!p9.at.includes('ATh'))p9.at.splice(3,0,'ATh');
+  const readout=p9.items.find(x=>x[0]==='volt');
+  if(readout)readout[1]='Voltmeter / oscilloscope / data logger';
+}
 async function start(){
   addLabView();
   loadStyle(versioned('lab-book.css'),'labBookStyle');
@@ -30,6 +37,7 @@ async function start(){
   await loadScript(versioned('p4-p6-run-accuracy.js'),'p4P6RunAccuracy');
   await loadScript(versioned('animation-runtime-v2.js'),'animationRuntimeV2');
   await loadScript(versioned('experimental-sandbox-v4.js'),'experimentalSandboxV4');
+  refineAqaSandbox();
   await loadScript(versioned('practical-toolkit-v4.js'),'practicalToolkitV4');
   await loadScript(versioned('feature-27-setup-snapshots.js'),'feature27SetupSnapshots');
   await loadScript(versioned('feature-28-repeat-analysis.js'),'feature28RepeatAnalysis');
