@@ -45,7 +45,7 @@ function deleteSlot(index){slots()[index]=null;save();render();flash(`Cleared se
 function flash(text){
   const root=document.querySelector('#setupSnapshots');if(!root)return;let n=root.querySelector('.snapshot-toast');if(!n){n=document.createElement('div');n.className='snapshot-toast';root.appendChild(n);}n.textContent=text;n.classList.add('show');clearTimeout(flash.t);flash.t=setTimeout(()=>n.classList.remove('show'),1100);
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
 document.addEventListener('practicallab:frame',()=>{if(current&&(!document.querySelector('#setupSnapshots')||keyFor()!==lastKey))ensurePanel();});
 document.addEventListener('practicallab:runstate',()=>{if(current)ensurePanel();});
