@@ -16,8 +16,9 @@ function addLabView(){
 function loadScript(src,key){return new Promise(resolve=>{const found=document.querySelector(`script[data-${key}]`);if(found){if(found.dataset.loaded==='1')resolve();else found.addEventListener('load',resolve,{once:true});return;}const s=document.createElement('script');s.src=src;s.async=false;s.dataset[key]='1';s.onload=()=>{s.dataset.loaded='1';resolve();};s.onerror=()=>{console.error('Failed to load '+src);resolve();};document.body.appendChild(s);});}
 function refineAqaSandbox(){
   const api=window.__AQA_SANDBOX_V4;
-  if(!api?.config||!Array.isArray(window.practicals))return;
-  practicals.forEach(p=>{const c=api.config[p.id];if(c)c.at=[...(p.at||[])];});
+  const defs=typeof practicals!=='undefined'&&Array.isArray(practicals)?practicals:null;
+  if(!api?.config||!defs)return;
+  defs.forEach(p=>{const c=api.config[p.id];if(c)c.at=[...(p.at||[])];});
   const p9=api.config[9];
   const readout=p9?.items?.find(x=>x[0]==='volt');
   if(readout)readout[1]='Voltmeter / oscilloscope / data logger';
