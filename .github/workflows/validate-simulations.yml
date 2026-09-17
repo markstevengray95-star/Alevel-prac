@@ -27,6 +27,7 @@ jobs:
           node --check tests/learning-suite-smoke.js
           node --check tests/audit-model-sweep.js
           node --check tests/first-three-regression.cjs
+          node --check tests/practicals-456-regression.cjs
           node --check tests/labbook-integrity.cjs
           node --check tests/test-worked-examples-complete.cjs
       - name: Check HTML local asset references
@@ -46,6 +47,7 @@ jobs:
           node tests/model-checks.js
           node tests/audit-model-sweep.js
           node tests/first-three-regression.cjs
+          node tests/practicals-456-regression.cjs
           node tests/labbook-integrity.cjs
           node tests/test-worked-examples-complete.cjs
       - name: Install Chromium smoke-test dependency

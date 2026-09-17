@@ -14,7 +14,7 @@ const axisMeta=()=>{
   if(current.id===2)return currentMode===0?['screen distance / m','fringe spacing / mm']:['diffraction order n','sin θ'];
   if(current.id===3)return ['time² / s²','fall distance / m'];
   if(current.id===4)return ['strain','stress / MPa'];
-  if(current.id===5)return ['selected length / m','resistance / Ω'];
+  if(current.id===5)return currentMode===0?['selected length / m','resistance / Ω']:['1 / diameter² / mm⁻²','resistance / Ω'];
   if(current.id===6)return ['current / A','terminal pd / V'];
   return null;
 };

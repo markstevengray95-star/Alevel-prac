@@ -24,10 +24,15 @@ renderP3Scene=function(){
 };
 
 renderP4Scene=function(){
-  const v=getVals(),F=v[0],th=theoretical(v),target=Math.min(18,parseFloat(th.read.Extension)*36);
-  const settle=running?1-Math.exp(-Math.max(0,simT)*4.5):1;
-  const move=target*settle;
-  const loadMass=Math.round(F/9.81*1000);
+  const v=getVals(),F=v[0],th=theoretical(v),area=Math.PI*(v[2]/1000)**2/4;
+  const pixelsPerMm=12,extensionFor=force=>force*v[1]/(area*2e11)*1000;
+  const target=extensionFor(F)*pixelsPerMm;
+  const initialForce=currentMode===0?2:20;
+  const start=extensionFor(initialForce)*pixelsPerMm;
+  const settle=running?Math.min(1,1-Math.exp(-Math.max(0,simT*speed)*4.5)):1;
+  const move=start+(target-start)*settle;
+  if(running&&simT*speed>1.5)running=false;
+  const loadMass=Math.round((initialForce+(F-initialForce)*settle)/9.81*1000);
   const direction=currentMode===0?'LOADING':'UNLOADING';
   return sceneBase(`<g data-part="Rigid support" filter="url(#shadow)"><rect x="108" y="51" width="580" height="22" rx="4" fill="url(#darkMetal)"/><rect x="116" y="52" width="14" height="272" fill="url(#darkMetal)"/><rect x="666" y="52" width="14" height="272" fill="url(#darkMetal)"/></g><g data-part="Reference wire"><line x1="326" y1="73" x2="326" y2="320" stroke="#b7c0bd" stroke-width="2.4"/><rect x="304" y="316" width="44" height="36" rx="5" fill="#666"/><text x="326" y="339" text-anchor="middle" fill="#eee" font-size="7">reference</text></g><g data-part="Test wire"><line x1="500" y1="73" x2="500" y2="${320+move}" stroke="#d0d7d4" stroke-width="2.4"/><g filter="url(#shadow)"><path d="M500 ${317+move} q-12 8-12 18 h24 q0-10-12-18z" fill="url(#metal)"/><rect x="475" y="${335+move}" width="50" height="31" rx="4" fill="#5b6260"/><text x="500" y="${355+move}" text-anchor="middle" fill="#eee" font-size="7">${loadMass} g</text></g></g><g data-part="Vernier scale" filter="url(#shadow)"><rect x="350" y="240" width="136" height="33" rx="5" fill="#d6dedb" stroke="#515d5a" stroke-width="2"/><g stroke="#3d4744">${Array.from({length:18},(_,i)=>`<line x1="${357+i*7}" y1="245" x2="${357+i*7}" y2="${i%5===0?267:260}"/>`).join('')}</g><rect x="405" y="233" width="22" height="47" fill="#889793" stroke="#59645f"/></g><g data-part="Spirit level" filter="url(#softShadow)"><rect x="376" y="204" width="88" height="22" rx="11" fill="#d8d592" stroke="#59615e" stroke-width="2"/><rect x="392" y="210" width="56" height="10" rx="5" fill="#edf2ce"/><circle cx="${420+(running?(1-settle)*7:0)}" cy="215" r="7" fill="#d6f19e" stroke="#77805f"/></g><g data-part="Micrometer" filter="url(#shadow)"><path d="M650 172 q60-55 98 0 v57 q-38 54-98 0z" fill="none" stroke="url(#metal)" stroke-width="14"/><rect x="698" y="195" width="80" height="24" rx="6" fill="#6b716f"/><g stroke="#dce2df">${Array.from({length:9},(_,i)=>`<line x1="${706+i*8}" y1="195" x2="${706+i*8}" y2="202"/>`).join('')}</g><rect x="634" y="197" width="22" height="16" rx="3" fill="url(#brass)"/></g><g data-part="Pointer"><line x1="427" y1="279" x2="427" y2="${304+move}" stroke="#d65b4f" stroke-width="2"/><path d="M419 ${304+move} h16 l-8 10z" fill="#d65b4f"/></g><g pointer-events="none"><rect x="547" y="98" width="125" height="45" rx="8" fill="#14293c" opacity=".9"/><text x="609" y="116" text-anchor="middle" fill="#8faab4" font-size="8">${direction}</text><text x="609" y="134" text-anchor="middle" fill="#d8efbf" font-family="monospace" font-size="10">ΔL ${th.read.Extension}</text></g>${label(270,303,'reference wire')}${label(472,302,'test wire')}${label(350,193,'spirit level')}${label(345,293,'vernier scale')}${label(637,155,'micrometer')}`);
 };
