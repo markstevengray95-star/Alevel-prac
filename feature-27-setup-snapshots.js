@@ -9,20 +9,21 @@ function summary(vals){
   if(!current)return '';
   return vals.map((v,i)=>{const spec=modeVar(i);return `${spec[0]} ${formatVal(v,spec[1])}`;}).slice(0,2).join(' · ');
 }
-function ensurePanel(){
+function ensurePanel(force=false){
   if(!current)return null;
   const controls=document.querySelector('#controls');if(!controls)return null;
-  let root=document.querySelector('#setupSnapshots');
+  const k=keyFor();let root=document.querySelector('#setupSnapshots'),created=false;
   if(!root){
-    root=document.createElement('section');root.id='setupSnapshots';root.className='setup-snapshots';
+    root=document.createElement('section');root.id='setupSnapshots';root.className='setup-snapshots';created=true;
     root.innerHTML=`<div class="setup-snapshots-head"><div><span class="eyebrow">SETUP SNAPSHOTS</span><h3>Save apparatus settings</h3></div><p>Store up to three parameter sets for quick comparison.</p></div><div class="snapshot-grid" id="snapshotGrid"></div>`;
     controls.insertAdjacentElement('afterend',root);
   }
-  render();return root;
+  if(created||force||k!==lastKey){lastKey=k;render();}
+  return root;
 }
 function render(){
   const root=document.querySelector('#setupSnapshots');if(!root||!current)return;
-  const k=keyFor();if(k!==lastKey)lastKey=k;
+  lastKey=keyFor();
   const list=slots();
   root.querySelector('#snapshotGrid').innerHTML=list.map((snap,i)=>snap?`
     <article class="snapshot-card saved"><div class="snapshot-slot">SETUP ${String.fromCharCode(65+i)}</div><strong>${escapeHtml(snap.label||summary(snap.vals))}</strong><small>${escapeHtml(snap.summary||summary(snap.vals))}</small><div><button class="secondary-btn" data-restore-snap="${i}">Restore</button><button class="ghost-btn" data-save-snap="${i}">Replace</button><button class="ghost-btn" data-delete-snap="${i}" aria-label="Delete setup ${String.fromCharCode(65+i)}">Delete</button></div></article>`:`
@@ -44,10 +45,10 @@ function deleteSlot(index){slots()[index]=null;save();render();flash(`Cleared se
 function flash(text){
   const root=document.querySelector('#setupSnapshots');if(!root)return;let n=root.querySelector('.snapshot-toast');if(!n){n=document.createElement('div');n.className='snapshot-toast';root.appendChild(n);}n.textContent=text;n.classList.add('show');clearTimeout(flash.t);flash.t=setTimeout(()=>n.classList.remove('show'),1100);
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));}
 
-document.addEventListener('practicallab:frame',()=>{if(current)ensurePanel();});
+document.addEventListener('practicallab:frame',()=>{if(current&&(!document.querySelector('#setupSnapshots')||keyFor()!==lastKey))ensurePanel();});
 document.addEventListener('practicallab:runstate',()=>{if(current)ensurePanel();});
-setInterval(()=>{if(current)ensurePanel();},900);
+setInterval(()=>{if(current&&(!document.querySelector('#setupSnapshots')||keyFor()!==lastKey))ensurePanel();},900);
 window.__setupSnapshotsReady=true;
 })();
