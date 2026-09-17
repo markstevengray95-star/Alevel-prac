@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260917-sandbox-v3';
+const REV='20260917-sandbox-v4';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
@@ -22,12 +22,15 @@ async function start(){
   loadStyle(versioned('lab-book-examples.css'),'labBookExamplesStyle');
   loadStyle(versioned('learning-tools.css'),'learningToolsStyle');
   loadStyle(versioned('ui-polish-v3.css'),'uiPolishV3');
+  loadStyle(versioned('experimental-sandbox-v4.css'),'experimentalSandboxV4Style');
   await loadScript(versioned('young-modulus-3d.js'),'youngModulus3D');
   await loadScript(versioned('aqa-setup-alignment.js'),'aqaSetupAlignment');
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
   await loadScript(versioned('p2-visual-accuracy.js'),'p2VisualAccuracy');
   await loadScript(versioned('p4-p6-run-accuracy.js'),'p4P6RunAccuracy');
   await loadScript(versioned('animation-runtime-v2.js'),'animationRuntimeV2');
+  await loadScript(versioned('experimental-sandbox-v4.js'),'experimentalSandboxV4');
+  await loadScript(versioned('practical-toolkit-v4.js'),'practicalToolkitV4');
   await loadScript(versioned('feature-27-setup-snapshots.js'),'feature27SetupSnapshots');
   await loadScript(versioned('feature-28-repeat-analysis.js'),'feature28RepeatAnalysis');
   try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
