@@ -6,6 +6,18 @@ The practical library includes animated apparatus, controls for the specified va
 
 The workbench uses a shared **sandbox animation runtime** across all 12 practicals. It targets smooth requestAnimationFrame motion, adapts the paint rate when a device is under load, preserves direct-manipulation controls while the SVG apparatus redraws, and keeps Run, Pause and Reset behaviour consistent. Students can drag/click supported apparatus, watch live readouts, record single readings or repeats, and compare how changing an independent variable affects the model.
 
+## Experimental sandbox v4
+
+Every required practical now has an optional experimental build workspace designed around the practical's AQA apparatus and technique coverage. It has three modes:
+
+- **Guided** — start from a validated reference arrangement and explore the physics model.
+- **Sandbox** — empty or rearrange the bench, place apparatus, make the required connections/alignments, calibrate measurement steps and test the setup.
+- **Challenge** — build without the visible checklist; recording is held back until the simulated setup validation passes.
+
+The sandbox keeps a practical-specific apparatus tray, draggable bench positions, connections/alignments, setup/calibration checks and optional hidden diagnostic faults. Practical 12 remains a simulation-only representation: the app does not provide instructions for handling an ionising-radiation source. The virtual activities support preparation and analysis; the AQA Practical Endorsement depends on real practical work and teacher assessment.
+
+The **Lab tools** drawer adds the remaining advanced options without crowding the main workbench: virtual measurement instruments selected from the practical's AQA technique coverage, an oscilloscope/data-logger view where relevant, repeat and resolution uncertainty analysis, graph/error-bar and gradient-uncertainty tools, practical challenge/exam view, process feedback and a teacher/demonstration panel. These tools are collapsed by default and the practical action bars have been made more compact on desktop and mobile.
+
 Three additional measurement tools support exploratory practical work:
 
 - **Live sensor trace** — choose a numeric readout and watch it change during a run, with freeze/resume and clear controls.
@@ -28,6 +40,8 @@ The app supports learning and revision. School or college staff assess hands-on 
 ## Development and checks
 
 The site is static HTML, CSS and JavaScript. GitHub Actions deploys the root directory to Pages and validates pull requests and pushes to `main`. The automated browser checks exercise every practical/mode, Run/Pause/Reset, readout recording, apparatus interactions, the circuit builder, Blender views, lab-book integrations, live traces, saved setups and repeat analysis.
+
+The sandbox-v4 browser regression makes **three complete passes across all 12 practicals and every investigation mode**. It checks that the sandbox AQA apparatus-technique mapping matches each practical definition, every reference build reaches 100% validation, Challenge mode gates incomplete setups, diagnostic faults affect simulated measurements, and the uncertainty, graph, examination and teacher tools all integrate without invalid readouts or browser errors.
 
 Run the dependency-free model checks locally with Node:
 

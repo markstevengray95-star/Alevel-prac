@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260917-sandbox-v3';
+const REV='20260917-sandbox-v4';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
@@ -14,6 +14,15 @@ function addLabView(){
   if(hero&&!hero.querySelector('#openLabBookHome')){const b=document.createElement('button');b.id='openLabBookHome';b.className='secondary-btn';b.textContent='Open my lab book →';b.onclick=()=>navigate('labbook');hero.insertBefore(b,hero.querySelector('.hero-note'));}
 }
 function loadScript(src,key){return new Promise(resolve=>{const found=document.querySelector(`script[data-${key}]`);if(found){if(found.dataset.loaded==='1')resolve();else found.addEventListener('load',resolve,{once:true});return;}const s=document.createElement('script');s.src=src;s.async=false;s.dataset[key]='1';s.onload=()=>{s.dataset.loaded='1';resolve();};s.onerror=()=>{console.error('Failed to load '+src);resolve();};document.body.appendChild(s);});}
+function refineAqaSandbox(){
+  const api=window.__AQA_SANDBOX_V4;
+  const defs=typeof practicals!=='undefined'&&Array.isArray(practicals)?practicals:null;
+  if(!api?.config||!defs)return;
+  defs.forEach(p=>{const c=api.config[p.id];if(c)c.at=[...(p.at||[])];});
+  const p9=api.config[9];
+  const readout=p9?.items?.find(x=>x[0]==='volt');
+  if(readout)readout[1]='Voltmeter / oscilloscope / data logger';
+}
 async function start(){
   addLabView();
   loadStyle(versioned('lab-book.css'),'labBookStyle');
@@ -22,12 +31,16 @@ async function start(){
   loadStyle(versioned('lab-book-examples.css'),'labBookExamplesStyle');
   loadStyle(versioned('learning-tools.css'),'learningToolsStyle');
   loadStyle(versioned('ui-polish-v3.css'),'uiPolishV3');
+  loadStyle(versioned('experimental-sandbox-v4.css'),'experimentalSandboxV4Style');
   await loadScript(versioned('young-modulus-3d.js'),'youngModulus3D');
   await loadScript(versioned('aqa-setup-alignment.js'),'aqaSetupAlignment');
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
   await loadScript(versioned('p2-visual-accuracy.js'),'p2VisualAccuracy');
   await loadScript(versioned('p4-p6-run-accuracy.js'),'p4P6RunAccuracy');
   await loadScript(versioned('animation-runtime-v2.js'),'animationRuntimeV2');
+  await loadScript(versioned('experimental-sandbox-v4.js'),'experimentalSandboxV4');
+  refineAqaSandbox();
+  await loadScript(versioned('practical-toolkit-v4.js'),'practicalToolkitV4');
   await loadScript(versioned('feature-27-setup-snapshots.js'),'feature27SetupSnapshots');
   await loadScript(versioned('feature-28-repeat-analysis.js'),'feature28RepeatAnalysis');
   try{if(typeof renderHome==='function')renderHome();if(current&&typeof renderPractical==='function')renderPractical();}catch(e){console.error(e);}
