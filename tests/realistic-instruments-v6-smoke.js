@@ -35,8 +35,9 @@ const { chromium } = require('playwright');
   await page.evaluate(()=>{navigate('practical',3);window.__animationRuntime.forceFrame();window.__realisticInstrumentsV6.refresh();});
   if(await page.locator('.v6-gate-led').count()<2)throw new Error('P3 light-gate LEDs missing');
   if(await page.locator('.v6-logger-digits').count()!==1)throw new Error('P3 logger display missing');
-  await page.locator('#scene [data-part="Data logger"]').click();
-  if(!(await page.locator('#instrumentPopoverV6').innerText()).includes('ELECTRONIC TIMING'))throw new Error('P3 data logger focus panel missing');
+  const logger=page.locator('#scene [data-part="Data logger"]');
+  await logger.focus();await page.keyboard.press('Enter');
+  if(!(await page.locator('#instrumentPopoverV6').innerText()).includes('ELECTRONIC TIMING'))throw new Error('P3 data logger keyboard focus panel missing');
 
   // P4: micrometer and vernier; zeroing must update instrument state.
   await page.evaluate(()=>{navigate('practical',4);window.__animationRuntime.forceFrame();window.__realisticInstrumentsV6.refresh();});
@@ -59,8 +60,10 @@ const { chromium } = require('playwright');
   if(mr!==20)throw new Error('Voltmeter range selection did not persist');
   const lead=page.locator('.v6-lead-handle');
   if(await lead.count()!==1)throw new Error('P5 draggable connector missing');
-  const bb=await lead.boundingBox();if(!bb)throw new Error('P5 connector has no bounding box');
-  await page.mouse.move(bb.x+bb.width/2,bb.y+bb.height/2);await page.mouse.down();await page.mouse.move(bb.x+45,bb.y+20,{steps:3});await page.mouse.up();
+  await lead.dispatchEvent('pointerdown',{clientX:620,clientY:300,pointerId:1,bubbles:true});
+  if(!(await page.evaluate(()=>window.__realisticInstrumentsV6.state.leadDrag)))throw new Error('Connector pointerdown did not start drag state');
+  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointermove',{clientX:650,clientY:315,pointerId:1,bubbles:true})));
+  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{clientX:650,clientY:315,pointerId:1,bubbles:true})));
   if(await page.evaluate(()=>window.__realisticInstrumentsV6.state.leadDrag)!==null)throw new Error('Connector drag state did not clear');
 
   // P8 Boyle: micrometer source must be the modelled plunger/seal diameter, not atmospheric pressure.
