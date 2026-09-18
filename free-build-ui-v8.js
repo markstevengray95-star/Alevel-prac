@@ -109,7 +109,7 @@ function enhance(){
     const root=document.querySelector('#experimentalSandboxV4');if(!root)return;const toolbar=root.querySelector('.sb-toolbar');if(!toolbar)return;
     let free=toolbar.querySelector('[data-sb-mode="freebuild"]');if(!free){free=document.createElement('button');free.dataset.sbMode='freebuild';free.textContent='Free build';toolbar.insertBefore(free,toolbar.querySelector('.sb-spacer'));free.onclick=()=>api().setMode();}
     free.classList.toggle('active',api().isActive());
-    const grid=root.querySelector('.sb-grid');if(api().isActive()&&grid){grid.classList.add('fb-host');grid.innerHTML=freeBuildHtml();bind(root);root.open=true;}
+    const grid=root.querySelector('.sb-grid');if(api().isActive()&&grid){const sig=current.id+':'+currentMode+':'+JSON.stringify(api().session());grid.classList.add('fb-host');if(grid.dataset.fbSig!==sig){grid.dataset.fbSig=sig;grid.innerHTML=freeBuildHtml();bind(root);}root.open=true;}
     gate();
   }finally{enhancing=false;}
 }
