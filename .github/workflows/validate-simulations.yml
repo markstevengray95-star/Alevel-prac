@@ -35,6 +35,7 @@ jobs:
           node --check tests/sandbox-v3-smoke.js
           node --check tests/sandbox-v4-smoke.js
           node --check tests/visuals-v5-smoke.js
+          node --check tests/realistic-instruments-v6-smoke.js
       - name: Check HTML local asset references
         run: |
           python - <<'PY'
@@ -69,5 +70,6 @@ jobs:
           node tests/sandbox-v3-smoke.js
           node tests/sandbox-v4-smoke.js
           node tests/visuals-v5-smoke.js
+          node tests/realistic-instruments-v6-smoke.js
           node tests/labbook-toggle-smoke.js
           node tests/learning-suite-smoke.js
