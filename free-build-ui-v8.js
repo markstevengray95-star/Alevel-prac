@@ -99,8 +99,8 @@ function bind(root){
   root.querySelectorAll('[data-fb-calibrate]').forEach(b=>b.onclick=()=>api().calibrate(+b.dataset.fbCalibrate,!api().session().cal[+b.dataset.fbCalibrate]));
   root.querySelectorAll('[data-fb-disconnect]').forEach(b=>b.onclick=()=>api().disconnect(b.dataset.fbDisconnect));
   root.querySelectorAll('[data-fb-port]').forEach(p=>{
-    p.onpointerdown=e=>{e.preventDefault();e.stopPropagation();selectedPort=p.dataset.fbPort;wireDrag={from:selectedPort};document.body.classList.add('fb-wiring');};
-    p.onclick=e=>{e.preventDefault();e.stopPropagation();const id=p.dataset.fbPort;if(selectedPort&&selectedPort!==id){api().connect(selectedPort,id);selectedPort=null;}else selectedPort=id;};
+    p.onpointerdown=e=>{e.preventDefault();e.stopPropagation();wireDrag={from:p.dataset.fbPort,previous:selectedPort};document.body.classList.add('fb-wiring');};
+    p.onclick=e=>{e.preventDefault();e.stopPropagation();};
   });
 }
 function enhance(){
@@ -115,7 +115,7 @@ function enhance(){
 }
 document.addEventListener('freebuildv8:change',()=>queueMicrotask(()=>{try{window.__AQA_SANDBOX_V4?.render?.();}catch{};queueMicrotask(enhance);}));
 document.addEventListener('practicallab:runstate',()=>queueMicrotask(gate));
-window.addEventListener('pointerup',e=>{if(!wireDrag)return;const target=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('[data-fb-port]'),from=wireDrag.from;wireDrag=null;document.body.classList.remove('fb-wiring');if(target&&target.dataset.fbPort!==from)api().connect(from,target.dataset.fbPort);else selectedPort=from;});
+window.addEventListener('pointerup',e=>{if(!wireDrag)return;const target=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('[data-fb-port]'),from=wireDrag.from,previous=wireDrag.previous;wireDrag=null;document.body.classList.remove('fb-wiring');if(target&&target.dataset.fbPort!==from){api().connect(from,target.dataset.fbPort);selectedPort=null;}else if(previous&&previous!==from){api().connect(previous,from);selectedPort=null;}else selectedPort=from;});
 const prevRender=renderPractical;renderPractical=function(){const out=prevRender.apply(this,arguments);queueMicrotask(enhance);return out;};
 observer=new MutationObserver(()=>queueMicrotask(enhance));observer.observe(document.body,{subtree:true,childList:true});
 window.__freeBuildBenchV8.refresh=enhance;window.__freeBuildBenchV8Ready=true;queueMicrotask(enhance);
