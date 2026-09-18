@@ -95,7 +95,7 @@ function leadOverlay(svg){
   return `<g class="v6-lead-practice"><path class="v6-lead-shadow" d="${curve}"/><path class="v6-lead-wire ${drag?'dragging':''}" d="${curve}"/><circle class="v6-lead-socket" cx="${a.from.x}" cy="${a.from.y}" r="7"/><circle class="v6-lead-handle" data-v6-lead-handle="1" cx="${p.x}" cy="${p.y}" r="10"/>${drag?`<text class="v6-lead-label" x="${p.x+13}" y="${p.y-10}">${a.label}</text>`:''}</g>`;
 }
 function markInstruments(svg){
-  svg.querySelectorAll('[data-part]').forEach(el=>{if(instrumentParts.has(el.dataset.part))el.setAttribute('data-v6-instrument','1');});
+  svg.querySelectorAll('[data-part]').forEach(el=>{if(instrumentParts.has(el.dataset.part)){el.setAttribute('data-v6-instrument','1');el.setAttribute('role','button');el.setAttribute('tabindex','0');el.setAttribute('aria-label',`Inspect ${el.dataset.part}`);}});
 }
 function renderRealism(detail={}){
   try{if(typeof priorFrameHook==='function')priorFrameHook(detail);}catch(e){console.warn('v5 visual hook failed',e);}
@@ -158,6 +158,9 @@ function onPointerDown(e){
 }
 function onPointerMove(e){if(!state.leadDrag)return;const p=svgPoint(e);if(!p)return;state.leadDrag.point=p;renderRealism({lead:true});}
 function onPointerUp(){if(!state.leadDrag)return;const svg=document.querySelector('#scene svg'),a=svg&&anchors(svg),p=state.leadDrag.point;let ok=false;if(a&&p)ok=Math.hypot(p.x-a.to.x,p.y-a.to.y)<55;state.leadDrag=null;document.body.classList.remove('lab-dragging');renderRealism({lead:false});toast(ok?'Connector snapped securely into the correct terminal':'Lead returned to the correct circuit connection');}
+function onKeyDown(e){
+  const inst=e.target.closest?.('[data-v6-instrument]');if(inst&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openPanel(inst.dataset.part);}
+}
 function onClick(e){
   if(e.target.closest?.('.v6-pop-close')){removePanel();return;}
   const z=e.target.closest?.('[data-v6-zero]');if(z&&current){state.micZero[current.id]=0;updatePanel(true);window.__animationRuntime?.requestPaint?.();return;}
@@ -169,7 +172,7 @@ function onInput(e){
   if(e.target.matches('[data-v6-scope-t]')){state.scopeTimeMs=+e.target.value;e.target.nextElementSibling.textContent=state.scopeTimeMs+' ms';renderRealism({scope:true});}
 }
 function bind(){
-  const scene=document.querySelector('#scene');if(scene&&!scene.dataset.v6Bound){scene.dataset.v6Bound='1';scene.addEventListener('pointerdown',onPointerDown);scene.addEventListener('click',onClick);}
+  const scene=document.querySelector('#scene');if(scene&&!scene.dataset.v6Bound){scene.dataset.v6Bound='1';scene.addEventListener('pointerdown',onPointerDown);scene.addEventListener('click',onClick);scene.addEventListener('keydown',onKeyDown);}
   const wb=workbench();if(wb&&!wb.dataset.v6Bound){wb.dataset.v6Bound='1';wb.addEventListener('click',onClick);wb.addEventListener('input',onInput);wb.addEventListener('change',onInput);}
 }
 window.addEventListener('pointermove',onPointerMove,{passive:true});
