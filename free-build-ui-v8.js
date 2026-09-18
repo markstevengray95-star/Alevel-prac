@@ -56,7 +56,7 @@ function checklistHtml(v){
 }
 function freeBuildHtml(){
   const s=api().session(),v=api().validate();
-  return'<div class="free-build-v8" id="freeBuildV8"><div class="fb-topline"><div><span>FREE-BUILD BENCH v8</span><h3>Construct the practical from an empty bench</h3><p>Drag apparatus into position, wire the correct components and calibrate the measuring equipment. The live experiment unlocks only when the physical setup validates.</p></div><div class="fb-top-actions"><button data-fb-reference>Show reference build</button><button data-fb-reset>Empty bench</button></div></div>'+
+  return'<div class="free-build-v8" id="freeBuildV8"><div class="fb-topline"><div><span>FREE-BUILD BENCH v8 · REALISTIC APPARATUS v9</span><h3>Construct the practical from an empty bench</h3><p>Drag apparatus into position, wire the correct components and calibrate the measuring equipment. The live experiment unlocks only when the physical setup validates.</p></div><div class="fb-top-actions"><button data-fb-reference>Show reference build</button><button data-fb-reset>Empty bench</button></div></div>'+
   '<div class="fb-layout"><aside class="fb-tray"><h4>Apparatus tray</h4><div class="fb-tray-list">'+trayHtml()+'</div></aside>'+
   '<section class="fb-bench" id="freeBuildBench" tabindex="0"><div class="fb-bench-grid"></div><svg class="fb-wire-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+wiresHtml()+'</svg>'+
   s.placed.map(nodeHtml).join('')+(!s.placed.length?'<div class="fb-bench-empty"><b>Empty laboratory bench</b><span>Drag the first item from the tray to begin.</span></div>':'')+'</section>'+
