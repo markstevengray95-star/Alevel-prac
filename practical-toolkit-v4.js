@@ -61,10 +61,13 @@ function instrumentHTML(){
   return `<div class="tk-instruments">${types.map(([id,name,note])=>`<article class="tk-instrument" data-inst="${id}"><div><span class="tk-icon">${id==='scope'?'∿':id==='micro'?'⌖':id==='digital'?'▣':'◫'}</span><b>${esc(name)}</b></div><p>${esc(note)}</p>${id==='digital'?`<label>Display <select id="tkMeterSelect">${entries.map(([k])=>`<option>${esc(k)}</option>`).join('')}</select></label><output id="tkMeterOut">${esc(entries[0]?.[1]||'—')}</output>`:''}${id==='micro'?microHTML():''}${id==='scope'?scopeHTML(t):''}${id==='logger'?`<div class="tk-logger"><b>${logger.length} samples</b><button id="tkClearLogger">Clear logger</button><div id="tkLoggerLast">${logger.length?esc(logger[logger.length-1].label):'Run the experiment to collect samples.'}</div></div>`:''}${id==='counter'?`<small>Simulation only — no source-handling instructions are provided.</small>`:''}</article>`).join('')}</div>`;
 }
 function microHTML(){
-  const vals=getVals();let i=current.vars.findIndex(v=>/diameter|small|wire/i.test(v[0])&&/mm|m/.test(v[1]||''));if(i<0)i=Math.min(2,vals.length-1);
-  const v=vals[i],spec=current.vars[i],mm=(spec[1]==='m'?v*1000:v),zero=0.01,shown=mm+zero;
+  const vals=getVals();let mm=0;
+  if(current.id===4||current.id===5)mm=+vals[2];
+  else if(current.id===8&&currentMode===0){const area=.00032;mm=Math.sqrt(4*area/Math.PI)*1000;}
+  else{const i=current.vars.findIndex(v=>/diameter|small|wire/i.test(v[0])&&/mm|m/.test(v[1]||''));if(i>=0){const spec=current.vars[i],v=vals[i];mm=spec[1]==='m'?v*1000:v;}}
+  const zero=window.__realisticInstrumentsV6?.state?.micZero?.[current.id]??0.01,shown=mm+zero;
   const main=Math.floor(shown*2)/2,th=Math.round((shown-main)*100);
-  return `<div class="micro-face"><span>Sleeve ${main.toFixed(2)} mm</span><span>Thimble ${String(th).padStart(2,'0')}</span><b>${shown.toFixed(2)} mm</b><small>Example +0.01 mm zero error → corrected ${mm.toFixed(2)} mm</small></div>`;
+  return `<div class="micro-face"><span>Sleeve ${main.toFixed(2)} mm</span><span>Thimble ${String(th).padStart(2,'0')}</span><b>${shown.toFixed(2)} mm</b><small>${zero>=0?'+':''}${zero.toFixed(2)} mm zero error → corrected ${mm.toFixed(2)} mm</small></div>`;
 }
 function scopeHTML(t){return `<div class="scope-face"><canvas id="tkScope" width="420" height="160"></canvas><div><label>V/div <input id="tkScopeV" type="range" min=".2" max="5" step=".2" value="${t.scopeV}"></label><label>time-base <input id="tkScopeT" type="range" min=".2" max="5" step=".2" value="${t.scopeT}"></label></div></div>`;}
 function drawScope(){
