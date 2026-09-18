@@ -41,7 +41,7 @@ The app supports learning and revision. School or college staff assess hands-on 
 
 The site is static HTML, CSS and JavaScript. GitHub Actions deploys the root directory to Pages and validates pull requests and pushes to `main`. The automated browser checks exercise every practical/mode, Run/Pause/Reset, readout recording, apparatus interactions, the circuit builder, Blender views, lab-book integrations, live traces, saved setups and repeat analysis.
 
-The sandbox-v4 browser regression makes **three complete passes across all 12 practicals and every investigation mode**. It checks that the sandbox AQA apparatus-technique mapping matches each practical definition, every reference build reaches 100% validation, Challenge mode gates incomplete setups, diagnostic faults affect simulated measurements, and the uncertainty, graph, examination and teacher tools all integrate without invalid readouts or browser errors.
+The visuals-v5 browser regression checks every practical and investigation mode for its physics overlay, finite rendered values, preserved Run/Pause timing and duplicate UI controls.\n\nThe sandbox-v4 browser regression makes **three complete passes across all 12 practicals and every investigation mode**. It checks that the sandbox AQA apparatus-technique mapping matches each practical definition, every reference build reaches 100% validation, Challenge mode gates incomplete setups, diagnostic faults affect simulated measurements, and the uncertainty, graph, examination and teacher tools all integrate without invalid readouts or browser errors.
 
 Run the dependency-free model checks locally with Node:
 
