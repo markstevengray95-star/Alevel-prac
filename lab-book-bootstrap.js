@@ -31,7 +31,8 @@ async function start(){
   loadStyle(versioned('lab-book-examples.css'),'labBookExamplesStyle');
   loadStyle(versioned('learning-tools.css'),'learningToolsStyle');
   loadStyle(versioned('ui-polish-v3.css'),'uiPolishV3');
-  loadStyle(versioned('experimental-sandbox-v4.css'),'experimentalSandboxV4Style');\n  loadStyle(versioned('simulation-visuals-v5.css'),'simulationVisualsV5Style');
+  loadStyle(versioned('experimental-sandbox-v4.css'),'experimentalSandboxV4Style');
+  loadStyle(versioned('simulation-visuals-v5.css'),'simulationVisualsV5Style');
   await loadScript(versioned('young-modulus-3d.js'),'youngModulus3D');
   await loadScript(versioned('aqa-setup-alignment.js'),'aqaSetupAlignment');
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
@@ -40,6 +41,7 @@ async function start(){
   await loadScript(versioned('animation-runtime-v2.js'),'animationRuntimeV2');
   await loadScript(versioned('experimental-sandbox-v4.js'),'experimentalSandboxV4');
   refineAqaSandbox();
+  await loadScript(versioned('simulation-visuals-v5.js'),'simulationVisualsV5');
   await loadScript(versioned('practical-toolkit-v4.js'),'practicalToolkitV4');
   await loadScript(versioned('feature-27-setup-snapshots.js'),'feature27SetupSnapshots');
   await loadScript(versioned('feature-28-repeat-analysis.js'),'feature28RepeatAnalysis');
