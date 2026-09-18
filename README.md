@@ -41,6 +41,8 @@ The app supports learning and revision. School or college staff assess hands-on 
 
 The site is static HTML, CSS and JavaScript. GitHub Actions deploys the root directory to Pages and validates pull requests and pushes to `main`. The automated browser checks exercise every practical/mode, Run/Pause/Reset, readout recording, apparatus interactions, the circuit builder, Blender views, lab-book integrations, live traces, saved setups and repeat analysis.
 
+The apparatus-interaction-v7 regression deliberately creates misalignment, calibration and connection faults, confirms the affected readings change or become invalid, verifies invalid setups cannot be recorded, and checks that reset restores the reference configuration.
+
 The realistic-instruments-v6 browser regression opens and operates the new instrument controls, verifies micrometer/vernier, light-gate/logger, meter-range, oscilloscope and connector interactions, and then confirms the simulation clock and readouts remain valid.
 
 The visuals-v5 browser regression checks every practical and investigation mode for its physics overlay, finite rendered values, preserved Run/Pause timing and duplicate UI controls.\n\nThe sandbox-v4 browser regression makes **three complete passes across all 12 practicals and every investigation mode**. It checks that the sandbox AQA apparatus-technique mapping matches each practical definition, every reference build reaches 100% validation, Challenge mode gates incomplete setups, diagnostic faults affect simulated measurements, and the uncertainty, graph, examination and teacher tools all integrate without invalid readouts or browser errors.
