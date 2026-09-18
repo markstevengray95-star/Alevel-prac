@@ -41,6 +41,8 @@ The app supports learning and revision. School or college staff assess hands-on 
 
 The site is static HTML, CSS and JavaScript. GitHub Actions deploys the root directory to Pages and validates pull requests and pushes to `main`. The automated browser checks exercise every practical/mode, Run/Pause/Reset, readout recording, apparatus interactions, the circuit builder, Blender views, lab-book integrations, live traces, saved setups and repeat analysis.
 
+The free-build-v8 regression starts every practical/mode from an empty bench, verifies measurement locking, validates a complete reference build across all practicals, exercises drag-from-tray placement and port-to-port connections, rejects extra/wrong cables, checks geometry gating and confirms Guided mode restores the normal workbench.
+
 The apparatus-interaction-v7 regression deliberately creates misalignment, calibration and connection faults, confirms the affected readings change or become invalid, verifies invalid setups cannot be recorded, and checks that reset restores the reference configuration.
 
 The realistic-instruments-v6 browser regression opens and operates the new instrument controls, verifies micrometer/vernier, light-gate/logger, meter-range, oscilloscope and connector interactions, and then confirms the simulation clock and readouts remain valid.
