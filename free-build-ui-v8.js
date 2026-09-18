@@ -62,16 +62,25 @@ function freeBuildHtml(){
   '<aside class="fb-side"><div class="fb-inspector">'+inspectorHtml()+'</div><div class="fb-validation">'+checklistHtml(v)+'</div></aside></div></div>';
 }
 function gate(){
-  if(!current)return;const active=api().isActive(),v=active?api().validate():{ready:true};
-  const run=document.querySelector('#runBtn'),record=document.querySelector('#recordBtn'),reps=document.querySelector('#repeatsBtn'),scene=document.querySelector('#scene'),wb=document.querySelector('.workbench');
-  for(const b of [run,record,reps])if(b){b.disabled=active&&!v.ready;b.dataset.fbLocked=active&&!v.ready?'1':'0';}
-  if(run)run.title=active&&!v.ready?'Complete the free-build apparatus before running the experiment.':'';
-  if(record)record.title=active&&!v.ready?'Complete the free-build apparatus before recording data.':'';
-  if(wb){wb.classList.toggle('free-build-active',active);wb.classList.toggle('free-build-locked',active&&!v.ready);}
-  if(scene)scene.dataset.freeBuild=active?(v.ready?'ready':'locked'):'off';
+  if(!current)return;const active=api().isActive(),run=document.querySelector('#runBtn'),record=document.querySelector('#recordBtn'),reps=document.querySelector('#repeatsBtn'),scene=document.querySelector('#scene'),wb=document.querySelector('.workbench');
   let lock=wb?.querySelector('#freeBuildSceneLock');
-  if(active&&!v.ready&&wb&&!lock){lock=document.createElement('div');lock.id='freeBuildSceneLock';lock.className='fb-scene-lock';lock.innerHTML='<b>Live apparatus locked</b><span>Complete the Free-build bench below to reveal and run the simulation.</span>';scene?.after(lock);}
-  if((!active||v.ready)&&lock)lock.remove();
+  if(!active){
+    if(run?.dataset.fbLocked==='1'){run.disabled=false;delete run.dataset.fbLocked;run.title='';}
+    if(reps?.dataset.fbLocked==='1'){reps.disabled=false;delete reps.dataset.fbLocked;}
+    if(record?.dataset.fbLocked==='1'){
+      delete record.dataset.fbLocked;record.title='';
+      const s4=window.__AQA_SANDBOX_V4?.session?.(),v4=window.__AQA_SANDBOX_V4?.validate?.();
+      record.disabled=!!(s4?.mode==='challenge'&&!v4?.ready);
+    }
+    wb?.classList.remove('free-build-active','free-build-locked');if(scene)scene.dataset.freeBuild='off';lock?.remove();return;
+  }
+  const v=api().validate(),locked=!v.ready;
+  for(const b of [run,record,reps])if(b){b.disabled=locked;if(locked)b.dataset.fbLocked='1';else delete b.dataset.fbLocked;}
+  if(run)run.title=locked?'Complete the free-build apparatus before running the experiment.':'';
+  if(record)record.title=locked?'Complete the free-build apparatus before recording data.':'';
+  wb?.classList.add('free-build-active');wb?.classList.toggle('free-build-locked',locked);if(scene)scene.dataset.freeBuild=locked?'locked':'ready';
+  if(locked&&wb&&!lock){lock=document.createElement('div');lock.id='freeBuildSceneLock';lock.className='fb-scene-lock';lock.innerHTML='<b>Live apparatus locked</b><span>Complete the Free-build bench below to reveal and run the simulation.</span>';scene?.after(lock);}
+  if(!locked&&lock)lock.remove();
 }
 function drawWires(root){
   const layer=root.querySelector('.fb-wire-layer');if(!layer)return;layer.innerHTML=wiresHtml();
