@@ -91,8 +91,9 @@ function bind(root){
   root.querySelector('[data-fb-reference]')?.addEventListener('click',()=>api().reference());
   root.querySelectorAll('[data-fb-tray]').forEach(el=>{
     el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',el.dataset.fbTray);e.dataTransfer.effectAllowed='copy';});
-    el.addEventListener('dblclick',()=>api().place(el.dataset.fbTray,45,45));
-    el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();api().place(el.dataset.fbTray,45,45);}});
+    const quickPlace=()=>{const n=api().session().placed.length;api().place(el.dataset.fbTray,18+(n%3)*28,22+Math.floor(n/3)*28);};
+    el.addEventListener('dblclick',quickPlace);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quickPlace();}});
   });
   bench.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';bench.classList.add('drag-over');});
   bench.addEventListener('dragleave',()=>bench.classList.remove('drag-over'));
