@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260918-instruments-v6';
+const REV='20260918-apparatus-v7';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
@@ -34,6 +34,7 @@ async function start(){
   loadStyle(versioned('experimental-sandbox-v4.css'),'experimentalSandboxV4Style');
   loadStyle(versioned('simulation-visuals-v5.css'),'simulationVisualsV5Style');
   loadStyle(versioned('realistic-instruments-v6.css'),'realisticInstrumentsV6Style');
+  loadStyle(versioned('apparatus-interaction-v7.css'),'apparatusInteractionV7Style');
   await loadScript(versioned('young-modulus-3d.js'),'youngModulus3D');
   await loadScript(versioned('aqa-setup-alignment.js'),'aqaSetupAlignment');
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
@@ -44,6 +45,7 @@ async function start(){
   refineAqaSandbox();
   await loadScript(versioned('simulation-visuals-v5.js'),'simulationVisualsV5');
   await loadScript(versioned('realistic-instruments-v6.js'),'realisticInstrumentsV6');
+  await loadScript(versioned('apparatus-interaction-v7.js'),'apparatusInteractionV7');
   await loadScript(versioned('practical-toolkit-v4.js'),'practicalToolkitV4');
   await loadScript(versioned('feature-27-setup-snapshots.js'),'feature27SetupSnapshots');
   await loadScript(versioned('feature-28-repeat-analysis.js'),'feature28RepeatAnalysis');
