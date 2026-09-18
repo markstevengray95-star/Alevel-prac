@@ -7,19 +7,20 @@ let observer=null,enhancing=false,selectedPort=null,wireDrag=null;
 const CAT={power:/power|supply|cell|battery|generator|source/i,meter:/ammeter|voltmeter|timer|logger|oscilloscope|micrometer|vernier|thermometer|scale|ruler|metre|protractor|balance/i,support:/support|clamp|holder|pulley|stand|screen|bath/i};
 function cat(name){if(CAT.power.test(name))return'power';if(CAT.meter.test(name))return'meter';if(CAT.support.test(name))return'support';return'apparatus';}
 function icon(name){const c=cat(name);return c==='power'?'PWR':c==='meter'?'MEAS':c==='support'?'RIG':'APP';}
+function apparatus(id,name){return window.__freeBuildApparatusV9?.render?.(id,name)||'<span class="fb-type '+cat(name)+'">'+icon(name)+'</span>';}
 function degree(id){return Math.max(1,api().edges().filter(x=>x[0]===id||x[1]===id).length);}
 function reqKeys(){return new Set(api().edges().map(x=>[x[0],x[1]].sort().join('|')));}
 function nodeHtml(id){
   const s=api().session(),p=api().pos(id),name=api().name(id),sel=s.selected===id;
   let ports='';for(let i=0;i<degree(id);i++)ports+='<button class="fb-port" data-fb-port="'+esc(id)+'" data-port-index="'+i+'" aria-label="Connection port '+(i+1)+' on '+esc(name)+'"></button>';
   return '<article class="fb-node '+(sel?'selected':'')+'" data-fb-node="'+esc(id)+'" style="left:'+p.x+'%;top:'+p.y+'%">'+
-    '<button class="fb-node-drag" data-fb-node-drag="'+esc(id)+'" aria-label="Move '+esc(name)+'"><span class="fb-type '+cat(name)+'">'+icon(name)+'</span><b>'+esc(name)+'</b></button>'+
+    '<button class="fb-node-drag" data-fb-node-drag="'+esc(id)+'" aria-label="Move '+esc(name)+'"><span class="fb-object-visual">'+apparatus(id,name)+'</span><b class="fb-object-label">'+esc(name)+'</b></button>'+
     '<div class="fb-ports">'+ports+'</div><button class="fb-inspect" data-fb-select="'+esc(id)+'" aria-label="Inspect '+esc(name)+'">i</button></article>';
 }
 function trayHtml(){
   const s=api().session(),available=api().items().filter(x=>!s.placed.includes(x[0]));
   if(!available.length)return'<p class="fb-empty-tray">All required apparatus has been placed.</p>';
-  return available.map(x=>'<button class="fb-tray-item" draggable="true" data-fb-tray="'+esc(x[0])+'"><span class="fb-type '+cat(x[1])+'">'+icon(x[1])+'</span><b>'+esc(x[1])+'</b><small>Drag to bench</small></button>').join('');
+  return available.map(x=>'<button class="fb-tray-item" draggable="true" data-fb-tray="'+esc(x[0])+'"><span class="fb-tray-visual">'+apparatus(x[0],x[1])+'</span><span class="fb-tray-copy"><b>'+esc(x[1])+'</b><small>Drag to bench</small></span></button>').join('');
 }
 function wirePath(a,b){
   const A=api().pos(a),B=api().pos(b),m=(A.x+B.x)/2;
@@ -36,7 +37,7 @@ function inspectorHtml(){
   const s=api().session(),id=s.selected;if(!id)return'<div class="fb-inspector-empty"><b>Select apparatus</b><p>Drag apparatus by its body. Connect components by dragging from one port to another.</p></div>';
   const name=api().name(id),cals=(api().cfg()?.cal||[]).map((text,i)=>({text,i,targets:api().calTargets(i)})).filter(x=>x.targets.includes(id));
   const links=s.links.filter(k=>k.split('|').includes(id));
-  let h='<div class="fb-inspector-head"><span class="fb-type '+cat(name)+'">'+icon(name)+'</span><div><small>SELECTED</small><b>'+esc(name)+'</b></div></div>';
+  let h='<div class="fb-inspector-head"><span class="fb-inspector-visual">'+apparatus(id,name)+'</span><div><small>SELECTED APPARATUS</small><b>'+esc(name)+'</b></div></div>';
   if(cals.length){h+='<div class="fb-inspector-section"><h5>Calibration</h5>';for(const c of cals)h+='<button data-fb-calibrate="'+c.i+'" class="'+(s.cal[c.i]?'done':'')+'"><span>'+(s.cal[c.i]?'✓':'○')+'</span>'+esc(c.text)+'</button>';h+='</div>';}
   h+='<div class="fb-inspector-section"><h5>Connections</h5>';
   h+=links.length?links.map(k=>'<button data-fb-disconnect="'+esc(k)+'">Disconnect '+esc(k.split('|').map(api().name).join(' ↔ '))+'</button>').join(''):'<p>No connections yet.</p>';
@@ -55,7 +56,7 @@ function checklistHtml(v){
 }
 function freeBuildHtml(){
   const s=api().session(),v=api().validate();
-  return'<div class="free-build-v8" id="freeBuildV8"><div class="fb-topline"><div><span>FREE-BUILD BENCH v8</span><h3>Construct the practical from an empty bench</h3><p>Drag apparatus into position, wire the correct components and calibrate the measuring equipment. The live experiment unlocks only when the physical setup validates.</p></div><div class="fb-top-actions"><button data-fb-reference>Show reference build</button><button data-fb-reset>Empty bench</button></div></div>'+
+  return'<div class="free-build-v8" id="freeBuildV8"><div class="fb-topline"><div><span>FREE-BUILD BENCH v8 · REALISTIC APPARATUS v9</span><h3>Construct the practical from an empty bench</h3><p>Drag apparatus into position, wire the correct components and calibrate the measuring equipment. The live experiment unlocks only when the physical setup validates.</p></div><div class="fb-top-actions"><button data-fb-reference>Show reference build</button><button data-fb-reset>Empty bench</button></div></div>'+
   '<div class="fb-layout"><aside class="fb-tray"><h4>Apparatus tray</h4><div class="fb-tray-list">'+trayHtml()+'</div></aside>'+
   '<section class="fb-bench" id="freeBuildBench" tabindex="0"><div class="fb-bench-grid"></div><svg class="fb-wire-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+wiresHtml()+'</svg>'+
   s.placed.map(nodeHtml).join('')+(!s.placed.length?'<div class="fb-bench-empty"><b>Empty laboratory bench</b><span>Drag the first item from the tray to begin.</span></div>':'')+'</section>'+

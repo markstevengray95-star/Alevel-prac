@@ -1,0 +1,41 @@
+/* Realistic apparatus visuals for Free-build v9 */
+.fb-apparatus-svg{display:block;width:100%;height:100%;overflow:visible}
+.fb-apparatus-svg .fb-shadow{fill:rgba(20,28,24,.18);filter:blur(1px)}
+.fb-apparatus-svg .case{fill:#34484c;stroke:#172529;stroke-width:2}
+.fb-apparatus-svg .glass,.fb-apparatus-svg .screen,.fb-apparatus-svg .digital,.fb-apparatus-svg .scope-screen{fill:#b9d4c7;stroke:#31554c;stroke-width:1.5}
+.fb-apparatus-svg .digital{fill:#1e382f}.fb-apparatus-svg .digits{fill:#c8f09e;font:700 9px ui-monospace,monospace;letter-spacing:.5px}
+.fb-apparatus-svg .trace,.fb-apparatus-svg .scope-trace{fill:none;stroke:#c4ef93;stroke-width:2;filter:drop-shadow(0 0 2px rgba(196,239,147,.8))}
+.fb-apparatus-svg .knob{fill:#7f918b;stroke:#263832;stroke-width:2}.fb-apparatus-svg .knob.small{fill:#93a49e}
+.fb-apparatus-svg .red,.fb-apparatus-svg .terminal.red{fill:#c84c42}.fb-apparatus-svg .black,.fb-apparatus-svg .terminal.black{fill:#202624}
+.fb-apparatus-svg .metal,.fb-apparatus-svg .steel,.fb-apparatus-svg .frame,.fb-apparatus-svg .sleeve,.fb-apparatus-svg .thimble{fill:#a9b3b0;stroke:#45514d;stroke-width:1.6}
+.fb-apparatus-svg .dark{fill:#45524f;stroke:#26322f;stroke-width:1.5}.fb-apparatus-svg .cap,.fb-apparatus-svg .fixture,.fb-apparatus-svg .hub,.fb-apparatus-svg .button,.fb-apparatus-svg .pivot{fill:#6a7a74;stroke:#283530;stroke-width:1.2}
+.fb-apparatus-svg .motion,.fb-apparatus-svg .wave{fill:none;stroke:#587ea0;stroke-width:2}.fb-apparatus-svg .string,.fb-apparatus-svg .cord,.fb-apparatus-svg .wire,.fb-apparatus-svg .lead,.fb-apparatus-svg .rod,.fb-apparatus-svg .stand,.fb-apparatus-svg .clamp-arm{stroke:#394943;stroke-width:2;fill:none}
+.fb-apparatus-svg .wheel{fill:#d2d7d4;stroke:#4e5b56;stroke-width:2}.fb-apparatus-svg .hanger{fill:#6e7a76;stroke:#343f3b;stroke-width:1.5}.fb-apparatus-svg .mass{fill:#8d9893;stroke:#4d5853;stroke-width:1.2}
+.fb-apparatus-svg .wood{fill:#cfaa67;stroke:#7a5c2d;stroke-width:1.3}.fb-apparatus-svg .ticks line,.fb-apparatus-svg .fine-ticks line,.fb-apparatus-svg .tick{stroke:#51452f;stroke-width:1}
+.fb-apparatus-svg .laser-body{fill:#343d3e;stroke:#172122;stroke-width:1.6}.fb-apparatus-svg .lens{fill:#79b7c8;stroke:#385d68;stroke-width:1.4}.fb-apparatus-svg .laser-beam,.fb-apparatus-svg .beam{stroke:#e26052;stroke-width:2.2;filter:drop-shadow(0 0 2px rgba(226,96,82,.75))}
+.fb-apparatus-svg .plate,.fb-apparatus-svg .screen-board{fill:#e2e4df;stroke:#6d7470;stroke-width:1.4}.fb-apparatus-svg .slit{stroke:#272e2b;stroke-width:1.5}.fb-apparatus-svg .grating{stroke:#728982;stroke-width:.9}.fb-apparatus-svg .base{fill:#586761;stroke:#303d38;stroke-width:1}
+.fb-apparatus-svg .ball,.fb-apparatus-svg .ball-shine{fill:#a4b0ad;stroke:#4f5a56;stroke-width:1.5}.fb-apparatus-svg .ball-shine{fill:#9eaaa7}.fb-apparatus-svg .shine{fill:rgba(255,255,255,.55)}.fb-apparatus-svg .drop-guide{stroke:#647a73;stroke-width:1.2;stroke-dasharray:3 3}
+.fb-apparatus-svg .top{fill:#505d58}.fb-apparatus-svg .plumb{fill:#606c68;stroke:#2f3a36;stroke-width:1.2}.fb-apparatus-svg .gate{fill:#4d5a56;stroke:#24302c;stroke-width:2}.fb-apparatus-svg .led{fill:#b8e58b;stroke:#55734f}
+.fb-apparatus-svg .clamp{fill:#596963;stroke:#283530;stroke-width:1.4}.fb-apparatus-svg .level{fill:#d8d9a5;stroke:#6d6d50}.fb-apparatus-svg .bubble{fill:#d5f0a0;stroke:#708658}.fb-apparatus-svg .index{stroke:#b9463e;stroke-width:1.4}
+.fb-apparatus-svg .battery{fill:#5b6c66;stroke:#293833;stroke-width:1.8}.fb-apparatus-svg .plus,.fb-apparatus-svg .minus,.fb-apparatus-svg .mark{fill:#edf3ef;font:700 10px Inter,Arial,sans-serif}.fb-apparatus-svg .tiny{fill:#3c4a45;font:600 6px Inter,Arial,sans-serif}
+.fb-apparatus-svg .rail{fill:#6c7773}.fb-apparatus-svg .slider{fill:#a8b2af;stroke:#4a5651;stroke-width:1.2}.fb-apparatus-svg .ceramic{fill:#d1cbb6;stroke:#756d56;stroke-width:1.4}.fb-apparatus-svg .coil{fill:none;stroke:#9a663d;stroke-width:3}.fb-apparatus-svg .coil.thin{stroke-width:2}
+.fb-apparatus-svg .arc{fill:none;stroke:#81928b;stroke-width:1.2;stroke-dasharray:4 3}.fb-apparatus-svg .bob{fill:#6d7d77;stroke:#34423d;stroke-width:1.5}.fb-apparatus-svg .marker{fill:#e3b75e;stroke:#715927}.fb-apparatus-svg .spring{fill:none;stroke:#697976;stroke-width:2.5}
+.fb-apparatus-svg .barrel,.fb-apparatus-svg .glass{fill:rgba(207,224,219,.75)}.fb-apparatus-svg .plunger,.fb-apparatus-svg .rubber{fill:#596864;stroke:#303b37;stroke-width:1.4}.fb-apparatus-svg .handle{fill:#88948f}
+.fb-apparatus-svg .liquid,.fb-apparatus-svg .fluid{fill:#c84c42}.fb-apparatus-svg .bath{fill:#8fa9b0;stroke:#435b63;stroke-width:1.6}.fb-apparatus-svg .water{fill:none;stroke:#6bb0c2;stroke-width:3}.fb-apparatus-svg .heat{fill:none;stroke:#d28a52;stroke-width:1.5}
+.fb-apparatus-svg .plate{stroke:#656f6a}.fb-apparatus-svg .field-lines{fill:none;stroke:#6e9eb1;stroke-width:1.4}.fb-apparatus-svg .resistor{fill:#d8c59d;stroke:#746245;stroke-width:1.2}.fb-apparatus-svg .band{fill:#65412e}.fb-apparatus-svg .band.two{fill:#9d2f2b}.fb-apparatus-svg .band.three{fill:#d0a33e}
+.fb-apparatus-svg .pan{fill:#c5cdca;stroke:#56615d;stroke-width:1.3}.fb-apparatus-svg .magnet{stroke:#5b3b37;stroke-width:1.2}.fb-apparatus-svg .magnet.north{fill:#b94d43}.fb-apparatus-svg .magnet.south{fill:#4e76a0}
+.fb-apparatus-svg .protractor{fill:rgba(211,224,219,.55);stroke:#566b63;stroke-width:1.4}.fb-apparatus-svg .baseline{stroke:#495952;stroke-width:1.2}
+.fb-apparatus-svg .holder{fill:#69766f;stroke:#303b37;stroke-width:1.3}.fb-apparatus-svg .source-disc{fill:#d4b359;stroke:#765f28;stroke-width:1.2}.fb-apparatus-svg .tube{fill:#65736e;stroke:#303b37;stroke-width:1.4}.fb-apparatus-svg .window{fill:#a4b6b1;stroke:#4c5c56}
+.fb-node{width:148px;min-height:102px;border:0;background:transparent;box-shadow:none;overflow:visible}
+.fb-node.selected{outline:none}.fb-node.selected .fb-object-visual{filter:drop-shadow(0 0 7px rgba(150,191,118,.95))}
+.fb-node-drag{display:grid;grid-template-rows:78px auto;gap:1px;align-items:center;justify-items:center;min-height:95px;padding:0;border:0;background:transparent;overflow:visible}
+.fb-node-drag:hover .fb-object-visual{transform:translateY(-2px);filter:brightness(1.05) drop-shadow(0 7px 5px rgba(17,32,27,.25))}
+.fb-object-visual{display:block;width:126px;height:80px;transition:transform .12s ease,filter .12s ease}
+.fb-object-label{display:inline-block;max-width:138px;padding:2px 6px;border-radius:6px;background:rgba(247,249,246,.88);box-shadow:0 1px 4px rgba(23,38,33,.12);color:#263a32;font-size:7.5px;line-height:1.15;text-align:center}
+.fb-inspect{right:7px;top:4px;z-index:5;background:rgba(252,253,250,.95)}
+.fb-ports{left:10px;right:10px;bottom:5px;z-index:7}.fb-port{width:13px;height:13px;border-color:#eef2ed}
+.fb-tray-item{display:grid;grid-template-columns:72px 1fr;grid-template-rows:1fr;gap:6px;min-height:61px;padding:4px 6px}.fb-tray-visual{display:block;width:70px;height:52px}.fb-tray-copy{display:grid;align-content:center;gap:2px}.fb-tray-copy b{font-size:8px;line-height:1.2}.fb-tray-copy small{font-size:7px;color:var(--muted)}
+.fb-inspector-head{align-items:center}.fb-inspector-visual{display:block;width:88px;height:58px;flex:0 0 88px}.fb-inspector-head>div{min-width:0}.fb-inspector-head b{display:block;line-height:1.25}
+.dark .fb-object-label{background:rgba(28,43,36,.9);color:#e9f1eb}.dark .fb-apparatus-svg .case{fill:#40544f}.dark .fb-apparatus-svg .screen-board,.dark .fb-apparatus-svg .plate{fill:#cdd4cf}
+@media(max-width:720px){.fb-node{width:132px}.fb-object-visual{width:112px;height:72px}.fb-object-label{max-width:122px}.fb-tray-item{grid-template-columns:62px 1fr}.fb-tray-visual{width:60px;height:48px}}
+@media(prefers-reduced-motion:reduce){.fb-object-visual{transition:none}}

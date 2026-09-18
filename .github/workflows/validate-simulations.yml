@@ -38,6 +38,7 @@ jobs:
           node --check tests/realistic-instruments-v6-smoke.js
           node --check tests/apparatus-interaction-v7-smoke.js
           node --check tests/free-build-v8-smoke.js
+          node --check tests/free-build-apparatus-v9-smoke.js
       - name: Check HTML local asset references
         run: |
           python - <<'PY'
@@ -75,5 +76,6 @@ jobs:
           node tests/realistic-instruments-v6-smoke.js
           node tests/apparatus-interaction-v7-smoke.js
           node tests/free-build-v8-smoke.js
+          node tests/free-build-apparatus-v9-smoke.js
           node tests/labbook-toggle-smoke.js
           node tests/learning-suite-smoke.js
