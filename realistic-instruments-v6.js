@@ -35,7 +35,7 @@ function pointFor(el,where='center'){const b=bbox(el);if(!b)return null;const x=
 function screenNumber(el){const t=el?.querySelector('text[font-family="monospace"]');return num(t?.textContent,0);}
 function meterType(el){return el?.dataset.part==='Ammeter'?'A':'V';}
 function meterRange(id,type,value){
-  const key=`${current?.id||0}:${id}:${type}`,opts=meterRanges[type]||[1],saved=state.meterRanges[key];
+  const key=`${current?.id||0}:${type}`,opts=meterRanges[type]||[1],saved=state.meterRanges[key];
   if(saved)return saved;
   return opts.find(r=>Math.abs(value)<=r*.92)||opts[opts.length-1];
 }
@@ -126,27 +126,29 @@ function readingFor(part){
 function panelBody(part){
   const value=readingFor(part);
   if(part==='Ammeter'||part==='Voltmeter'){
-    const type=part==='Ammeter'?'A':'V',raw=num(value),key=`${current.id}:0:${type}`,range=meterRange(0,type,raw);
-    return `<div class="v6-pop-reading"><small>LIVE READING</small><b>${value}</b></div><label>Range<select data-v6-range="${type}">${meterRanges[type].map(v=>`<option value="${v}" ${v===range?'selected':''}>${v} ${type}</option>`).join('')}</select></label><p>Choose the smallest suitable range without over-ranging. The numerical model is unchanged; the instrument display resolution changes.</p>`;
+    const type=part==='Ammeter'?'A':'V',raw=num(value),key=`${current.id}:${type}`,range=meterRange(0,type,raw);
+    return `<div class="v6-pop-reading"><small>LIVE READING</small><b data-v6-live>${value}</b></div><label>Range<select data-v6-range="${type}">${meterRanges[type].map(v=>`<option value="${v}" ${v===range?'selected':''}>${v} ${type}</option>`).join('')}</select></label><p>Choose the smallest suitable range without over-ranging. The numerical model is unchanged; the instrument display resolution changes.</p>`;
   }
   if(part==='Micrometer'){
     const actual=micrometerValue(),z=state.micZero[current.id]||0,ind=actual+z;
-    return `<div class="v6-pop-reading"><small>INDICATED</small><b>${ind.toFixed(2)} mm</b></div><div class="v6-mini-grid"><span>Zero error<b>${z>=0?'+':''}${z.toFixed(2)} mm</b></span><span>Corrected<b>${actual.toFixed(2)} mm</b></span></div><button data-v6-zero>Zero instrument</button><p>Close gently, check the zero, then subtract any zero error from the indicated reading.</p>`;
+    return `<div class="v6-pop-reading"><small>INDICATED</small><b data-v6-live>${ind.toFixed(2)} mm</b></div><div class="v6-mini-grid"><span>Zero error<b>${z>=0?'+':''}${z.toFixed(2)} mm</b></span><span>Corrected<b>${actual.toFixed(2)} mm</b></span></div><button data-v6-zero>Zero instrument</button><p>Close gently, check the zero, then subtract any zero error from the indicated reading.</p>`;
   }
-  if(part==='Vernier scale')return `<div class="v6-pop-reading"><small>VERNIER READING</small><b>${value}</b></div><p>The magnified cursor shows the main-scale position and vernier coincidence. Read at eye level and use the same reference each time.</p>`;
-  if(part==='Oscilloscope')return `<div class="v6-pop-reading"><small>INDUCED EMF</small><b>${value}</b></div><label>V/div <input data-v6-scope-v type="range" min=".1" max="2" step=".1" value="${state.scopeVdiv}"><output>${state.scopeVdiv.toFixed(1)}</output></label><label>Time/div <input data-v6-scope-t type="range" min="1" max="20" step="1" value="${state.scopeTimeMs}"><output>${state.scopeTimeMs} ms</output></label><p>Adjust vertical sensitivity and time-base until the trace fills the screen without clipping.</p>`;
-  if(part==='Data logger'||part==='Timer')return `<div class="v6-pop-reading"><small>ELECTRONIC TIMING</small><b>${value}</b></div><p>The gate LEDs change state as the object crosses each beam. Electronic timing removes most human reaction-time error.</p>`;
-  if(part==='Thermometer')return `<div class="v6-pop-reading"><small>BATH TEMPERATURE</small><b>${value}</b></div><p>Read the liquid column at eye level after the gas sample has reached thermal equilibrium.</p>`;
-  if(part==='Top-pan balance')return `<div class="v6-pop-reading"><small>BALANCE CHANGE</small><b>${value}</b></div><p>Use the zero/tare reference consistently and allow the reading to settle before recording.</p>`;
+  if(part==='Vernier scale')return `<div class="v6-pop-reading"><small>VERNIER READING</small><b data-v6-live>${value}</b></div><p>The magnified cursor shows the main-scale position and vernier coincidence. Read at eye level and use the same reference each time.</p>`;
+  if(part==='Oscilloscope')return `<div class="v6-pop-reading"><small>INDUCED EMF</small><b data-v6-live>${value}</b></div><label>V/div <input data-v6-scope-v type="range" min=".1" max="2" step=".1" value="${state.scopeVdiv}"><output>${state.scopeVdiv.toFixed(1)}</output></label><label>Time/div <input data-v6-scope-t type="range" min="1" max="20" step="1" value="${state.scopeTimeMs}"><output>${state.scopeTimeMs} ms</output></label><p>Adjust vertical sensitivity and time-base until the trace fills the screen without clipping.</p>`;
+  if(part==='Data logger'||part==='Timer')return `<div class="v6-pop-reading"><small>ELECTRONIC TIMING</small><b data-v6-live>${value}</b></div><p>The gate LEDs change state as the object crosses each beam. Electronic timing removes most human reaction-time error.</p>`;
+  if(part==='Thermometer')return `<div class="v6-pop-reading"><small>BATH TEMPERATURE</small><b data-v6-live>${value}</b></div><p>Read the liquid column at eye level after the gas sample has reached thermal equilibrium.</p>`;
+  if(part==='Top-pan balance')return `<div class="v6-pop-reading"><small>BALANCE CHANGE</small><b data-v6-live>${value}</b></div><p>Use the zero/tare reference consistently and allow the reading to settle before recording.</p>`;
   return `<div class="v6-pop-reading"><b>${value}</b></div>`;
 }
 function openPanel(part){
-  state.panel={id:current.id,mode:currentMode,part};let p=document.querySelector('#instrumentPopoverV6');if(!p){p=document.createElement('aside');p.id='instrumentPopoverV6';p.className='instrument-popover-v6';workbench()?.appendChild(p);}updatePanel();
+  state.panel={id:current.id,mode:currentMode,part};let p=document.querySelector('#instrumentPopoverV6');if(!p){p=document.createElement('aside');p.id='instrumentPopoverV6';p.className='instrument-popover-v6';workbench()?.appendChild(p);}updatePanel(true);
 }
-function updatePanel(){
+function updatePanel(force=false){
   const p=document.querySelector('#instrumentPopoverV6');if(!state.panel){p?.remove();return;}
   if(!current||state.panel.id!==current.id||state.panel.mode!==currentMode){removePanel();return;}
   const part=state.panel.part;if(!p)return;
+  if(!force&&p.dataset.part===part){const live=p.querySelector('[data-v6-live]');if(live)live.textContent=readingFor(part);return;}
+  p.dataset.part=part;
   p.innerHTML=`<button class="v6-pop-close" aria-label="Close instrument detail">×</button><div class="v6-pop-head"><span>INSTRUMENT FOCUS</span><h4>${part}</h4></div>${panelBody(part)}`;
 }
 function svgPoint(e){const svg=document.querySelector('#scene svg');if(!svg)return null;const r=svg.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*900,y:(e.clientY-r.top)/r.height*430};}
@@ -158,11 +160,11 @@ function onPointerMove(e){if(!state.leadDrag)return;const p=svgPoint(e);if(!p)re
 function onPointerUp(){if(!state.leadDrag)return;const svg=document.querySelector('#scene svg'),a=svg&&anchors(svg),p=state.leadDrag.point;let ok=false;if(a&&p)ok=Math.hypot(p.x-a.to.x,p.y-a.to.y)<55;state.leadDrag=null;document.body.classList.remove('lab-dragging');renderRealism({lead:false});toast(ok?'Connector snapped securely into the correct terminal':'Lead returned to the correct circuit connection');}
 function onClick(e){
   if(e.target.closest?.('.v6-pop-close')){removePanel();return;}
-  const z=e.target.closest?.('[data-v6-zero]');if(z&&current){state.micZero[current.id]=0;updatePanel();window.__animationRuntime?.requestPaint?.();return;}
+  const z=e.target.closest?.('[data-v6-zero]');if(z&&current){state.micZero[current.id]=0;updatePanel(true);window.__animationRuntime?.requestPaint?.();return;}
   const inst=e.target.closest?.('[data-v6-instrument]');if(inst){e.stopPropagation();openPanel(inst.dataset.part);}
 }
 function onInput(e){
-  if(e.target.matches('[data-v6-range]')){const type=e.target.dataset.v6Range,key=`${current.id}:0:${type}`;state.meterRanges[key]=+e.target.value;window.__animationRuntime?.requestPaint?.();updatePanel();}
+  if(e.target.matches('[data-v6-range]')){const type=e.target.dataset.v6Range,key=`${current.id}:${type}`;state.meterRanges[key]=+e.target.value;window.__animationRuntime?.requestPaint?.();updatePanel();}
   if(e.target.matches('[data-v6-scope-v]')){state.scopeVdiv=+e.target.value;e.target.nextElementSibling.textContent=state.scopeVdiv.toFixed(1);renderRealism({scope:true});}
   if(e.target.matches('[data-v6-scope-t]')){state.scopeTimeMs=+e.target.value;e.target.nextElementSibling.textContent=state.scopeTimeMs+' ms';renderRealism({scope:true});}
 }
