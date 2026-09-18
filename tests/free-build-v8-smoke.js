@@ -75,7 +75,8 @@ const { chromium } = require('playwright');
   // Actual click-port-then-click-port connection on an empty P6 bench.
   await page.evaluate(()=>{navigate('practical',6);window.__freeBuildBenchV8.setMode();});
   await page.waitForTimeout(30);
-  for(const id of ['cell','amm','var','switch','volt'])await page.evaluate(id=>window.__freeBuildBenchV8.place(id,45,45),id);
+  const p6pos={cell:[15,32],amm:[34,20],var:[55,20],switch:[76,32],volt:[45,62]};
+  for(const [id,p] of Object.entries(p6pos))await page.evaluate(({id,p})=>window.__freeBuildBenchV8.place(id,p[0],p[1]),{id,p});
   await page.waitForTimeout(30);
   const cellPort=page.locator('[data-fb-node="cell"] [data-fb-port="cell"]').first();
   const ammPort=page.locator('[data-fb-node="amm"] [data-fb-port="amm"]').first();
