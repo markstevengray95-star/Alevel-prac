@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260917-sandbox-v4';
+const REV='20260918-visuals-v5';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
@@ -31,7 +31,7 @@ async function start(){
   loadStyle(versioned('lab-book-examples.css'),'labBookExamplesStyle');
   loadStyle(versioned('learning-tools.css'),'learningToolsStyle');
   loadStyle(versioned('ui-polish-v3.css'),'uiPolishV3');
-  loadStyle(versioned('experimental-sandbox-v4.css'),'experimentalSandboxV4Style');
+  loadStyle(versioned('experimental-sandbox-v4.css'),'experimentalSandboxV4Style');\n  loadStyle(versioned('simulation-visuals-v5.css'),'simulationVisualsV5Style');
   await loadScript(versioned('young-modulus-3d.js'),'youngModulus3D');
   await loadScript(versioned('aqa-setup-alignment.js'),'aqaSetupAlignment');
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
