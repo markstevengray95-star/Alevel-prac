@@ -463,6 +463,298 @@ def p12():
  # White reference block makes the detector-source distance easy to read.
  box(s,'Distance reference block',(-.15,.62,.38),(.32,.46,.52),'white')
  return s
-SC={'rp01-standing-waves':p1,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp03-free-fall-impact':p3impact,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
+
+# --- Photorealistic AQA apparatus pass: Practicals 1-6 ---
+# These functions deliberately use named sub-components so the web viewer can
+# identify whole instruments while retaining detailed materials and geometry.
+def photo_bench(s,w=9.0,d=5.0):
+ box(s,'Laboratory bench laminate',(0,0,-.20),(w,d,.30),'paper')
+ box(s,'Laboratory bench dark edge',(0,-d/2+.04,-.10),(w,.08,.16),'dark')
+ box(s,'Laboratory bench rear edge',(0,d/2-.04,-.10),(w,.08,.16),'dark')
+ for x in (-w/2+.32,w/2-.32):
+  box(s,'Bench rubber corner '+str(x),(x,-d/2+.28,-.38),(.34,.34,.18),'rubber')
+
+def photo_boss(s,n,p):
+ x,y,z=p
+ box(s,n+' body',(x,y,z),(.28,.30,.28),'black')
+ cyl(s,n+' clamp screw',(x+.19,y,z),.045,.23,'silver','x',24)
+ cyl(s,n+' thumb wheel',(x+.32,y,z),.085,.07,'black','x',28)
+
+def photo_label(s,n,p,z=(.42,.02,.14),k='paper'):
+ box(s,n,p,z,k)
+
+def photo_foot(s,n,p):
+ box(s,n,p,(.24,.24,.08),'rubber')
+
+def photo_supply(s,p,name='Signal generator',orange=True):
+ x,y,z=p
+ body='orange' if orange else 'white'
+ box(s,name,p,(1.75,.88,.82),body)
+ box(s,name+' top shell',(x,y+.02,z+.45),(1.67,.79,.10),'black')
+ box(s,name+' front panel',(x,y-.455,z),(1.58,.032,.62),body)
+ box(s,name+' LCD bezel',(x-.42,y-.477,z+.14),(.57,.025,.25),'black')
+ box(s,name+' LCD screen',(x-.42,y-.493,z+.14),(.47,.012,.16),'lcd')
+ # display segment hints
+ for i in range(4): box(s,name+f' LCD segment {i}',(x-.55+i*.09,y-.502,z+.14),(.055,.006,.055),'screen')
+ knob(s,name+' frequency knob',(x+.16,y-.485,z+.12),.12,'black')
+ knob(s,name+' amplitude knob',(x+.48,y-.485,z+.12),.09,'black')
+ banana(s,name+' red output',(x+.36,y-.493,z-.18),'red')
+ banana(s,name+' black output',(x+.08,y-.493,z-.18),'black')
+ photo_label(s,name+' frequency label',(x-.42,y-.497,z+.33),(.42,.008,.08))
+ photo_foot(s,name+' foot L',(x-.58,y+.20,z-.45));photo_foot(s,name+' foot R',(x+.58,y+.20,z-.45))
+ # ventilation slots
+ for i in range(7): box(s,name+f' vent {i}',(x-.48+i*.16,y+.445,z+.05),(.08,.014,.22),'dark')
+
+def photo_dmm(s,n,p,kind='A'):
+ x,y,z=p
+ # hand-held digital multimeter style commonly used in UK labs
+ box(s,n+' yellow case',p,(.78,.46,1.18),'meter_yellow')
+ box(s,n+' black face',(x,y-.246,z+.03),(.64,.036,.98),'black')
+ box(s,n+' display bezel',(x,y-.270,z+.35),(.49,.022,.25),'dark')
+ box(s,n+' LCD',(x,y-.283,z+.35),(.40,.010,.16),'lcd')
+ for i in range(3): box(s,n+f' display segment {i}',(x-.10+i*.10,y-.290,z+.35),(.055,.006,.045),'screen')
+ knob(s,n+' rotary selector',(x,y-.284,z-.10),.15,'dark')
+ banana(s,n+' COM terminal',(x-.14,y-.291,z-.42),'black')
+ banana(s,n+' measurement terminal',(x+.15,y-.291,z-.42),'red')
+ photo_label(s,n+' '+kind+' marking',(x,y-.293,z+.56),(.18,.006,.09))
+ photo_foot(s,n+' rear foot L',(x-.22,y+.24,z-.50));photo_foot(s,n+' rear foot R',(x+.22,y+.24,z-.50))
+
+def photo_retort(s,n,x,y,h):
+ box(s,n+' blue base',(x,y,.07),(1.28,.84,.15),'bluebase')
+ box(s,n+' black underside',(x,y,-.025),(1.18,.74,.05),'black')
+ rod(s,n+' vertical rod',(x,y,.14),(x,y,h),.050,'silver',32)
+ photo_foot(s,n+' foot 1',(x-.42,y-.24,-.03));photo_foot(s,n+' foot 2',(x+.42,y-.24,-.03))
+
+def photo_ruler(s,n,p,length=5.6,vertical=False):
+ x,y,z=p
+ if vertical:
+  box(s,n,(x,y,z),(.18,.12,length),'wood')
+  for i in range(41):
+   zz=z-length/2+i*length/40
+   rod(s,n+f' tick {i}',(x-.10,y-.065,zz),(x-.02 if i%5 else x+.03,y-.065,zz),.004,'black',6)
+ else:
+  box(s,n,(x,y,z),(length,.25,.11),'wood')
+  for i in range(41):
+   xx=x-length/2+i*length/40
+   rod(s,n+f' tick {i}',(xx,y-.13,z+.06),(xx,y-.13,z+.12 if i%5 else z+.17),.004,'black',6)
+
+def photo_p1():
+ s=trimesh.Scene();photo_bench(s,9.2,5.1)
+ photo_retort(s,'Retort stand',-2.75,.25,3.25)
+ rod(s,'Retort clamp arm',(-2.75,.25,2.55),(-1.72,.25,2.55),.042,'silver',28);photo_boss(s,'Retort boss',(-2.67,.25,2.55))
+ box(s,'Retort clamp jaws',(-1.67,.25,2.55),(.22,.42,.34),'black')
+ # AQA counterweight on stand base
+ cyl(s,'2 kg stand counterweight',(-2.75,.25,.36),.34,.24,'grey',sections=48)
+ photo_supply(s,(.05,-1.42,.54),'Signal generator',True)
+ # vibration generator
+ box(s,'Vibration generator black body',(-1.62,-.20,.56),(.72,.66,.50),'black')
+ box(s,'Vibration generator metal mounting plate',(-1.62,-.20,.26),(.86,.78,.13),'silver')
+ cyl(s,'Vibration generator top electromagnet',(-1.62,-.20,.89),.26,.18,'silver',sections=48)
+ rod(s,'Vibration generator drive pin',(-1.38,-.20,.90),(-1.10,-.20,.90),.045,'silver',28)
+ banana(s,'Vibration generator red socket',(-1.78,-.55,.47),'red');banana(s,'Vibration generator black socket',(-1.48,-.55,.47),'black')
+ # bridge explicitly required by AQA exemplar
+ box(s,'Wooden bridge',(2.15,-.20,.39),(.26,.55,.48),'wood')
+ box(s,'Bridge top knife edge',(2.15,-.20,.68),(.12,.58,.10),'silver')
+ # pulley clamp at bench edge
+ torus(s,'Pulley wheel',(3.05,-.20,.72),.27,.048,'silver',(0,1,0))
+ cyl(s,'Pulley axle',(3.05,-.20,.72),.052,.44,'black','y',32)
+ box(s,'Pulley black fork',(3.05,.04,.48),(.44,.34,.58),'black')
+ box(s,'Pulley G clamp',(3.05,.29,.10),(.62,.36,.28),'dark')
+ # string path: stand -> vibrator hole -> bridge -> pulley -> masses
+ wire(s,'String',[(-1.15,-.20,.90),(2.15,-.20,.74),(2.80,-.20,.74),(3.13,-.20,.56),(3.13,-.20,-.72)],.010,'white')
+ photo_ruler(s,'Metre rule',(.25,.82,.17),5.65,False)
+ # hanger and masses
+ rod(s,'Mass hanger stem',(3.13,-.20,-.72),(3.13,-.20,-1.25),.023,'silver',24)
+ cyl(s,'Mass hanger tray',(3.13,-.20,-1.31),.24,.075,'silver',sections=48)
+ for i,z in enumerate((-1.20,-1.09,-.98,-.87)):cyl(s,f'Slotted mass {i+1}',(3.13,-.20,z),.23,.085,'grey',sections=48)
+ wire(s,'Generator red lead',[(.42,-1.90,.38),(-.25,-2.02,.31),(-1.28,-.62,.42),(-1.79,-.54,.47)],.018,'rubber_red')
+ wire(s,'Generator black lead',[(.12,-1.90,.38),(-.52,-2.12,.30),(-1.42,-.72,.38),(-1.49,-.54,.47)],.018,'rubber')
+ return s
+
+def photo_optical_common(kind='slit'):
+ s=trimesh.Scene();photo_bench(s,9.1,5.0)
+ # black anodised optical rail and carriers
+ box(s,'Optical rail',(0,.15,.28),(6.45,.32,.18),'black')
+ for xx in (-2.55,-.95,2.55): box(s,'Optical carrier '+str(xx),(xx,.15,.42),(.50,.58,.18),'dark')
+ # mounted red laser
+ cyl(s,'Laser anodised barrel',(-2.55,.15,.84),.16,.95,'black','x',48)
+ cyl(s,'Laser red front ring',(-2.05,.15,.84),.165,.07,'red','x',40)
+ cyl(s,'Laser glass aperture',(-2.00,.15,.84),.080,.03,'glass','x',32)
+ box(s,'Laser mounting cradle',(-2.55,.15,.55),(.78,.50,.22),'dark')
+ # optical element
+ box(s,('Double slit' if kind=='slit' else 'Diffraction grating')+' holder',(-.95,.15,.93),(.16,.76,.92),'black')
+ box(s,('Double slit plate' if kind=='slit' else 'Diffraction grating'),(-.855,.15,.93),(.030,.48,.58),'silver' if kind=='slit' else 'glass')
+ if kind=='slit':
+  for yy in (-.035,.035):box(s,'Double slit aperture '+str(yy),(-.835,.15+yy,.93),(.010,.010,.31),'black')
+ else:
+  for i in range(25):
+   yy=-.22+i*.44/24;rod(s,f'Grating line {i}',(-.835,.15+yy,.67),(-.835,.15+yy,1.19),.0025,'black',6)
+ # screen with weighted base
+ box(s,'Screen cast base',(2.55,.15,.20),(1.20,.92,.20),'dark')
+ rod(s,'Screen vertical support',(2.55,.15,.28),(2.55,.15,2.15),.055,'silver',28)
+ box(s,'Projection screen',(2.55,.15,1.22),(.10,2.30,1.92),'paper')
+ box(s,'Projection screen rear',(2.61,.15,1.22),(.045,2.34,1.96),'dark')
+ photo_ruler(s,'Metre rule',(.20,1.20,.17),5.85,False)
+ rod(s,'Laser beam',(-2.00,.15,.84),(-.84,.15,.93),.008,'red',8)
+ return s
+
+def photo_p2d():
+ s=photo_optical_common('slit')
+ for i,dy in enumerate((-.40,-.27,-.14,0,.14,.27,.40)):
+  rod(s,f'Interference ray {i}',(-.83,.15,.93),(2.49,.15+dy,.93),.004,'red',8)
+  box(s,f'Interference fringe {i}',(2.49,.15+dy,.93),(.018,.038 if dy else .070,.72),'yellow')
+ return s
+
+def photo_p2g():
+ s=photo_optical_common('grating')
+ for i,dy in enumerate((-.78,-.39,0,.39,.78)):
+  rod(s,f'Diffracted ray {i}',(-.83,.15,.93),(2.49,.15+dy,.93),.004,'red',8)
+  sphere(s,f'Diffraction maximum {i}',(2.49,.15+dy,.93),.045 if dy else .075,'red')
+ return s
+
+def photo_logger(s,p,name='Data logger'):
+ x,y,z=p
+ box(s,name+' cream case',p,(1.55,.80,.88),'cream')
+ box(s,name+' dark front',(x,y-.415,z+.02),(1.38,.035,.67),'dark')
+ box(s,name+' LCD bezel',(x-.25,y-.438,z+.13),(.62,.026,.28),'black')
+ box(s,name+' LCD',(x-.25,y-.454,z+.13),(.52,.012,.18),'lcd')
+ for i in range(4): box(s,name+f' screen segment {i}',(x-.42+i*.11,y-.462,z+.13),(.06,.006,.045),'screen')
+ banana(s,name+' input 1',(x+.28,y-.449,z-.18),'red');banana(s,name+' input 2',(x+.52,y-.449,z-.18),'black')
+ knob(s,name+' mode control',(x+.44,y-.449,z+.15),.09,'silver')
+ photo_foot(s,name+' foot L',(x-.52,y+.25,z-.48));photo_foot(s,name+' foot R',(x+.52,y+.25,z-.48))
+
+def photo_p3(light_gates=True):
+ s=trimesh.Scene();photo_bench(s,8.8,5.0)
+ photo_retort(s,'Free-fall stand',-1.10,.30,4.70)
+ rod(s,'Release clamp arm',(-1.10,.30,4.22),(-.08,.30,4.22),.042,'silver',28);photo_boss(s,'Release boss',(-1.02,.30,4.22))
+ # solenoid/electromagnet release with face and terminal detail
+ box(s,'Release mechanism green housing',(-.02,.30,4.22),(.72,.58,.42),'green')
+ cyl(s,'Release electromagnet core',(-.02,.30,3.97),.12,.18,'silver',sections=40)
+ banana(s,'Release red terminal',(.20,.00,4.26),'red');banana(s,'Release black terminal',(-.18,.00,4.26),'black')
+ sphere(s,'Ball bearing',(-.02,.30,3.72),.18,'silver')
+ if light_gates:
+  for idx,z in enumerate((2.58,1.20)):
+   box(s,f'Light gate {idx+1} weighted base',(-.02,.30,z-.58),(1.02,.82,.17),'dark')
+   box(s,f'Light gate {idx+1} left upright',(-.43,.30,z-.16),(.18,.46,.80),'black')
+   box(s,f'Light gate {idx+1} right upright',(.39,.30,z-.16),(.18,.46,.80),'black')
+   box(s,f'Light gate {idx+1} bridge',(-.02,.30,z+.20),(1.00,.46,.18),'black')
+   cyl(s,f'Light gate {idx+1} emitter',(-.31,.05,z-.16),.035,.09,'red','y',20)
+   cyl(s,f'Light gate {idx+1} detector',(.27,.05,z-.16),.035,.09,'glass','y',20)
+  photo_logger(s,(2.28,-1.02,.58),'Data logger')
+  wire(s,'Upper gate cable',[(-.43,.52,2.02),(.55,.82,1.55),(1.58,-.55,.78),(1.82,-1.35,.48)],.016,'green')
+  wire(s,'Lower gate cable',[(.39,.52,.65),(.86,.62,.60),(1.66,-.72,.50),(2.18,-1.35,.44)],.016,'yellow')
+ else:
+  box(s,'Impact pressure pad',(-.02,.30,.29),(1.15,.88,.18),'black')
+  box(s,'Impact sensor plate',(-.02,.30,.42),(.90,.66,.08),'silver')
+  photo_logger(s,(2.28,-1.02,.58),'Data logger')
+  wire(s,'Impact timer cable',[(.38,.45,.38),(1.25,.72,.45),(1.82,-.68,.48),(2.18,-1.35,.44)],.016,'yellow')
+ photo_ruler(s,'Vertical metre rule',(1.02,.78,2.25),3.75,True)
+ wire(s,'Plumb line',[(-.72,.80,4.22),(-.72,.80,.56)],.007,'black');sphere(s,'Plumb bob',(-.72,.80,.42),.095,'grey')
+ return s
+
+def photo_micrometer(s,p,n='Micrometer'):
+ x,y,z=p
+ # C frame made from several smooth rods, with separate anvil/spindle/sleeve/thimble
+ pts=[(x+.55,y,z-.50),(x+.82,y,z-.22),(x+.84,y,z+.22),(x+.58,y,z+.52)]
+ wire(s,n+' blue C frame',pts,.075,'blue')
+ rod(s,n+' fixed anvil',(x+.58,y,z+.50),(x+.28,y,z+.50),.052,'silver',24)
+ rod(s,n+' spindle',(x-.28,y,z+.50),(x+.18,y,z+.50),.052,'silver',24)
+ cyl(s,n+' sleeve',(x-.45,y,z+.50),.12,.34,'silver','x',40)
+ cyl(s,n+' thimble',(x-.72,y,z+.50),.17,.42,'silver','x',48)
+ cyl(s,n+' ratchet',(x-1.00,y,z+.50),.105,.16,'dark','x',40)
+ for i in range(9):
+  xx=x-.91+i*.055;rod(s,n+f' thimble graduation {i}',(xx,y-.175,z+.48),(xx,y-.175,z+.56),.004,'black',6)
+
+def photo_p4():
+ s=trimesh.Scene();photo_bench(s,9.0,5.1)
+ # Twin-wire Searle-style comparison arrangement
+ photo_retort(s,'Young modulus support left',-1.85,.35,4.80)
+ photo_retort(s,'Young modulus support right',1.05,.35,4.80)
+ rod(s,'Top support beam',(-1.85,.35,4.50),(1.05,.35,4.50),.085,'silver',36)
+ photo_boss(s,'Reference wire top clamp',(-1.25,.35,4.45));photo_boss(s,'Test wire top clamp',(.45,.35,4.45))
+ rod(s,'Reference wire',(-1.25,.35,4.30),(-1.25,.35,.88),.018,'copper',20)
+ rod(s,'Test wire',(.45,.35,4.30),(.45,.35,.88),.018,'copper',20)
+ # lower comparison frame and spirit level
+ box(s,'Vernier comparison bridge',(-.40,.35,1.18),(2.20,.44,.22),'silver')
+ box(s,'Vernier moving cursor',(.18,.08,1.25),(.34,.10,.62),'dark')
+ box(s,'Vernier scale',(-.08,.08,1.25),(.12,.06,.78),'paper')
+ for i in range(15):
+  zz=.92+i*.045;rod(s,f'Vernier graduation {i}',(-.15,.04,zz),(-.06 if i%5 else .01,.04,zz),.004,'black',6)
+ # spirit level vial
+ cyl(s,'Spirit level glass vial',(-.55,.02,1.43),.075,.82,'glass','x',40)
+ cyl(s,'Spirit level end cap left',(-.98,.02,1.43),.09,.06,'brass','x',28)
+ cyl(s,'Spirit level end cap right',(-.12,.02,1.43),.09,.06,'brass','x',28)
+ sphere(s,'Spirit level bubble',(-.55,-.055,1.43),.045,'white')
+ # fixed reference hanger and variable test hanger
+ rod(s,'Reference mass hanger stem',(-1.25,.35,.90),(-1.25,.35,.42),.025,'silver',20)
+ cyl(s,'Reference mass hanger tray',(-1.25,.35,.36),.25,.07,'silver',sections=48)
+ for i,z in enumerate((.47,.58,.69)):cyl(s,f'Reference slotted mass {i+1}',(-1.25,.35,z),.235,.085,'grey',sections=48)
+ rod(s,'Test mass hanger stem',(.45,.35,.90),(.45,.35,.22),.025,'silver',20)
+ cyl(s,'Test mass hanger tray',(.45,.35,.16),.25,.07,'silver',sections=48)
+ for i,z in enumerate((.27,.38,.49,.60)):cyl(s,f'Test slotted mass {i+1}',(.45,.35,z),.235,.085,'grey',sections=48)
+ # micrometer for diameter, placed on bench to one side
+ photo_micrometer(s,(2.30,-.90,.50),'Micrometer')
+ rod(s,'Wire sample in micrometer',(2.58,-1.03,1.00),(2.58,-.77,1.00),.012,'copper',16)
+ photo_ruler(s,'Metre rule',(2.50,1.45,.17),3.00,False)
+ return s
+
+def photo_p5():
+ s=trimesh.Scene();photo_bench(s,9.4,5.1)
+ photo_supply(s,(-1.05,-1.42,.54),'Low voltage DC power supply',True)
+ photo_dmm(s,'Ammeter',(-3.15,-1.02,.76),'A');photo_dmm(s,'Voltmeter',(1.05,-1.02,.76),'V')
+ photo_ruler(s,'Metre rule',(.15,.95,.17),6.35,False)
+ rod(s,'Resistance wire',(-2.92,.58,.49),(3.08,.58,.49),.016,'copper',24)
+ crocodile(s,'Fixed crocodile clip',(-2.90,.58,.60),'black');crocodile(s,'Wire end crocodile clip',(3.05,.58,.60),'red')
+ box(s,'Sliding contact insulated body',(.62,.58,.89),(.24,.30,.25),'rubber_red')
+ box(s,'Sliding contact finger pad',(.62,.58,1.04),(.38,.35,.08),'red')
+ rod(s,'Sliding contact needle',(.62,.58,.81),(.62,.58,.51),.022,'silver',20)
+ photo_micrometer(s,(2.25,1.58,.40),'Micrometer')
+ rod(s,'Wire sample in micrometer',(2.53,1.45,.90),(2.53,1.71,.90),.011,'copper',16)
+ # realistic curved-looking segmented leads
+ wire(s,'Supply positive lead',[(-.65,-1.90,.38),(-1.25,-2.10,.32),(-2.35,-1.82,.40),(-3.00,-1.32,.43)],.020,'rubber_red')
+ wire(s,'Ammeter to fixed clip',[(-3.28,-1.32,.40),(-3.58,-.35,.50),(-2.90,.58,.60)],.020,'rubber')
+ wire(s,'Wire return lead',[(3.05,.58,.60),(3.55,-.22,.48),(2.78,-2.04,.38),(-1.40,-1.90,.34)],.020,'rubber')
+ wire(s,'Voltmeter black branch',[(.91,-1.32,.41),(.32,-1.82,.52),(-2.90,.58,.60)],.016,'rubber')
+ wire(s,'Voltmeter red branch',[(1.20,-1.32,.41),(1.50,-.50,.62),(.62,.58,.91)],.016,'rubber_red')
+ return s
+
+def photo_rheostat(s,p):
+ x,y,z=p
+ box(s,'Variable resistor bakelite base',(x,y,z-.18),(2.15,.78,.22),'burgundy')
+ cyl(s,'Variable resistor ceramic former',(x,y,z+.10),.25,1.72,'cream','x',56)
+ for i in range(34):
+  xx=x-.81+i*1.62/33;torus(s,f'Variable resistor resistance winding {i}',(xx,y,z+.10),.242,.009,'black',(1,0,0))
+ rod(s,'Variable resistor slider rail',(x-.88,y,z+.52),(x+.88,y,z+.52),.035,'silver',28)
+ box(s,'Variable resistor sliding contact',(x+.18,y,z+.54),(.22,.30,.15),'silver')
+ knob(s,'Variable resistor slider knob',(x+.18,y-.18,z+.68),.085,'black')
+ banana(s,'Variable resistor red terminal',(x-.98,y-.42,z-.10),'red');banana(s,'Variable resistor black terminal',(x+.98,y-.42,z-.10),'black')
+
+def photo_p6():
+ s=trimesh.Scene();photo_bench(s,9.2,5.1)
+ photo_dmm(s,'Ammeter',(-2.70,-1.02,.76),'A');photo_dmm(s,'Voltmeter',(2.35,-1.02,.76),'V')
+ photo_rheostat(s,(0.0,.42,.56))
+ # cell holder with detailed cylindrical cells
+ box(s,'Cell holder white base',(.55,-1.20,.25),(1.32,.72,.22),'white')
+ for i,xx in enumerate((.25,.83)):
+  cyl(s,f'Cell {i+1} body',(xx,-1.20,.47),.14,.58,'silver','x',48)
+  cyl(s,f'Cell {i+1} positive cap',(xx+.31,-1.20,.47),.075,.05,'brass','x',32)
+  box(s,f'Cell {i+1} label band',(xx,-1.34,.47),(.28,.02,.14),'blue')
+ banana(s,'Cell red terminal',(1.08,-1.58,.34),'red');banana(s,'Cell black terminal',(.04,-1.58,.34),'black')
+ # open knife switch
+ box(s,'Switch black base',(-1.12,-1.12,.29),(.86,.52,.16),'black')
+ banana(s,'Switch terminal A',(-1.36,-1.43,.39),'red');banana(s,'Switch terminal B',(-.88,-1.43,.39),'black')
+ rod(s,'Switch blade',(-1.36,-1.12,.46),(-.88,-1.12,.82),.035,'silver',24)
+ sphere(s,'Switch pivot',(-1.36,-1.12,.46),.065,'brass')
+ # complete visible wiring
+ wire(s,'Cell positive to switch',[(1.08,-1.58,.34),(.42,-1.92,.38),(-.92,-1.47,.40)],.020,'rubber_red')
+ wire(s,'Switch to ammeter',[(-1.36,-1.47,.40),(-1.78,-1.78,.45),(-2.56,-1.34,.44)],.020,'rubber_red')
+ wire(s,'Ammeter to variable resistor',[(-2.84,-1.34,.42),(-3.12,-.10,.50),(-1.02,.00,.62)],.020,'rubber')
+ wire(s,'Variable resistor return to cell',[(1.02,.00,.62),(1.52,-.12,.54),(1.28,-1.48,.38),(.04,-1.58,.34)],.020,'rubber')
+ wire(s,'Voltmeter positive to cell',[(2.50,-1.34,.43),(2.70,-.42,.54),(1.08,-1.58,.34)],.016,'rubber_red')
+ wire(s,'Voltmeter negative to cell',[(2.20,-1.34,.43),(1.84,-1.78,.50),(.04,-1.58,.34)],.016,'rubber')
+ return s
+
+
+SC={'rp01-standing-waves':photo_p1,'rp02-double-slit':photo_p2d,'rp02-diffraction-grating':photo_p2g,'rp03-free-fall':lambda:photo_p3(True),'rp03-free-fall-impact':lambda:photo_p3(False),'rp04-young-modulus':photo_p4,'rp05-resistivity-wire':photo_p5,'rp06-iv-characteristics':photo_p6,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp03-free-fall-impact':p3impact,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
 for name,fn in SC.items():
  blob=fn().export(file_type='glb');path=os.path.join(OUT,name+'.glb');open(path,'wb').write(blob);print('3D',os.path.basename(path),len(blob))
