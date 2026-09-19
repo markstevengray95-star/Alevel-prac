@@ -1,4 +1,4 @@
-const CACHE='practical-lab-v20260919-live3d-111';
+const CACHE='practical-lab-v20260919-live3d-112';
 const ASSETS=[
 './','./index.html','./styles.css','./visual-upgrades.css','./learning-tools.css','./ui-polish-v3.css','./sandbox-tools-v3.css','./experimental-sandbox-v4.css','./simulation-visuals-v5.css','./realistic-instruments-v6.css','./apparatus-interaction-v7.css','./free-build-bench-v8.css','./free-build-apparatus-v9.css','./practical-3d.css','./practical-3d-interactive-v11.css','./app-icon.svg','./manifest.webmanifest','./assets/rp01-standing-waves.glb','./assets/rp02-double-slit.png','./assets/rp02-double-slit.glb','./assets/rp02-diffraction-grating.glb','./assets/rp03-free-fall.glb','./assets/rp04-young-modulus.png','./assets/rp04-young-modulus.glb','./assets/rp05-resistivity-wire.png','./assets/rp05-resistivity-wire.glb','./assets/rp06-iv-characteristics.glb','./assets/rp07-pendulum.glb','./assets/rp07-spring.glb','./assets/rp08-boyle-syringe.png','./assets/rp08-boyle-syringe.glb','./assets/rp08-charles-law.glb','./assets/rp09-capacitor.glb','./assets/rp10-wire-balance.png','./assets/rp10-wire-balance.glb','./assets/rp11-search-coil.png','./assets/rp11-search-coil.glb','./assets/rp12-inverse-square.glb',
 './data-base.js','./data-extra.js','./core-a.js','./core-b.js','./scene-helpers.js','./scene-p1-4.js','./scene-p5-8.js','./scene-p9-12.js','./scene-dispatch.js','./scenes-b.js','./visual-upgrades.js','./animation-runtime-v2.js','./experimental-sandbox-v4.js','./simulation-visuals-v5.js','./realistic-instruments-v6.js','./apparatus-interaction-v7.js','./free-build-core-v8.js','./free-build-apparatus-v9.js','./free-build-ui-v8.js','./practical-toolkit-v4.js','./feature-26-live-scope.js','./feature-27-setup-snapshots.js','./feature-28-repeat-analysis.js',
@@ -7,10 +7,18 @@ const ASSETS=[
 './p1.js','./p2.js','./p3.js','./p4.js','./p5.js','./p6.js','./p7.js','./p8.js','./p9.js','./p10.js','./p11.js','./p12.js',
 './feature-01.js','./feature-02.js','./feature-03.js','./feature-04.js','./feature-05.js','./feature-06.js','./feature-07.js','./feature-08.js','./feature-09.js','./feature-10.js','./feature-11.js','./feature-12.js','./feature-13.js','./feature-14.js','./feature-15.js','./feature-16.js','./feature-17.js','./feature-18.js','./feature-19.js','./feature-20.js','./feature-21.js','./feature-22.js','./feature-23.js','./feature-24.js','./feature-25.js'
 ];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(async cache=>{
+ const results=await Promise.allSettled(ASSETS.map(asset=>cache.add(asset)));
+ const failed=results.map((r,i)=>r.status==='rejected'?ASSETS[i]:null).filter(Boolean);
+ if(failed.length)console.warn('Offline cache skipped unavailable assets:',failed);
+}).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{
  if(event.request.method!=='GET'||new URL(event.request.url).origin!==location.origin)return;
+ const requestUrl=new URL(event.request.url);
+ if(/\.glb$/i.test(requestUrl.pathname)){
+   event.respondWith(fetch(event.request,{cache:'no-store'}).then(r=>{if(r.ok){const c=r.clone();caches.open(CACHE).then(x=>x.put(event.request,c));}return r;}).catch(()=>caches.match(event.request,{ignoreSearch:true})));return;
+ }
  if(event.request.mode==='navigate'){
    event.respondWith(fetch(event.request).then(r=>{const c=r.clone();caches.open(CACHE).then(x=>x.put('./index.html',c));return r;}).catch(()=>caches.match('./index.html',{ignoreSearch:true})));return;
  }
