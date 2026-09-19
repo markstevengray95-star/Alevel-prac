@@ -106,7 +106,7 @@ const { chromium } = require('playwright');
   await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.interactive3d==='v11');
   await page.locator('#practical3d').evaluate(el=>el.closest('details').open=true);
   const beforePhysics=await page.evaluate(()=>JSON.stringify(theoretical()));
-  const dataName=await page.evaluate(()=>window.__practical3DInteractive.listObjects().find(n=>/datalogger/i.test(n)));
+  const dataName=await page.evaluate(()=>window.__practical3DInteractive.listObjects().find(n=>/data\s*logger|datalogger/i.test(n)));
   if(!dataName)throw new Error('P3 data logger mesh missing for movement test');
   await page.locator('#practical3d [data-3d-mode]').click();
   const beforeOffset=await page.evaluate(name=>window.__practical3DInteractive.offsetOf(name),dataName);
