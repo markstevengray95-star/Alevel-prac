@@ -212,9 +212,51 @@ def p3impact():
  wire(s,'Plumb line',[(-.30,.82,3.92),(-.30,.82,.62)],.008,'black');sphere(s,'Plumb bob',(-.30,.82,.52),.10,'grey')
  return s
 def p5():
- s=trimesh.Scene();bench(s,8.6,4.8);supply(s,(-3,-1.25,.4));meter(s,'Ammeter',(-1.3,-1.25,.4));meter(s,'Voltmeter',(.5,-1.25,.4));ruler(s,(.1,.72,.20),5.7);rod(s,'ResistanceWire',(-2.7,.35,.48),(2.8,.35,.48),.022,'copper');box(s,'LeftTerminal',(-2.7,.35,.56),(.24,.22,.18),'dark');box(s,'RightTerminal',(2.8,.35,.56),(.24,.22,.18),'dark');box(s,'Slider',(.65,.35,.78),(.22,.25,.25),'red');rod(s,'Probe',(.65,.35,.72),(.65,.35,.5),.025,'metal');torus(s,'MicrometerFrame',(2.85,1.22,.76),.48,.08,'dark',(0,1,0));rod(s,'MicSpindle',(2.45,1.22,.76),(2.88,1.22,.76),.05,'metal');cyl(s,'MicThimble',(2.28,1.22,.76),.16,.36,'metal','x');wire(s,'Series',[(-2.7,-1.62,.3),(-1.8,-1.7,.35),(-1.3,-1.62,.35),(-2.7,.35,.56)],.018,'red');wire(s,'Return',[(2.8,.35,.56),(3.2,-1.9,.35),(-2.75,-1.9,.35)],.018,'black');wire(s,'VoltProbe',[(.3,-1.62,.35),(.65,.35,.78)],.014,'red');wire(s,'VoltZero',[(.7,-1.62,.35),(-2.7,.35,.56)],.014,'blue');return s
+ s=trimesh.Scene();bench(s,9.0,5.0)
+ # AQA-style orange supply and two yellow digital multimeters.
+ orange_supply(s,(-1.10,-1.25,.53),'Low voltage DC power supply')
+ multimeter(s,'Ammeter',(-3.00,-.98,.72),'A');multimeter(s,'Voltmeter',(1.05,-.98,.72),'V')
+ # Straight resistance wire fixed along a wooden metre rule.
+ ruler(s,(.20,.92,.18),6.20)
+ rod(s,'Resistance wire',(-2.85,.55,.49),(3.05,.55,.49),.018,'copper')
+ crocodile(s,'Fixed crocodile clip',(-2.82,.55,.60),'black')
+ crocodile(s,'Wire end crocodile clip',(3.02,.55,.60),'red')
+ # Movable jockey/contact exactly above the selected wire length.
+ box(s,'Sliding contact body',(.65,.55,.88),(.22,.28,.24),'rubber_red')
+ rod(s,'Sliding contact needle',(.65,.55,.78),(.65,.55,.51),.023,'silver')
+ box(s,'Sliding contact finger pad',(.65,.55,1.03),(.35,.34,.08),'red')
+ # Separate micrometer used to measure wire diameter.
+ line_pts=[(2.75,1.55,.42),(3.15,1.55,.50),(3.38,1.55,.82),(3.30,1.55,1.20),(2.95,1.55,1.34)]
+ wire(s,'Micrometer C frame',line_pts,.065,'blue')
+ rod(s,'Micrometer anvil',(2.93,1.55,1.30),(2.70,1.55,1.30),.045,'silver')
+ rod(s,'Micrometer spindle',(2.12,1.55,1.30),(2.58,1.55,1.30),.045,'silver')
+ cyl(s,'Micrometer thimble',(2.10,1.55,1.30),.16,.42,'silver','x')
+ cyl(s,'Micrometer ratchet',(1.83,1.55,1.30),.11,.15,'dark','x')
+ rod(s,'Wire sample in micrometer',(2.64,1.44,1.18),(2.64,1.66,1.42),.012,'copper')
+ # Series and voltmeter branch leads mirror the visible AQA bench circuit.
+ wire(s,'Supply positive lead',[(-.72,-1.69,.35),(-1.90,-1.95,.42),(-2.76,-1.22,.42)],.020,'red')
+ wire(s,'Ammeter to fixed clip',[(-3.16,-1.22,.40),(-3.48,-.25,.52),(-2.82,.55,.60)],.020,'black')
+ wire(s,'Wire return lead',[(3.02,.55,.60),(3.46,-.22,.48),(2.72,-1.94,.42),(-1.45,-1.72,.36)],.020,'black')
+ wire(s,'Voltmeter negative branch',[(.90,-1.22,.42),(.40,-1.72,.55),(-2.82,.55,.60)],.016,'black')
+ wire(s,'Voltmeter positive branch',[(1.20,-1.22,.42),(1.48,-.48,.65),(.65,.55,.90)],.016,'red')
+ return s
 def p6():
- s=trimesh.Scene();bench(s);supply(s,(-2.7,-1.25,.4));meter(s,'Ammeter',(-1,-1.25,.4));meter(s,'Voltmeter',(.6,-1.25,.4));box(s,'LampBase',(.3,.2,.35),(.9,.55,.22),'dark');sphere(s,'LampBulb',(.3,.2,.8),.25,'glass');cyl(s,'LampCap',(.3,.2,.50),.15,.25,'metal');cyl(s,'Rheostat',(2.15,.2,.55),.28,1.6,'dark','x');rod(s,'RheostatSlider',(2.15,.2,.75),(2.15,.2,1.1),.05,'metal');box(s,'Switch',(2.4,-1.15,.25),(.85,.48,.18),'dark');rod(s,'SwitchBlade',(2.15,-1.15,.38),(2.62,-1.15,.62),.04,'metal');wire(s,'MainCircuit',[(-2.35,-1.62,.3),(-1,-1.62,.3),(-.45,-1,.4),(0,.2,.35),(.75,.2,.35),(1.35,.2,.55),(2.4,.2,.55),(2.4,-1.15,.35),(2.7,-1.65,.3),(-2.6,-1.65,.3)],.02,'red');wire(s,'VoltmeterBranch',[(.35,-1.62,.35),(0,.2,.35)],.014,'black');wire(s,'VoltmeterBranch2',[(.85,-1.62,.35),(.75,.2,.35)],.014,'red');return s
+ s=trimesh.Scene();bench(s,8.9,5.0)
+ # AQA RP6: cell/battery, variable resistor, ammeter in series, voltmeter across the source, switch.
+ multimeter(s,'Ammeter',(-2.55,-.95,.72),'A');multimeter(s,'Voltmeter',(2.25,-.95,.72),'V')
+ rheostat(s,'Variable resistor',(0.0,.35,.54))
+ cell_holder(s,(.45,-1.12,.26))
+ knife_switch(s,'Switch',(-1.05,-1.05,.28),False)
+ # Leads arranged as the photographed AQA circuit: ammeter and rheostat in the main loop,
+ # voltmeter connected directly across the cell terminals.
+ wire(s,'Cell positive to switch',[(.95,-1.46,.34),(.30,-1.78,.40),(-.85,-1.38,.42)],.020,'red')
+ wire(s,'Switch to ammeter',[(-1.28,-1.34,.38),(-1.65,-1.70,.46),(-2.42,-1.22,.45)],.020,'red')
+ wire(s,'Ammeter to rheostat',[(-2.68,-1.22,.42),(-3.10,-.10,.52),(-.92,-.02,.62)],.020,'black')
+ wire(s,'Rheostat return to cell',[(.92,-.02,.62),(1.42,-.10,.54),(1.15,-1.35,.38),(-.05,-1.45,.34)],.020,'black')
+ wire(s,'Voltmeter positive to cell',[(2.38,-1.22,.43),(2.65,-.42,.55),(.95,-1.46,.34)],.016,'red')
+ wire(s,'Voltmeter negative to cell',[(2.12,-1.22,.43),(1.82,-1.72,.52),(-.05,-1.45,.34)],.016,'black')
+ # AQA setup has the switch open between readings; blade geometry visibly shows this.
+ return s
 def p7p():
  s=trimesh.Scene();bench(s);stand(s,-1.4,.2,4.5);rod(s,'ClampArm',(-1.4,.2,4),(.15,.2,4),.05,'metal');wire(s,'PendulumString',[(.05,.2,3.95),(.35,.2,1.25)],.012,'white');sphere(s,'PendulumBob',(.35,.2,1.05),.22,'metal');box(s,'Fiducial',(.35,-.1,.72),(.08,.55,.95),'white');box(s,'Stopwatch',(2.1,-1.05,.3),(.75,.35,.50),'black');ruler(s,(.7,.95,.16),4.2);return s
 def p7s():
