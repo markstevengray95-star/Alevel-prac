@@ -15,42 +15,54 @@ const status=(api,text)=>{
   if(node)node.textContent=text;
 };
 const action=(label,description,candidates,run)=>({label,description,candidates,run});
+const uniqueGroupNames=(api,re)=>{
+  const seen=new Set(),names=[];
+  for(const o of api.objects||[]){
+    if(!re.test(o.name)||seen.has(o.group))continue;
+    seen.add(o.group);names.push(o.name);
+  }
+  return names;
+};
+const nudgeMatching=(api,re,delta)=>uniqueGroupNames(api,re).forEach(n=>api.nudgeGroup(n,delta));
+const animateMatching=(api,re,to,duration,easing)=>Promise.all(uniqueGroupNames(api,re).map(n=>api.animateGroup(n,to,duration,easing)));
+
 
 function actionsFor(id,mode){
   switch(Number(id)){
     case 1:return[
-      action('Add load','Move the hanging mass to represent adding tension to the string.',['mass hanger','slotted mass','mass'],async(api,name)=>{api.nudgeGroup(name,[0,0,-.24]);status(api,'Load added · observe how tension would affect the standing-wave condition');}),
-      action('Lift load','Reduce the hanging load position.',['mass hanger','slotted mass','mass'],async(api,name)=>{api.nudgeGroup(name,[0,0,.24]);status(api,'Load lifted · 3D position changed; numerical readings remain controlled by the experiment sliders');})
+      action('Add load','Move the hanging mass to represent adding tension to the string.',['mass hanger','slotted mass','mass'],async(api,name)=>{nudgeMatching(api,/mass hanger|slotted mass/i,[0,0,-.20]);status(api,'Load added · observe how tension would affect the standing-wave condition');}),
+      action('Lift load','Reduce the hanging load position.',['mass hanger','slotted mass','mass'],async(api,name)=>{nudgeMatching(api,/mass hanger|slotted mass/i,[0,0,.20]);status(api,'Load lifted · 3D position changed; numerical readings remain controlled by the experiment sliders');})
     ];
     case 2:return[
-      action('Move screen farther','Increase the source-to-screen separation visually.',['projection screen','screen'],async(api,name)=>{api.nudgeGroup(name,[.45,0,0]);status(api,'Screen moved farther away · use the measured distance in the numerical model separately');}),
-      action('Move screen nearer','Decrease the source-to-screen separation visually.',['projection screen','screen'],async(api,name)=>{api.nudgeGroup(name,[-.45,0,0]);status(api,'Screen moved nearer · check how fringe spacing depends on geometry');})
+      action('Move screen farther','Increase the source-to-screen separation visually.',['projection screen','screen'],async(api,name)=>{api.nudgeGroup(name,[.45,0,0]);nudgeMatching(api,/interference fringe|diffraction maximum/i,[.45,0,0]);status(api,'Screen moved farther away · use the measured distance in the numerical model separately');}),
+      action('Move screen nearer','Decrease the source-to-screen separation visually.',['projection screen','screen'],async(api,name)=>{api.nudgeGroup(name,[-.45,0,0]);nudgeMatching(api,/interference fringe|diffraction maximum/i,[-.45,0,0]);status(api,'Screen moved nearer · check how fringe spacing depends on geometry');})
     ];
     case 3:return[
       action('Release ball','Release the ball vertically through the timing region.',['ball bearing','ball'],async(api,name)=>{api.setGroupOffset(name,[0,0,0]);status(api,'Ball released…');await api.animateGroup(name,{offset:[0,0,-2.80]},720,'gravity');status(api,'Ball passed the timing region · reset apparatus to repeat');})
     ];
     case 4:return[
-      action('Add load','Lower the mass hanger to represent an increased tensile load.',['mass hanger','hanger','slotted mass'],async(api,name)=>{api.nudgeGroup(name,[0,0,-.18]);status(api,'Load increased visually · extension is still measured by the validated practical model');}),
-      action('Remove load','Raise the hanger one step.',['mass hanger','hanger','slotted mass'],async(api,name)=>{api.nudgeGroup(name,[0,0,.18]);status(api,'Load reduced visually · compare loading and unloading behaviour');})
+      action('Add load','Lower the mass hanger to represent an increased tensile load.',['mass hanger','hanger','slotted mass'],async(api,name)=>{nudgeMatching(api,/test mass hanger|test slotted mass/i,[0,0,-.16]);status(api,'Load increased visually · extension is still measured by the validated practical model');}),
+      action('Remove load','Raise the hanger one step.',['mass hanger','hanger','slotted mass'],async(api,name)=>{nudgeMatching(api,/test mass hanger|test slotted mass/i,[0,0,.16]);status(api,'Load reduced visually · compare loading and unloading behaviour');})
     ];
     case 5:return[
       action('Move contact','Slide the contact along the resistance wire.',['sliding contact','movable contact','probe'],async(api,name)=>{api.nudgeGroup(name,[.38,0,0]);status(api,'Contact moved along the wire · set the measured length with the experiment control');}),
       action('Move contact back','Slide the contact toward the start of the wire.',['sliding contact','movable contact','probe'],async(api,name)=>{api.nudgeGroup(name,[-.38,0,0]);status(api,'Contact moved back along the wire');})
     ];
     case 6:return[
-      action('Toggle switch','Open or close the circuit switch visually.',['switch blade','switch'],async(api,name)=>{const next=Math.abs(api.angleOf(name)||0)<.2?-.66:0;await api.animateGroup(name,{angle:next,axis:[0,1,0],pivot:[-1.36,-1.12,.46]},320,'smooth');status(api,next?'Switch opened visually · use Run experiment to change the validated circuit state':'Switch closed visually');})
+      action('Toggle switch','Open or close the circuit switch visually.',['switch blade','switch'],async(api,name)=>{const next=Math.abs(api.angleOf(name)||0)<.2?-.66:0;await api.animateGroup(name,{angle:next,axis:[0,1,0],pivot:[-1.36,-1.12,.46]},320,'smooth');status(api,next?'Switch opened visually · use Run experiment to change the validated circuit state':'Switch closed visually');}),
+      action('Move rheostat slider','Move the variable-resistor contact along its resistance winding.',['variable resistor sliding contact','sliding contact'],async(api,name)=>{api.nudgeGroup(name,[.32,0,0]);status(api,'Rheostat slider moved visually · set external resistance with the validated experiment control');})
     ];
     case 7:
       if(Number(mode)===1)return[
-        action('Start spring oscillation','Set the spring-mass system moving vertically with a damped response.',['mass hanger','mass'],async(api,name)=>{status(api,'Spring-mass oscillation…');for(const z of [-.42,.30,-.22,.15,-.09,.04,0])await api.animateGroup(name,{offset:[0,0,z]},220,'spring');status(api,'Oscillation demo complete · damped visual motion only; use the numerical run for measured period data');})
+        action('Start spring oscillation','Set the spring-mass system moving vertically with a damped response.',['mass hanger','mass'],async(api,name)=>{status(api,'Spring-mass oscillation…');const pivot=[.18,.30,4.05];for(const [z,scale] of [[-.32,1.11],[.22,.94],[-.17,1.07],[.11,.97],[-.06,1.03],[.03,.99],[0,1]]){await Promise.all([animateMatching(api,/mass hanger|slotted mass/i,{offset:[0,0,z]},210,'spring'),api.animateGroup('spring',{scaleZ:scale,pivot},210,'spring')]);}status(api,'Oscillation demo complete · spring extension and load move together; numerical period data remains unchanged');})
       ];
       return[
         action('Release pendulum','Release the bob in a damped arc about the suspension point.',['pendulum bob','bob'],async(api,name)=>{status(api,'Pendulum released…');const pivot=[.22,.30,4.02],axis=[0,1,0];for(const a of [.28,-.24,.19,-.14,.09,-.05,0])await Promise.all([api.animateGroup(name,{angle:a,axis,pivot},210,'smooth'),api.animateGroup('pendulum string',{angle:a,axis,pivot},210,'smooth')]);status(api,'Pendulum demo complete · real pivot geometry retained; measured timing remains in the experiment model');})
       ];
     case 8:
       if(Number(mode)===0)return[
-        action('Compress gas','Move the syringe plunger inward.',['syringe plunger','plunger'],async(api,name)=>{api.nudgeGroup(name,[0,0,.26]);status(api,'Gas compressed visually · set volume/pressure using the experiment controls for quantitative data');}),
-        action('Expand gas','Move the plunger outward.',['syringe plunger','plunger'],async(api,name)=>{api.nudgeGroup(name,[0,0,-.26]);status(api,'Gas expanded visually');})
+        action('Compress gas','Move the syringe plunger inward.',['syringe plunger','plunger'],async(api,name)=>{nudgeMatching(api,/syringe plunger|mass hanger|boyle slotted mass/i,[0,0,.24]);status(api,'Gas compressed visually · set volume/pressure using the experiment controls for quantitative data');}),
+        action('Expand gas','Move the plunger outward.',['syringe plunger','plunger'],async(api,name)=>{nudgeMatching(api,/syringe plunger|mass hanger|boyle slotted mass/i,[0,0,-.24]);status(api,'Gas expanded visually');})
       ];
       return[
         action('Raise thermometer','Move the thermometer to inspect the water-bath setup.',['thermometer'],async(api,name)=>{api.nudgeGroup(name,[0,0,.25]);status(api,'Thermometer raised for inspection · return it to the bath before taking a real reading');}),
