@@ -17,7 +17,7 @@
   <nav aria-label="Main navigation">
     <button data-view="home">Practicals</button><button data-view="skills">Skills hub</button><button data-view="quiz">Quiz studio</button><button data-view="equations">Equations</button><button data-view="circuit">Circuit lab</button>
   </nav>
-  <div class="header-tools"><span id="appVersionBadge" class="tiny-btn" aria-label="Loaded app version">3D v11.2</span><button id="soundBtn" class="tiny-btn">Sound off</button><button id="themeBtn" class="icon-btn" aria-label="Toggle theme">◐</button></div>
+  <div class="header-tools"><span id="appVersionBadge" class="tiny-btn" aria-label="Loaded app version">3D v12.0</span><button id="soundBtn" class="tiny-btn">Sound off</button><button id="themeBtn" class="icon-btn" aria-label="Toggle theme">◐</button></div>
 </header>
 <main>
   <section id="view-home" class="view active">
@@ -87,10 +87,10 @@
   const hadController=!!navigator.serviceWorker.controller;
   let reloaded=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(!hadController||!navigator.onLine||reloaded||sessionStorage.getItem('pl_sw_reload_112'))return;
+    if(!hadController||!navigator.onLine||reloaded||sessionStorage.getItem('pl_sw_reload_120'))return;
     reloaded=true;sessionStorage.setItem('pl_sw_reload_111','1');location.reload();
   });
-  navigator.serviceWorker.register('./sw.js?v=20260919-live3d-112',{scope:'./'}).then(r=>r.update()).catch(console.error);
+  navigator.serviceWorker.register('./sw.js?v=20260919-physical3d-v12',{scope:'./'}).then(r=>r.update()).catch(console.error);
 })();
 </script>
 </body>
