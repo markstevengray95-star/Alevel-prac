@@ -84,9 +84,10 @@
 <script>
 (()=>{
   if(!('serviceWorker' in navigator))return;
+  const hadController=!!navigator.serviceWorker.controller;
   let reloaded=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(reloaded||sessionStorage.getItem('pl_sw_reload_111'))return;
+    if(!hadController||reloaded||sessionStorage.getItem('pl_sw_reload_111'))return;
     reloaded=true;sessionStorage.setItem('pl_sw_reload_111','1');location.reload();
   });
   navigator.serviceWorker.register('./sw.js?v=20260919-live3d-111',{scope:'./'}).then(r=>r.update()).catch(console.error);
