@@ -628,7 +628,7 @@ def photo_p3(light_gates=True):
  photo_retort(s,'Free-fall stand',-1.10,.30,4.70)
  rod(s,'Release clamp arm',(-1.10,.30,4.22),(-.08,.30,4.22),.042,'silver',28);photo_boss(s,'Release boss',(-1.02,.30,4.22))
  # solenoid/electromagnet release with face and terminal detail
- box(s,'Release mechanism green housing',(-.02,.30,4.22),(.72,.58,.42),'green')
+ box(s,'Release mechanism green housing' if light_gates else 'Mechanical release green housing',(-.02,.30,4.22),(.72,.58,.42),'green')
  cyl(s,'Release electromagnet core',(-.02,.30,3.97),.12,.18,'silver',sections=40)
  banana(s,'Release red terminal',(.20,.00,4.26),'red');banana(s,'Release black terminal',(-.18,.00,4.26),'black')
  sphere(s,'Ball bearing',(-.02,.30,3.72),.18,'silver')
