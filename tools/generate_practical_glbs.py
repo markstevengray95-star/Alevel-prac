@@ -297,9 +297,56 @@ def p7s():
  cyl(s,'Stand counterweight',(-.85,.30,.31),.30,.16,'grey')
  return s
 def p8b():
- s=trimesh.Scene();bench(s);stand(s,-1.4,.4,4.6);rod(s,'ClampArm',(-1.4,.4,3.4),(-.2,.4,3.4),.05,'metal');cyl(s,'GasSyringe',(-.05,.4,3.25),.34,2.1,'glass');cyl(s,'Plunger',(-.05,.4,2),.26,.22,'dark');rod(s,'PlungerRod',(-.05,.4,1.95),(-.05,.4,.95),.06,'metal');masses(s,(-.05,.4,.20),4);return s
+ s=trimesh.Scene();bench(s,8.5,4.9)
+ box(s,'Boyle stand blue base',(-1.35,.34,.08),(1.25,.84,.17),'bluebase')
+ rod(s,'Boyle stand vertical rod',(-1.35,.34,.15),(-1.35,.34,4.45),.052,'silver')
+ rod(s,'Boyle clamp arm',(-1.35,.34,3.38),(-.25,.34,3.38),.040,'silver')
+ box(s,'Boyle boss head',(-1.28,.34,3.38),(.24,.24,.28),'dark')
+ box(s,'Gas syringe clamp',(-.18,.34,3.38),(.22,.46,.32),'dark')
+ # Transparent vertical syringe, plunger downwards, sealed top.
+ cyl(s,'Gas syringe transparent barrel',(-.02,.34,3.20),.30,2.20,'glass')
+ torus(s,'Gas syringe upper rim',(-.02,.34,4.30),.31,.035,'white')
+ torus(s,'Gas syringe lower rim',(-.02,.34,2.10),.31,.035,'white')
+ cyl(s,'Syringe plunger seal',(-.02,.34,2.47),.25,.20,'rubber')
+ rod(s,'Syringe plunger rod',(-.02,.34,2.36),(-.02,.34,1.42),.055,'silver')
+ cyl(s,'Syringe plunger flange',(-.02,.34,1.34),.29,.09,'white')
+ cyl(s,'Sealed syringe nozzle',(-.02,.34,4.46),.075,.34,'white')
+ box(s,'Syringe pinch clip',(.12,.34,4.62),(.25,.18,.14),'dark')
+ # Scale markings.
+ for i in range(17):
+  z=2.30+i*.105
+  rod(s,f'Syringe graduation {i}',(.27,.12,z),(.27+(.13 if i%4==0 else .06),.12,z),.006,'black',6)
+ # Mass hanger suspended from plunger.
+ rod(s,'Mass hanger hook',(-.02,.34,1.28),(-.02,.34,.88),.025,'silver')
+ cyl(s,'Mass hanger tray',(-.02,.34,.85),.25,.07,'silver')
+ for i,z in enumerate((.95,1.06,1.17)):
+  cyl(s,f'Boyle slotted mass {i+1}',(-.02,.34,z),.235,.085,'grey')
+ # Micrometer shown alongside for measuring seal diameter, matching AQA apparatus set.
+ line_pts=[(2.10,1.32,.45),(2.50,1.32,.53),(2.72,1.32,.84),(2.64,1.32,1.18),(2.31,1.32,1.31)]
+ wire(s,'Micrometer C frame',line_pts,.064,'blue')
+ rod(s,'Micrometer spindle',(1.48,1.32,1.28),(1.98,1.32,1.28),.045,'silver')
+ cyl(s,'Micrometer thimble',(1.45,1.32,1.28),.16,.40,'silver','x')
+ return s
 def p8c():
- s=trimesh.Scene();bench(s);box(s,'WaterBath',(.6,.2,.65),(3.3,2,1.1),'glass');cyl(s,'Capillary',(.2,.2,1.75),.10,2.5,'glass');cyl(s,'LiquidColumn',(.2,.2,1.15),.045,1.1,'red');cyl(s,'Thermometer',(1.25,.2,1.7),.08,2.4,'white');cyl(s,'ThermometerFluid',(1.25,.18,1.25),.025,1.4,'red');stand(s,-1.6,.35,3.7);rod(s,'ClampArm',(-1.6,.35,2.2),(.4,.35,2.2),.05,'metal');ruler(s,(.2,1.45,.16),3.5);return s
+ s=trimesh.Scene();bench(s,8.5,4.9)
+ # Large transparent beaker/water bath with ruler, capillary and thermometer.
+ cyl(s,'Two litre beaker',(0,.20,.82),1.08,1.62,'glass')
+ torus(s,'Beaker top rim',(0,.20,1.64),1.10,.035,'white')
+ cyl(s,'Water bath',(0,.20,.66),1.02,1.28,'glass')
+ box(s,'Vertical ruler',(-.24,.20,2.20),(.18,.12,3.55),'wood')
+ for i in range(21):
+  zz=.48+i*3.20/20;rod(s,f'Charles ruler tick {i}',(-.34,.13,zz),(-.24 if i%5==0 else -.29,.13,zz),.005,'black',6)
+ cyl(s,'Capillary tube',(.10,.16,2.05),.055,3.30,'glass')
+ cyl(s,'Trapped air column',(.10,.16,1.86),.024,.80,'white')
+ sphere(s,'Liquid marker drop',(.10,.16,2.26),.045,'red')
+ # Elastic bands holding tube against ruler.
+ torus(s,'Upper elastic band',(-.07,.18,2.72),.22,.024,'rubber',(0,0,1))
+ torus(s,'Lower elastic band',(-.07,.18,1.72),.22,.024,'rubber',(0,0,1))
+ cyl(s,'Thermometer',(1.34,.20,2.06),.065,3.10,'glass')
+ cyl(s,'Thermometer liquid',(1.34,.20,1.70),.022,1.95,'red')
+ sphere(s,'Thermometer bulb',(1.34,.20,.72),.10,'glass')
+ rod(s,'Stirring rod',(-1.25,.20,.50),(-.75,.20,2.30),.045,'glass')
+ return s
 def p9():
  s=trimesh.Scene();bench(s);supply(s,(-2.7,-1.25,.4));box(s,'ChangeoverSwitch',(-1.15,-.65,.35),(.9,.55,.2),'dark');rod(s,'SwitchBlade',(-1.35,-.65,.5),(-.85,-.65,.75),.04,'metal');box(s,'Resistor',(0,-.25,.45),(1.1,.45,.32),'cream');cyl(s,'Capacitor',(1.4,.1,.65),.33,.85,'black');meter(s,'Voltmeter',(2.7,-.8,.45));wire(s,'RC',[(-2.35,-1.62,.3),(-1.4,-.8,.35),(-.55,-.25,.45),(.55,-.25,.45),(1.4,.1,.25),(2.45,-1.13,.35)],.02,'red');wire(s,'Return',[(2.95,-1.13,.35),(1.4,.1,.25),(-2.65,-1.62,.3)],.02,'black');return s
 def p10():
