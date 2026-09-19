@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
   await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__practical3DEquipmentV11Ready===true,{timeout:20000});
 
   const targets={
-    1:['vibration'],2:['laser','grating'],3:['datalogger'],4:['micrometer'],5:['ammeter'],6:['lamp'],
+    1:['vibration'],2:['laser','grating'],3:['datalogger'],4:['micrometer'],5:['ammeter'],6:['ammeter'],
     7:['pendulum','spring'],8:['syringe','waterbath'],9:['capacitor'],10:['balance'],11:['searchcoil'],12:['gmtube']
   };
 
