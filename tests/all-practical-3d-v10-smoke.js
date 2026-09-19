@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
 
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.PRACTICAL_3D_MODELS,{timeout:20000});
-  if((await page.locator('#appVersionBadge').innerText()).trim()!=='Photo 3D v13.0')throw new Error('Live 3D version badge missing or stale');
+  if((await page.locator('#appVersionBadge').innerText()).trim()!=='Photo 3D v14.0')throw new Error('Live 3D version badge missing or stale');
   if(await page.locator('script[src^="lab-book-bootstrap.js"]').count()!==1)throw new Error('Enhancement bootstrap is not loaded explicitly by index.html');
 
   const checked=new Set();
@@ -65,6 +65,6 @@ const { chromium } = require('playwright');
   if(await page.locator('#young3dTool').count()!==1)throw new Error('Legacy P4 3D toolbar ID regressed');
 
   if(errors.length)throw new Error('Browser errors:\n'+errors.join('\n'));
-  console.log('All-practical Photo 3D v13 smoke passed: every practical/mode loaded a valid interactive GLB, export link and enlarged viewer.');
+  console.log('All-practical Photo 3D v14 smoke passed: every practical/mode loaded a valid interactive GLB, export link and enlarged viewer.');
   await browser.close();
 })().catch(e=>{console.error(e.stack||e);process.exit(1);});
