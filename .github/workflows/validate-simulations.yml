@@ -39,6 +39,10 @@ jobs:
           node --check tests/apparatus-interaction-v7-smoke.js
           node --check tests/free-build-v8-smoke.js
           node --check tests/free-build-apparatus-v9-smoke.js
+      - name: Generate 3D apparatus models
+        run: |
+          python -m pip install --disable-pip-version-check trimesh numpy
+          python tools/generate_practical_glbs.py assets
       - name: Check HTML local asset references
         run: |
           python - <<'PY'
