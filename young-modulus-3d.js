@@ -113,9 +113,9 @@ function lookAt(eye,target){const z=unit(subtract(eye,target)),x=unit(cross([0,0
 function perspective(fov,aspect,near,far){const f=1/Math.tan(fov/2);return [f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0];}
 function shader(gl,type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
 function program(gl){
-const vertex=`attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 uMVP;uniform vec3 uOffset;uniform vec3 uPivot;uniform vec3 uAxis;uniform float uAngle;varying vec3 vNormal;varying vec3 vWorldPos;
+const vertex=`attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 uMVP;uniform vec3 uOffset;uniform vec3 uPivot;uniform vec3 uAxis;uniform float uAngle;uniform float uScaleZ;varying vec3 vNormal;varying vec3 vWorldPos;
 vec3 rotateAxis(vec3 v,vec3 axis,float a){axis=normalize(axis);float c=cos(a),s=sin(a);return v*c+cross(axis,v)*s+axis*dot(axis,v)*(1.0-c);}
-void main(){vec3 q=aPosition-uPivot;vec3 rotated=rotateAxis(q,uAxis,uAngle)+uPivot+uOffset;vNormal=normalize(rotateAxis(aNormal,uAxis,uAngle));vWorldPos=rotated;gl_Position=uMVP*vec4(rotated,1.0);}`;
+void main(){vec3 q=aPosition-uPivot;q.z*=uScaleZ;vec3 rotated=rotateAxis(q,uAxis,uAngle)+uPivot+uOffset;vNormal=normalize(rotateAxis(aNormal,uAxis,uAngle));vWorldPos=rotated;gl_Position=uMVP*vec4(rotated,1.0);}`;
 const fragment=`precision highp float;varying vec3 vNormal;varying vec3 vWorldPos;uniform vec3 uColor;uniform vec3 uEye;uniform float uMetallic;uniform float uRoughness;uniform vec3 uEmissive;uniform float uAlpha;
 const float PI=3.14159265359;
 float Dggx(float NoH,float a){float a2=a*a;float d=NoH*NoH*(a2-1.0)+1.0;return a2/max(PI*d*d,.0001);}
@@ -203,7 +203,7 @@ function mount(config){
       const off=effectiveOffset(o),isSel=!!selected&&o.group===selected.group,isHover=!!hovered&&o.group===hovered.group;
       let color=o.color;if(isSel)color=pulse?[1,.88,.28]:[.96,.77,.24];else if(isHover)color=[.65,.9,.55];
       const alpha=state.xray&&!isSel?.28:(o.alpha??1);gl.depthMask(alpha>.985);
-      gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),color);gl.uniform3fv(gl.getUniformLocation(prog,'uOffset'),off);gl.uniform3fv(gl.getUniformLocation(prog,'uPivot'),o.pivot||o.center);gl.uniform3fv(gl.getUniformLocation(prog,'uAxis'),o.axis||[0,0,1]);gl.uniform1f(gl.getUniformLocation(prog,'uAngle'),o.angle||0);gl.uniform1f(gl.getUniformLocation(prog,'uMetallic'),o.metallic??0);gl.uniform1f(gl.getUniformLocation(prog,'uRoughness'),o.roughness??.5);gl.uniform3fv(gl.getUniformLocation(prog,'uEmissive'),o.emissive||[0,0,0]);gl.uniform1f(gl.getUniformLocation(prog,'uAlpha'),alpha);
+      gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),color);gl.uniform3fv(gl.getUniformLocation(prog,'uOffset'),off);gl.uniform3fv(gl.getUniformLocation(prog,'uPivot'),o.pivot||o.center);gl.uniform3fv(gl.getUniformLocation(prog,'uAxis'),o.axis||[0,0,1]);gl.uniform1f(gl.getUniformLocation(prog,'uAngle'),o.angle||0);gl.uniform1f(gl.getUniformLocation(prog,'uScaleZ'),o.scaleZ??1);gl.uniform1f(gl.getUniformLocation(prog,'uMetallic'),o.metallic??0);gl.uniform1f(gl.getUniformLocation(prog,'uRoughness'),o.roughness??.5);gl.uniform3fv(gl.getUniformLocation(prog,'uEmissive'),o.emissive||[0,0,0]);gl.uniform1f(gl.getUniformLocation(prog,'uAlpha'),alpha);
       gl.drawArrays(gl.TRIANGLES,0,o.count);
     }
     gl.depthMask(true);updateLabels();
@@ -245,13 +245,13 @@ function mount(config){
       if(Array.isArray(next.offset))o.offset=[...next.offset];
       if(Number.isFinite(next.angle))o.angle=next.angle;
       if(Array.isArray(next.axis))o.axis=[...next.axis];
-      if(Array.isArray(next.pivot))o.pivot=[...next.pivot];
+      if(Array.isArray(next.pivot))o.pivot=[...next.pivot];if(Number.isFinite(next.scaleZ))o.scaleZ=next.scaleZ;
     });draw();return true;
   };
   const animateGroup=(name,to={},duration=850,easing='smooth')=>{
     const members=membersFor(name);if(!members.length)return Promise.resolve(false);
-    const startOffset=[...members[0].offset],startAngle=members[0].angle||0;
-    const targetOffset=Array.isArray(to.offset)?to.offset:startOffset,targetAngle=Number.isFinite(to.angle)?to.angle:startAngle;
+    const startOffset=[...members[0].offset],startAngle=members[0].angle||0,startScale=members[0].scaleZ??1;
+    const targetOffset=Array.isArray(to.offset)?to.offset:startOffset,targetAngle=Number.isFinite(to.angle)?to.angle:startAngle,targetScale=Number.isFinite(to.scaleZ)?to.scaleZ:startScale;
     const axis=Array.isArray(to.axis)?to.axis:members[0].axis||[0,0,1],pivot=Array.isArray(to.pivot)?to.pivot:members[0].pivot||members[0].center;
     const ease=t=>easing==='linear'?t:easing==='gravity'?t*t:easing==='spring'?(1-Math.cos(t*Math.PI*2.5)*Math.exp(-4*t)):(t*t*(3-2*t));
     const t0=performance.now();
@@ -259,8 +259,8 @@ function mount(config){
       const step=now=>{
         if(disposed){resolve(false);return;}
         const raw=Math.min(1,(now-t0)/Math.max(1,duration)),k=ease(raw);
-        const off=startOffset.map((v,i)=>v+(targetOffset[i]-v)*k),angle=startAngle+(targetAngle-startAngle)*k;
-        members.forEach(o=>{o.offset=[...off];o.angle=angle;o.axis=[...axis];o.pivot=[...pivot];});draw();
+        const off=startOffset.map((v,i)=>v+(targetOffset[i]-v)*k),angle=startAngle+(targetAngle-startAngle)*k,scaleZ=startScale+(targetScale-startScale)*k;
+        members.forEach(o=>{o.offset=[...off];o.angle=angle;o.axis=[...axis];o.pivot=[...pivot];o.scaleZ=scaleZ;});draw();
         if(raw<1)requestAnimationFrame(step);else resolve(true);
       };requestAnimationFrame(step);
     });
@@ -279,7 +279,7 @@ function mount(config){
       gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.positions),gl.STATIC_DRAW);
       gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.normals),gl.STATIC_DRAW);
       const dir=unit(subtract(item.center,config.target)),scale=Math.max(.3,Math.min(1.25,item.radius*.42));
-      objects.push({...item,pos,normal,count:item.positions.length/3,group:window.getPractical3DGroupKey?.(item.name,current?.id)||item.name,offset:[0,0,0],angle:0,axis:[0,0,1],pivot:[...item.center],explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});
+      objects.push({...item,pos,normal,count:item.positions.length/3,group:window.getPractical3DGroupKey?.(item.name,current?.id)||item.name,offset:[0,0,0],angle:0,axis:[0,0,1],pivot:[...item.center],scaleZ:1,explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});
     }
     if(!objects.length)throw Error('3D apparatus has no drawable geometry');
     important=window.getPractical3DImportantEquipment?.(objects)||objects.filter(o=>!/lab bench/i.test(o.name)).slice(0,12).map(object=>({object,info:{label:object.name}}));
@@ -287,7 +287,7 @@ function mount(config){
     fallback.hidden=true;
     status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'')+'Photo 3D · Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
     draw();observer=new ResizeObserver(draw);observer.observe(canvas);
-    window.__practical3DInteractive={version:'14.0',renderQuality:'photoreal-pbr',modelSource:source,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
+    window.__practical3DInteractive={version:'14.0',renderQuality:'photoreal-pbr',modelSource:source,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
   };
   loadModel(config.file).then(model=>installGeometry(geometry(model),'glb')).catch(e=>{
     if(disposed)return;
@@ -335,7 +335,7 @@ function mount(config){
   ui.tools.querySelector('[data-3d-xray]').onclick=e=>{state.xray=!state.xray;e.currentTarget.classList.toggle('active',state.xray);draw();};
   ui.tools.querySelector('[data-3d-explode]').onclick=e=>{state.exploded=!state.exploded;e.currentTarget.classList.toggle('active',state.exploded);draw();};
   ui.tools.querySelector('[data-3d-tutorial]').onclick=tutorialNext;ui.tools.querySelector('[data-3d-quiz]').onclick=quizNext;
-  ui.tools.querySelector('[data-3d-reset-objects]').onclick=()=>{objects.forEach(o=>{o.offset=[0,0,0];o.angle=0;o.axis=[0,0,1];o.pivot=[...o.center];});state.exploded=false;state.xray=false;state.labels=false;state.tool='orbit';selected=hovered=null;ui.panel.hidden=true;ui.labels.hidden=true;ui.tools.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));ui.tools.querySelector('[data-3d-mode]').textContent='Guided 3D';host.classList.remove('p3d-free-move');status.textContent='Apparatus reset';draw();};
+  ui.tools.querySelector('[data-3d-reset-objects]').onclick=()=>{objects.forEach(o=>{o.offset=[0,0,0];o.angle=0;o.axis=[0,0,1];o.pivot=[...o.center];o.scaleZ=1;});state.exploded=false;state.xray=false;state.labels=false;state.tool='orbit';selected=hovered=null;ui.panel.hidden=true;ui.labels.hidden=true;ui.tools.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));ui.tools.querySelector('[data-3d-mode]').textContent='Guided 3D';host.classList.remove('p3d-free-move');status.textContent='Apparatus reset';draw();};
 }
 const MODEL_REGISTRY={
 1:[{file:'assets/rp01-standing-waves.glb',target:[0,0,.8],azimuth:-1.03,elevation:.34,radius:9.3,label:'standing waves on a string'}],
