@@ -63,3 +63,13 @@ node tests/test-worked-examples-complete.cjs
 ```
 
 Browser smoke tests in `tests/` run in the GitHub workflow. The Blender source for the optional apparatus views is in `tools/blender_apparatus.py`; the PNGs are in `assets/`.
+
+## Full interactive 3D apparatus v10
+
+Every required practical now has a real interactive GLB apparatus scene in the same inspector section that previously existed only for Young double slit and Young modulus. The existing detailed Blender GLBs remain the primary models for Practical 2 double slit and Practical 4; the remaining setups are generated as PBR-material GLBs during validation and GitHub Pages deployment.
+
+Mode-specific 3D models are used where the physical apparatus changes: Practical 2 switches between double slit and diffraction grating, Practical 7 between pendulum and spring-mass SHM, and Practical 8 between Boyle-law gas syringe and Charles-law water bath/capillary. Practicals 1, 3, 5, 6, 9, 10, 11 and 12 each have their own complete apparatus scene.
+
+Each practical includes orbit/drag rotation, wheel zoom, reset, enlarged full-screen viewing and a direct GLB export link. The models are included in the offline cache. Practical 12 remains a simulation-only representation of detector/source geometry and does not provide source-handling instructions.
+
+The `all-practical-3d-v10` browser regression opens every practical and mode, waits for the GLB to render, verifies the glTF binary header, checks the download link and canvas, and confirms the shared enlarged viewer works while retaining the legacy P2/P4 3D controls.
