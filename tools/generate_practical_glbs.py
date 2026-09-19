@@ -755,6 +755,23 @@ def photo_p6():
  return s
 
 
-SC={'rp01-standing-waves':photo_p1,'rp02-double-slit':photo_p2d,'rp02-diffraction-grating':photo_p2g,'rp03-free-fall':lambda:photo_p3(True),'rp03-free-fall-impact':lambda:photo_p3(False),'rp04-young-modulus':photo_p4,'rp05-resistivity-wire':photo_p5,'rp06-iv-characteristics':photo_p6,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp03-free-fall-impact':p3impact,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
+SC={
+'rp01-standing-waves':photo_p1,
+'rp02-double-slit':photo_p2d,
+'rp02-diffraction-grating':photo_p2g,
+'rp03-free-fall':lambda:photo_p3(True),
+'rp03-free-fall-impact':lambda:photo_p3(False),
+'rp04-young-modulus':photo_p4,
+'rp05-resistivity-wire':photo_p5,
+'rp06-iv-characteristics':photo_p6,
+'rp07-pendulum':p7p,
+'rp07-spring':p7s,
+'rp08-boyle-syringe':p8b,
+'rp08-charles-law':p8c,
+'rp09-capacitor':p9,
+'rp10-wire-balance':p10,
+'rp11-search-coil':p11,
+'rp12-inverse-square':p12
+}
 for name,fn in SC.items():
  blob=fn().export(file_type='glb');path=os.path.join(OUT,name+'.glb');open(path,'wb').write(blob);print('3D',os.path.basename(path),len(blob))
