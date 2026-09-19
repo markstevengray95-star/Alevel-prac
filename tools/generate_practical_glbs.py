@@ -673,7 +673,7 @@ def photo_p4():
  rod(s,'Top support beam',(-1.85,.35,4.50),(1.05,.35,4.50),.085,'silver',36)
  photo_boss(s,'Reference wire top clamp',(-1.25,.35,4.45));photo_boss(s,'Test wire top clamp',(.45,.35,4.45))
  rod(s,'Reference wire',(-1.25,.35,4.30),(-1.25,.35,.88),.018,'copper',20)
- rod(s,'Test wire',(.45,.35,4.30),(.45,.35,.88),.018,'copper',20)
+ rod(s,'Long suspended wire test wire',(.45,.35,4.30),(.45,.35,.88),.018,'copper',20)
  # lower comparison frame and spirit level
  box(s,'Vernier comparison bridge',(-.40,.35,1.18),(2.20,.44,.22),'silver')
  box(s,'Vernier moving cursor',(.18,.08,1.25),(.34,.10,.62),'dark')
