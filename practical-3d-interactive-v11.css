@@ -42,8 +42,8 @@
   background:radial-gradient(ellipse at center,rgba(30,42,37,.20),rgba(30,42,37,0) 70%);
   filter:blur(8px);
 }
-#practical3d canvas,#doubleSlit3d canvas,#young3d canvas,
-.practical3d-label-layer,.practical3d-tools,.practical3d-info,.p3d-physical-actions{position:relative;z-index:1}
+#practical3d canvas,#doubleSlit3d canvas,#young3d canvas{position:relative;z-index:1}
+.practical3d-label-layer,.practical3d-tools,.practical3d-info,.p3d-physical-actions{z-index:8}
 .dark #practical3d,.dark #doubleSlit3d,.dark #young3d{
   background:radial-gradient(circle at 35% 16%,#4d5a55 0,#303d38 44%,#17221e 100%);
 }
