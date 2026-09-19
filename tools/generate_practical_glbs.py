@@ -440,7 +440,29 @@ def p11():
  wire(s,'Search coil signal lead',[(.05,-.04,1.05),(.90,-.92,.60),(1.85,-.82,.72),(2.15,-.56,1.05)],.016,'black')
  return s
 def p12():
- s=trimesh.Scene();bench(s);stand(s,-2.1,.35,3.5);box(s,'SourceHolder',(-1.55,.35,1.9),(.55,.55,.35),'dark');cyl(s,'VirtualSource',(-1.55,.35,1.9),.16,.18,'yellow','x');stand(s,1.2,.35,3);cyl(s,'GMTube',(.65,.35,1.9),.23,1,'grey','x');box(s,'Scaler',(2.5,-.85,.55),(1.5,.8,.75),'white');box(s,'ScalerDisplay',(2.5,-1.27,.62),(.8,.03,.25),'black');ruler(s,(-.25,.95,.16),4.2);wire(s,'DetectorCable',[(1.15,.35,1.9),(1.7,-.2,1.2),(2,-.95,.65)],.02,'black');return s
+ s=trimesh.Scene();bench(s,8.8,5.0)
+ # Simulation-only visual recreation of the AQA detector/scaler geometry.
+ # No real source-handling controls are represented.
+ logger_box(s,(-2.65,-.92,.52),'Timer')
+ box(s,'Virtual scaler counter',(0.65,-1.05,.72),(1.95,.82,1.22),'cream')
+ box(s,'Scaler control panel',(.65,-1.49,.78),(1.55,.035,.74),'dark')
+ box(s,'Scaler display',(.28,-1.515,.92),(.56,.025,.22),'lcd')
+ knob(s,'Scaler voltage control',(.95,-1.52,.78),.12,'black')
+ knob(s,'Scaler count control',(1.25,-1.52,.78),.10,'black')
+ # GM tube in lateral orientation on a support block.
+ box(s,'GM tube support',(-.75,.18,.30),(1.00,.68,.36),'burgundy')
+ cyl(s,'Virtual GM tube',(-.75,.18,.72),.22,1.20,'navy','x',48)
+ cyl(s,'GM tube window cap',(-1.38,.18,.72),.16,.08,'blue','x',36)
+ wire(s,'Detector cable',[(-.14,.18,.72),(.12,-.38,.64),(.18,-1.02,.74)],.020,'black')
+ # Measured axis/ruler between detector and a simulation-only source marker.
+ ruler(s,(.30,.98,.17),5.80)
+ box(s,'Simulation source holder',(2.55,.28,.34),(1.02,.84,.60),'burgundy')
+ box(s,'Simulation source holder lid',(2.55,.28,.71),(1.02,.84,.12),'wood')
+ cyl(s,'Simulation source marker',(2.10,.28,.64),.14,.16,'yellow','x')
+ box(s,'Simulation source shield marker',(2.42,.28,.64),(.30,.36,.30),'grey')
+ # White reference block makes the detector-source distance easy to read.
+ box(s,'Distance reference block',(-.15,.62,.38),(.32,.46,.52),'white')
+ return s
 SC={'rp01-standing-waves':p1,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp03-free-fall-impact':p3impact,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
 for name,fn in SC.items():
  blob=fn().export(file_type='glb');path=os.path.join(OUT,name+'.glb');open(path,'wb').write(blob);print('3D',os.path.basename(path),len(blob))
