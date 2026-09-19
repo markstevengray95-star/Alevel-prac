@@ -378,15 +378,67 @@ def p9():
  wire(s,'Voltmeter negative branch',[(2.32,-1.20,.42),(1.90,-.65,.48),(.80,.08,.32)],.016,'black')
  return s
 def p10():
- s=trimesh.Scene();bench(s,8.6,4.8);supply(s,(-3,-1.3,.4));meter(s,'Ammeter',(-1.35,-1.3,.4));cyl(s,'VariableResistor',(.15,-1.25,.45),.24,1.1,'dark','x');box(s,'Switch',(1.3,-1.25,.25),(.75,.45,.18),'dark');box(s,'Balance',(2,.5,.42),(2.2,1.55,.7),'white');box(s,'BalancePan',(2,.5,.83),(1.85,1.25,.12),'metal');box(s,'NorthMagnet',(1.55,.5,1.4),(.45,.7,1),'red');box(s,'SouthMagnet',(2.45,.5,1.4),(.45,.7,1),'blue');stand(s,.5,.5,3.2);stand(s,3.5,.5,3.2);rod(s,'CurrentWire',(.8,.5,1.45),(3.2,.5,1.45),.035,'copper');wire(s,'CurrentLead',[(1.3,-1.25,.35),(.8,.5,1.45)],.02,'red');wire(s,'ReturnLead',[(3.2,.5,1.45),(3.6,-1.6,.35),(-2.65,-1.65,.35)],.02,'black');ruler(s,(0,-.2,.15),4.8);return s
+ s=trimesh.Scene();bench(s,9.1,5.0)
+ orange_supply(s,(-2.75,-1.18,.53),'Low voltage DC power supply')
+ multimeter(s,'Ammeter',(-.95,-1.05,.72),'A')
+ rheostat(s,'Variable resistor',(2.55,.62,.54))
+ # AQA top-pan balance at the centre with magnet assembly on its pan.
+ box(s,'Top-pan balance base',(.65,.20,.30),(2.10,1.46,.54),'navy')
+ box(s,'Top-pan balance pan',(.65,.20,.64),(1.72,1.15,.11),'silver')
+ box(s,'Balance digital display',(.65,-.58,.35),(.80,.05,.24),'lcd')
+ # Magnet/pole pieces supported on the balance pan.
+ box(s,'Magnet yoke base',(.65,.20,.90),(1.42,.46,.20),'dark')
+ box(s,'Magnet north pole',(.16,.20,1.36),(.30,.54,.85),'red')
+ box(s,'Magnet south pole',(1.14,.20,1.36),(.30,.54,.85),'blue')
+ # Wire passes through the field gap but is held independently of the balance.
+ box(s,'Wire support left',( -1.10,.20,.42),(.42,.72,.84),'dark')
+ box(s,'Wire support right',(2.38,.20,.42),(.42,.72,.84),'dark')
+ rod(s,'Current-carrying straight wire',(-1.28,.20,1.42),(2.56,.20,1.42),.030,'copper')
+ banana(s,'Wire left terminal',(-1.28,-.20,1.42),'red');banana(s,'Wire right terminal',(2.56,-.20,1.42),'black')
+ # Calipers shown separately for active-length measurement.
+ box(s,'Digital caliper beam',(2.70,-1.20,.28),(1.80,.16,.12),'silver')
+ box(s,'Digital caliper slider',(2.35,-1.20,.33),(.32,.32,.25),'dark')
+ box(s,'Digital caliper display',(2.35,-1.37,.35),(.26,.025,.12),'lcd')
+ # Leads and variable-resistor path.
+ wire(s,'Supply to ammeter',[(-2.38,-1.62,.40),(-1.65,-1.78,.43),(-1.08,-1.28,.45)],.020,'red')
+ wire(s,'Ammeter to wire',[(-.82,-1.28,.45),(-.62,-.25,.62),(-1.28,-.20,1.42)],.020,'red')
+ wire(s,'Wire to rheostat',[(2.56,-.20,1.42),(3.20,.05,.90),(1.62,.22,.62)],.020,'black')
+ wire(s,'Rheostat return',[(3.46,.22,.62),(3.65,-1.82,.42),(-2.38,-1.82,.40)],.020,'black')
+ return s
 def p11():
- s=trimesh.Scene();bench(s,8.3,4.8);supply(s,(-2.7,-1.2,.4))
- for r in (1.25,1.18,1.10):torus(s,'FieldCoil'+str(r),(-.35,.25,1.8),r,.035,'copper',(0,1,0))
- n=(math.sin(math.radians(35)),math.cos(math.radians(35)),0)
- for r in (.55,.50):torus(s,'SearchCoil'+str(r),(-.35,-.05,1.8),r,.025,'gold',n)
- rod(s,'SearchPivot',(-.35,-.05,.8),(-.35,-.05,2.75),.03,'metal');box(s,'Oscilloscope',(2.45,-.35,1),(1.8,.85,1.45),'dark');box(s,'ScopeScreen',(2.45,-.79,1.12),(1.15,.03,.75),'black');pts=[]
- for i in range(25):pts.append((1.98+i*.04,-.82,1.12+.18*math.sin(i/24*4*math.pi)))
- wire(s,'Waveform',pts,.012,'screen');wire(s,'ScopeLead',[(-.35,-.1,1.1),(.6,-1.1,.7),(1.7,-.75,.8)],.015,'black');return s
+ s=trimesh.Scene();bench(s,9.2,5.0)
+ orange_supply(s,(-2.75,-1.15,.53),'AC low-voltage source')
+ # Large circular field coil on its own black feet, matching the AQA apparatus.
+ for r in (1.20,1.14,1.08):
+  torus(s,'Large circular coil winding '+str(r),(0.05,.30,1.78),r,.028,'copper',(0,1,0))
+ box(s,'Large coil left foot',(-.78,.30,.26),(.55,.72,.20),'dark')
+ box(s,'Large coil right foot',(.88,.30,.26),(.55,.72,.20),'dark')
+ # Search coil rotates about a vertical spindle at the centre.
+ angle=math.radians(32)
+ normal=(math.sin(angle),math.cos(angle),0)
+ for r in (.52,.47,.42):
+  torus(s,'Search coil winding '+str(r),(0.05,-.04,1.78),r,.020,'gold',normal)
+ rod(s,'Search coil vertical pivot',(.05,-.04,.88),(.05,-.04,2.70),.028,'silver')
+ box(s,'Search coil clamp base',(.05,-.04,.82),(.52,.45,.16),'dark')
+ # Protractor beneath the coil, with radial guide line.
+ cyl(s,'Protractor disc',(.05,-.06,.48),.82,.035,'paper')
+ for deg in range(0,181,15):
+  a=math.radians(deg);r0=.66;r1=.80
+  rod(s,f'Protractor tick {deg}',(.05+r0*math.cos(a),-.085,.48+r0*math.sin(a)),(.05+r1*math.cos(a),-.085,.48+r1*math.sin(a)),.006,'black',6)
+ rod(s,'Search coil angle pointer',(.05,-.09,.48),(.55,-.09,.82),.014,'red',8)
+ # Oscilloscope/CRO.
+ box(s,'Oscilloscope',(2.85,-.10,1.15),(2.05,.86,1.62),'navy')
+ box(s,'Oscilloscope screen',(2.58,-.56,1.28),(1.20,.035,.86),'black')
+ pts=[]
+ for i in range(33):
+  xx=2.05+1.04*i/32;zz=1.28+.22*math.sin(i*math.pi/8);pts.append((xx,-.585,zz))
+ wire(s,'Oscilloscope waveform',pts,.012,'screen')
+ for x in (3.55,3.75):knob(s,'Oscilloscope control '+str(x),(x,-.56,1.28),.075,'silver')
+ # Leads.
+ wire(s,'Field coil red lead',[(-.15,.36,.58),(-.80,1.28,.46),(-2.45,-.72,.38)],.020,'red')
+ wire(s,'Field coil black lead',[(.25,.36,.58),(.72,1.24,.48),(-2.10,-.72,.38)],.020,'black')
+ wire(s,'Search coil signal lead',[(.05,-.04,1.05),(.90,-.92,.60),(1.85,-.82,.72),(2.15,-.56,1.05)],.016,'black')
+ return s
 def p12():
  s=trimesh.Scene();bench(s);stand(s,-2.1,.35,3.5);box(s,'SourceHolder',(-1.55,.35,1.9),(.55,.55,.35),'dark');cyl(s,'VirtualSource',(-1.55,.35,1.9),.16,.18,'yellow','x');stand(s,1.2,.35,3);cyl(s,'GMTube',(.65,.35,1.9),.23,1,'grey','x');box(s,'Scaler',(2.5,-.85,.55),(1.5,.8,.75),'white');box(s,'ScalerDisplay',(2.5,-1.27,.62),(.8,.03,.25),'black');ruler(s,(-.25,.95,.16),4.2);wire(s,'DetectorCable',[(1.15,.35,1.9),(1.7,-.2,1.2),(2,-.95,.65)],.02,'black');return s
 SC={'rp01-standing-waves':p1,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp03-free-fall-impact':p3impact,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
