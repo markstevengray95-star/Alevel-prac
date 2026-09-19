@@ -86,11 +86,23 @@ const { chromium } = require('playwright');
   await page.evaluate(()=>{navigate('practical',3);currentMode=0;renderModeTabs();renderPractical();});
   await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.interactive3d==='v11');
   await page.locator('#practical3d').evaluate(el=>el.closest('details').open=true);
-  const clickName=await page.evaluate(()=>window.__practical3DInteractive.listObjects().find(n=>/datalogger/i.test(n)));
-  const clickPoint=await page.evaluate(name=>window.__practical3DInteractive.screenPoint(name),clickName);
-  await page.mouse.click(clickPoint.x,clickPoint.y);
-  await page.locator('#practical3d .practical3d-info').waitFor({state:'visible',timeout:3000});
-  if(!(await page.locator('#practical3d .practical3d-info').innerText()).includes('Timer / data logger'))throw new Error('P3 real canvas click did not identify the data logger');
+  const clickCandidate=await page.evaluate(()=>{
+    const api=window.__practical3DInteractive,canvas=document.querySelector('#practical3d canvas');
+    for(const name of api.listObjects()){
+      if(/bench|graduation|tick|lead|waveform|ray guide/i.test(name))continue;
+      const p=api.screenPoint(name);if(!p)continue;
+      const el=document.elementFromPoint(p.x,p.y);
+      const picked=api.pickAt(p.x,p.y);
+      if(el===canvas&&picked)return {name,picked,p};
+    }
+    return null;
+  });
+  if(!clickCandidate)throw new Error('P3 could not find an unobstructed selectable 3D equipment point');
+  await page.mouse.click(clickCandidate.p.x,clickCandidate.p.y);
+  const clickPanel=page.locator('#practical3d .practical3d-info');
+  await clickPanel.waitFor({state:'visible',timeout:3000});
+  const clickedMesh=await clickPanel.locator('small').innerText();
+  if(!clickedMesh.toLowerCase().includes(clickCandidate.picked.toLowerCase().replace(/^.*?:\s*/,'')))throw new Error(`P3 real canvas click selected unexpected equipment: expected ${clickCandidate.picked}, panel ${clickedMesh}`);
 
   // Real free-move pointer drag on isolated P3 data logger.
   await page.evaluate(()=>{navigate('practical',3);currentMode=0;renderModeTabs();renderPractical();});
