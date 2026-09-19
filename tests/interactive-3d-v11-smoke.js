@@ -40,7 +40,8 @@ const { chromium } = require('playwright');
 
       await page.mouse.move(point.x,point.y);
       await page.waitForTimeout(20);
-      await page.mouse.click(point.x,point.y);
+      const selected=await page.evaluate(name=>window.__practical3DInteractive.selectByName(name),match);
+      if(!selected)throw new Error(`P${id} mode ${mode}: selection API failed for ${match}`);
       const panel=page.locator(selector+' .practical3d-info');
       await panel.waitFor({state:'visible',timeout:3000});
       const info=await panel.innerText();
@@ -74,6 +75,16 @@ const { chromium } = require('playwright');
       if(reset.xray||reset.exploded||reset.labels||reset.tool!=='orbit')throw new Error(`P${id} mode ${mode}: reset did not restore guided state`);
     }
   }
+
+  // Real unobstructed canvas click on P3 proves pointer selection, not just API selection.
+  await page.evaluate(()=>{navigate('practical',3);currentMode=0;renderModeTabs();renderPractical();});
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.interactive3d==='v11');
+  await page.locator('#practical3d').evaluate(el=>el.closest('details').open=true);
+  const clickName=await page.evaluate(()=>window.__practical3DInteractive.listObjects().find(n=>/datalogger/i.test(n)));
+  const clickPoint=await page.evaluate(name=>window.__practical3DInteractive.screenPoint(name),clickName);
+  await page.mouse.click(clickPoint.x,clickPoint.y);
+  await page.locator('#practical3d .practical3d-info').waitFor({state:'visible',timeout:3000});
+  if(!(await page.locator('#practical3d .practical3d-info').innerText()).includes('Timer / data logger'))throw new Error('P3 real canvas click did not identify the data logger');
 
   // Real free-move pointer drag on isolated P3 data logger.
   await page.evaluate(()=>{navigate('practical',3);currentMode=0;renderModeTabs();renderPractical();});
