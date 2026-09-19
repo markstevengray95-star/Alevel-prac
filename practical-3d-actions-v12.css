@@ -4,5 +4,5 @@
 .p3d-actions-buttons button{border:1px solid #8da99a;border-radius:.62rem;padding:.48rem .7rem;background:rgba(255,255,255,.78);color:inherit;font-weight:700;cursor:pointer}
 .p3d-actions-buttons button:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(24,62,48,.12)}
 .p3d-actions-buttons button:disabled{opacity:.55;cursor:wait;transform:none}
-.p3d-physical-actions small{opacity:.72;line-height:1.35}
+.p3d-physical-actions small{opacity:.72;line-height:1.35;pointer-events:none}
 @media(max-width:760px){.p3d-actions-buttons{display:grid;grid-template-columns:1fr 1fr}.p3d-actions-buttons button{width:100%}}
