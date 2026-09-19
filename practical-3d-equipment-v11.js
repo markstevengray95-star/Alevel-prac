@@ -23,7 +23,7 @@ const RULES=[
   [/micrometer/i,{label:'Micrometer',purpose:'Measures very small diameters or thicknesses precisely.',how:'A fine-pitch screw converts thimble rotation into a small linear movement of the spindle.',use:'Check zero error, use the ratchet gently and take readings at several positions/orientations.',mistake:'Over-tightening or failing to correct for zero error.'}],
   [/spirit level|bubble/i,{label:'Spirit level',purpose:'Shows when the comparison bridge is level.',how:'A bubble moves to the highest point in a curved vial and centres when the instrument is horizontal.',use:'Use the fine adjustment until the bubble is centred before taking the extension reading.',mistake:'Reading the vernier while the bridge is still tilted.'}],
   [/vernier comparison|vernier moving cursor|spirit-vernier/i,{label:'Vernier comparison',purpose:'Measures very small relative extension between the test and reference wires.',how:'The main and vernier scales provide a precise relative displacement reading.',use:'Read only after the level is centred.',mistake:'Taking the scale reading before re-leveling after adding a load.'}],
-  [/power supply|dc supply|low voltage dc supply/i,{label:'DC power supply',purpose:'Provides a controlled low-voltage potential difference to a circuit.',how:'Electronic regulation maintains a chosen output voltage while current flows through the external circuit.',use:'Start at a safe low setting and adjust only within the practical range.',mistake:'Changing the supply when a variable resistor should be used to adjust current.'}],
+  [/power supply|dc supply|low voltage dc supply|supply display|supply red|supply black/i,{label:'DC power supply',purpose:'Provides a controlled low-voltage potential difference to a circuit.',how:'Electronic regulation maintains a chosen output voltage while current flows through the external circuit.',use:'Start at a safe low setting and adjust only within the practical range.',mistake:'Changing the supply when a variable resistor should be used to adjust current.'}],
   [/ammeter|series ammeter/i,{label:'Ammeter',purpose:'Measures electric current.',how:'A very low-resistance measuring circuit is placed in series so the same current flows through it.',use:'Connect in series and choose an appropriate range.',mistake:'Connecting an ammeter in parallel.'}],
   [/voltmeter|parallel voltmeter/i,{label:'Voltmeter',purpose:'Measures potential difference between two points.',how:'Its high resistance allows it to compare potentials while drawing very little current.',use:'Connect in parallel across the component or section being measured.',mistake:'Connecting a voltmeter in series.'}],
   [/variable resistor|rheostat/i,{label:'Variable resistor',purpose:'Changes current in a circuit in a controlled way.',how:'Moving the contact changes the effective length of resistance wire in the circuit.',use:'Begin at a high resistance when appropriate, then adjust smoothly.',mistake:'Changing it too quickly and overheating the test component.'}],
@@ -51,7 +51,7 @@ const RULES=[
   [/source holder|virtual source/i,{label:'Virtual source holder',purpose:'Simulation-only reference point for inverse-square geometry.',how:'It provides a fixed origin for the simulated detector distance.',use:'Measure separation from consistent reference points in the simulation.',mistake:'Treating the simulation as instructions for handling a real source.'}],
   [/lab bench|bench surface|bench front/i,{label:'Laboratory bench',purpose:'Provides the stable surface supporting the apparatus.',how:'The rigid surface keeps relative apparatus positions fixed during measurement.',use:'Keep the working area clear and apparatus stable.',mistake:'Treating the bench itself as movable apparatus.'}]
 ];
-function cleanName(name=''){return String(name).replace(/[_\.]+/g,' ').replace(/\s+/g,' ').trim();}
+function cleanName(name=''){return String(name).replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/[_\.]+/g,' ').replace(/\s+/g,' ').trim();}
 function lookup(name,practicalId=current?.id){
   const n=cleanName(name);
   const hit=RULES.find(([re])=>re.test(n));
@@ -60,6 +60,11 @@ function lookup(name,practicalId=current?.id){
   if(practicalId===12&&/source/i.test(n))info.safety='Simulation only: no real-source handling procedure is provided.';
   return info;
 }
+function groupKey(name,practicalId=current?.id){
+  const info=lookup(name,practicalId),n=cleanName(name);
+  if(info.label&&info.label!==n)return info.label;
+  return n.replace(/\b(face|display|screen|red|black|knob|base|pan|terminal|stem|shaft|arm|body|housing|support|foot|rod)\b.*$/i,'').trim()||n;
+}
 function important(objects=[]){
   const seen=new Set(),out=[];
   for(const o of objects){const i=lookup(o.name);if(/bench|graduation|tick|lead|wireform|waveform/i.test(o.name)&&!/(ammeter|voltmeter|resistance wire|current-carrying)/i.test(o.name))continue;if(seen.has(i.label))continue;seen.add(i.label);out.push({object:o,info:i});}
@@ -67,5 +72,6 @@ function important(objects=[]){
 }
 window.getPractical3DEquipmentInfo=lookup;
 window.getPractical3DImportantEquipment=important;
+window.getPractical3DGroupKey=groupKey;
 window.__practical3DEquipmentV11Ready=true;
 })();
