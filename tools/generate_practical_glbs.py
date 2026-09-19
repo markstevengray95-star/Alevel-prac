@@ -98,7 +98,32 @@ def masses(s,p,n=4):
  x,y,z=p;rod(s,'MassStem',(x,y,z+.55),(x,y,z+1),.025,'metal')
  for i in range(n):cyl(s,f'Mass{i}',(x,y,z+.1+i*.12),.24,.10,'grey')
 def p1():
- s=trimesh.Scene();bench(s);supply(s,(-2.7,-1.2,.38));box(s,'VibrationGenerator',(-1.35,-.15,.75),(.75,.65,.8),'dark');rod(s,'VibratorStem',(-1,-.15,.75),(-.72,-.15,.75),.045,'metal');wire(s,'String',[(-.72,-.15,.75),(2.55,-.15,.75),(2.72,-.15,.6),(2.72,-.15,-.05)],.014,'white');torus(s,'Pulley',(2.60,-.15,.72),.24,.045,'metal',(0,1,0));box(s,'PulleyStand',(2.60,.05,.34),(.35,.40,.55),'dark');masses(s,(2.72,-.15,-.55),3);ruler(s,(.55,.65,.16),4.4);return s
+ s=trimesh.Scene();bench(s,8.8,4.9)
+ # AQA-style bench arrangement: blue-base retort stand, vibration generator, orange signal generator,
+ # metre rule, pulley at the bench edge and a freely hanging mass hanger.
+ box(s,'Retort stand blue base',(-2.55,.28,.08),(1.18,.78,.16),'bluebase');rod(s,'Retort stand vertical rod',(-2.55,.28,.15),(-2.55,.28,3.10),.052,'silver')
+ rod(s,'Retort stand clamp arm',(-2.55,.28,2.55),(-1.70,.28,2.55),.042,'silver');box(s,'Boss head',(-2.48,.28,2.55),(.26,.24,.28),'dark')
+ box(s,'Clamp jaws',(-1.67,.28,2.55),(.20,.42,.30),'dark')
+ orange_supply(s,(0.0,-1.30,.52),'Signal generator')
+ box(s,'Vibration generator body',(-1.72,-.12,.57),(.68,.62,.52),'black')
+ cyl(s,'Vibration generator silver top',(-1.72,-.12,.89),.25,.17,'silver')
+ cyl(s,'Vibration generator armature',(-1.46,-.12,.90),.055,.35,'silver','x')
+ box(s,'Vibration generator mounting foot',(-1.72,-.12,.25),(.78,.72,.16),'grey')
+ ruler(s,(.15,.78,.17),5.25)
+ # Horizontal string from vibrator to pulley and then vertically down.
+ wire(s,'String',[(-1.27,-.12,.90),(2.62,-.12,.90),(2.82,-.12,.70),(2.82,-.12,-.48)],.012,'white')
+ torus(s,'Pulley wheel',(2.66,-.12,.78),.25,.045,'silver',(0,1,0))
+ cyl(s,'Pulley axle',(2.66,-.12,.78),.055,.42,'black','y')
+ box(s,'Pulley bracket',(2.66,.10,.47),(.42,.34,.62),'black')
+ box(s,'Pulley bench clamp',(2.66,.34,.18),(.65,.34,.20),'black')
+ # Clearly recognisable hanger with several slotted masses below the bench edge.
+ rod(s,'Mass hanger stem',(2.82,-.12,-.48),(2.82,-.12,-1.05),.025,'silver')
+ cyl(s,'Mass hanger tray',(2.82,-.12,-1.10),.24,.07,'silver')
+ for i,z in enumerate((-1.00,-.88,-.76)):cyl(s,f'Slotted mass {i+1}',(2.82,-.12,z),.23,.085,'grey')
+ # Cables between generator and vibration generator.
+ wire(s,'Generator red lead',[(-.35,-1.72,.40),(-.78,-1.60,.35),(-1.45,-.45,.42),(-1.72,-.35,.52)],.018,'rubber_red')
+ wire(s,'Generator black lead',[(.10,-1.72,.40),(-.20,-1.90,.35),(-1.60,-.58,.35),(-1.88,-.35,.48)],.018,'black')
+ return s
 def p2g():
  s=trimesh.Scene();bench(s);box(s,'Laser',(-2.7,0,.55),(1.05,.55,.45),'black');cyl(s,'LaserLens',(-2.13,0,.55),.11,.12,'red','x');box(s,'DiffractionGrating',(-.7,0,1.05),(.12,.75,1.4),'dark')
  for i in range(13):rod(s,f'GratingLine{i}',(-.765,-.30+i*.05,.55),(-.765,-.30+i*.05,1.55),.006,'white',6)
