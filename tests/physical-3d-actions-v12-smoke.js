@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
   page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/i.test(m.text()))errors.push('console: '+m.text());});
 
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__practical3DPhysicalActionsV12?.version==='12.0',{timeout:20000});
+  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__practical3DPhysicalActionsV12?.version==='14.0',{timeout:20000});
 
   // P3: manual visual ball release must move the ball through the scene.
   await page.evaluate(()=>navigate('practical',3));
@@ -54,6 +54,6 @@ const { chromium } = require('playwright');
   }
 
   if(errors.length)throw new Error('Browser errors:\n'+errors.join('\n'));
-  console.log('Physical 3D actions v12 smoke passed: free-fall release, search-coil rotation and visual circuit switch interactions work without changing the numerical physics model.');
+  console.log('Physical 3D actions v14 smoke passed: free-fall release, search-coil rotation and visual circuit switch interactions work without changing the numerical physics model.');
   await browser.close();
 })().catch(e=>{console.error(e.stack||e);process.exit(1);});
