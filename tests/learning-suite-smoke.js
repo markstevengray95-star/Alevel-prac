@@ -84,7 +84,18 @@ const { chromium } = require('playwright');
   await context.setOffline(true);
   await page.reload({waitUntil:'domcontentloaded',timeout:20000});
   await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__learningToolsReady===true&&window.__learningToolsCount===25,{timeout:20000});
-  await page.evaluate(()=>navigate('tools'));
+  // A freshly activated service worker may replace the browsing context once.
+  // Retry the tools navigation after that intentional controller handoff.
+  let toolsOpened=false;
+  for(let attempt=0;attempt<3&&!toolsOpened;attempt++){
+    try{await page.evaluate(()=>navigate('tools'));toolsOpened=true;}
+    catch(err){
+      if(!/Execution context was destroyed|navigation/i.test(String(err)))throw err;
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__learningToolsReady===true&&window.__learningToolsCount===25,{timeout:20000});
+    }
+  }
+  if(!toolsOpened)throw new Error('Could not open Learning Tools after service-worker controller handoff');
   await page.waitForTimeout(120);
   if(await page.locator('.tool-card').count()!==25)throw new Error('Offline reload lost Learning Tools');
   if(await page.locator('link[data-ui-polish-v3]').count()!==1)throw new Error('Offline reload lost polished UI');
