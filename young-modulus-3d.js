@@ -138,6 +138,7 @@ void main(){
  vec3 ambient=env*base*(.62-.23*metal)+F0*.035;
  float contact=clamp((vWorldPos.z+.35)/1.0,0.0,1.0);ambient*=mix(.78,1.0,contact);
  vec3 color=ambient+key+fill+rim+uEmissive*1.7;
+ if(uAlpha<.985){vec3 R=reflect(-V,N);float rf=pow(1.0-max(dot(N,V),0.0),5.0);vec3 glassEnv=mix(vec3(.16,.18,.18),vec3(.62,.70,.73),clamp(R.z*.5+.5,0.0,1.0));color=mix(color,glassEnv,.14+.42*rf);}
  color=vec3(1.0)-exp(-color*1.18);color=pow(color,vec3(1.0/2.2));
  float vignette=1.0-clamp(length(gl_FragCoord.xy/vec2(1600.0,1100.0)-.5)*.12,0.0,.07);color*=vignette;
  gl_FragColor=vec4(color,clamp(uAlpha,0.0,1.0));
