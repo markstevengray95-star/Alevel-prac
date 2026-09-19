@@ -24,7 +24,39 @@ function mount(config){if(active)active.dispose();const host=document.querySelec
 function draw(){if(disposed||!prog||!canvas.isConnected)return;const dpr=Math.min(window.devicePixelRatio||1,2),width=Math.max(1,Math.round(canvas.clientWidth*dpr)),height=Math.max(1,Math.round(canvas.clientHeight*dpr));if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}gl.viewport(0,0,width,height);gl.clearColor(.075,.12,.15,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);const target=config.target,c=Math.cos(state.elevation),eye=[target[0]+state.radius*c*Math.cos(state.azimuth),target[1]+state.radius*c*Math.sin(state.azimuth),target[2]+state.radius*Math.sin(state.elevation)],mvp=multiply(perspective(Math.PI/4,width/height,.1,100),lookAt(eye,target));gl.useProgram(prog);gl.uniformMatrix4fv(gl.getUniformLocation(prog,'uMVP'),false,new Float32Array(mvp));for(const o of objects){gl.bindBuffer(gl.ARRAY_BUFFER,o.pos);const p=gl.getAttribLocation(prog,'aPosition');gl.enableVertexAttribArray(p);gl.vertexAttribPointer(p,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,o.normal);const n=gl.getAttribLocation(prog,'aNormal');gl.enableVertexAttribArray(n);gl.vertexAttribPointer(n,3,gl.FLOAT,false,0,0);gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),o.color);gl.drawArrays(gl.TRIANGLES,0,o.count);}}
 loadModel(config.file).then(model=>{if(disposed)return;prog=program(gl);for(const item of geometry(model)){const pos=gl.createBuffer(),normal=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.positions),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.normals),gl.STATIC_DRAW);objects.push({pos,normal,color:item.color,count:item.positions.length/3});}if(!objects.length)throw Error('Blender model has no drawable geometry');host.dataset.modelLoaded='true';status.textContent='Drag to rotate · Scroll to zoom';draw();observer=new ResizeObserver(draw);observer.observe(canvas);}).catch(e=>{if(disposed)return;status.textContent='3D could not load. The Blender render is shown below.';fallback.hidden=false;console.error('Apparatus 3D:',e);});
 let drag=null;canvas.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!drag)return;state.azimuth+=(e.clientX-drag[0])*.008;state.elevation=Math.max(-1.25,Math.min(1.25,state.elevation+(e.clientY-drag[1])*.006));drag=[e.clientX,e.clientY];draw();});canvas.addEventListener('pointerup',()=>{drag=null;});canvas.addEventListener('pointercancel',()=>{drag=null;});canvas.addEventListener('wheel',e=>{e.preventDefault();state.radius=Math.max(6.5,Math.min(24,state.radius*Math.exp(e.deltaY*.001)));draw();},{passive:false});host.querySelector('[data-young-reset]').onclick=()=>{state.azimuth=config.azimuth;state.elevation=config.elevation;state.radius=config.radius;draw();};host.querySelector('[data-young-expand]').onclick=e=>{const expanded=host.classList.toggle('young3d-expanded');if(expanded)document.body.appendChild(host);else if(home.isConnected)home.insertBefore(host,next?.isConnected?next:null);e.currentTarget.textContent=expanded?'Close large view':'Enlarge 3D view';requestAnimationFrame(draw);};}
-window.mountYoungModulus3D=()=>mount({selector:'#young3d',file:'assets/rp04-young-modulus.glb',target:[0,0,2.55],azimuth:-1.02,elevation:.35,radius:11.9});
-window.mountDoubleSlit3D=()=>mount({selector:'#doubleSlit3d',file:'assets/rp02-double-slit.glb',target:[0,0,1.15],azimuth:-2.18,elevation:.38,radius:10.5});
-window.unmountYoungModulus3D=()=>{active?.dispose();active=null;};
+const MODEL_REGISTRY={
+1:[{file:'assets/rp01-standing-waves.glb',target:[0,0,.8],azimuth:-1.03,elevation:.34,radius:10.4,label:'standing waves on a string'}],
+2:[
+ {file:'assets/rp02-double-slit.glb',target:[0,0,1.15],azimuth:-2.18,elevation:.38,radius:10.5,label:'Young double-slit optical bench'},
+ {file:'assets/rp02-diffraction-grating.glb',target:[0,0,1.0],azimuth:-2.10,elevation:.34,radius:10.1,label:'diffraction-grating optical bench'}
+],
+3:[{file:'assets/rp03-free-fall.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:11.4,label:'free-fall timing apparatus'}],
+4:[{file:'assets/rp04-young-modulus.glb',target:[0,0,2.55],azimuth:-1.02,elevation:.35,radius:11.9,label:'Young modulus twin-wire apparatus'}],
+5:[{file:'assets/rp05-resistivity-wire.glb',target:[0,0,.75],azimuth:-1.08,elevation:.32,radius:11.3,label:'resistivity-of-a-wire circuit'}],
+6:[{file:'assets/rp06-iv-characteristics.glb',target:[0,0,.75],azimuth:-1.05,elevation:.31,radius:10.8,label:'current-voltage characteristics circuit'}],
+7:[
+ {file:'assets/rp07-pendulum.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.33,radius:10.8,label:'simple pendulum SHM setup'},
+ {file:'assets/rp07-spring.glb',target:[0,0,2.0],azimuth:-1.10,elevation:.34,radius:10.8,label:'spring-mass SHM setup'}
+],
+8:[
+ {file:'assets/rp08-boyle-syringe.glb',target:[0,0,2.25],azimuth:-1.12,elevation:.32,radius:10.8,label:'Boyle-law gas syringe setup'},
+ {file:'assets/rp08-charles-law.glb',target:[0,0,1.2],azimuth:-1.10,elevation:.31,radius:10.4,label:'Charles-law water-bath setup'}
+],
+9:[{file:'assets/rp09-capacitor.glb',target:[0,0,.7],azimuth:-1.08,elevation:.30,radius:10.4,label:'capacitor charge/discharge circuit'}],
+10:[{file:'assets/rp10-wire-balance.glb',target:[.3,0,1.0],azimuth:-1.02,elevation:.31,radius:11.3,label:'force-on-a-wire balance setup'}],
+11:[{file:'assets/rp11-search-coil.glb',target:[0,0,1.5],azimuth:-1.05,elevation:.31,radius:11.0,label:'search-coil induction setup'}],
+12:[{file:'assets/rp12-inverse-square.glb',target:[0,0,1.25],azimuth:-1.10,elevation:.31,radius:10.5,label:'inverse-square detector geometry'}]
+};
+function currentConfig(id=current?.id,mode=typeof currentMode==='number'?currentMode:0){
+ const list=MODEL_REGISTRY[id],base=list?.[mode]||list?.[0];if(!base)return null;
+ const selector=id===2?'#doubleSlit3d':id===4?'#young3d':'#practical3d';
+ return {selector,...base};
+}
+window.PRACTICAL_3D_MODELS=MODEL_REGISTRY;
+window.getPractical3DConfig=currentConfig;
+window.mountCurrentPractical3D=()=>{const cfg=currentConfig();if(cfg)mount(cfg);};
+window.mountYoungModulus3D=()=>mount(currentConfig(4,0));
+window.mountDoubleSlit3D=()=>mount(currentConfig(2,0));
+window.unmountPractical3D=()=>{active?.dispose();active=null;};
+window.unmountYoungModulus3D=window.unmountPractical3D;
 })();
