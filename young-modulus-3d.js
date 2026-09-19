@@ -53,9 +53,13 @@ function geometry(model){
           let ax=matrix[0]*nx+matrix[4]*ny+matrix[8]*nz,ay=matrix[1]*nx+matrix[5]*ny+matrix[9]*nz,az=matrix[2]*nx+matrix[6]*ny+matrix[10]*nz;const d=Math.hypot(ax,ay,az)||1;normals.push(ax/d,ay/d,az/d);
         }
         const center=[(min[0]+max[0])/2,(min[1]+max[1])/2,(min[2]+max[2])/2],radius=Math.max(.06,Math.hypot(max[0]-min[0],max[1]-min[1],max[2]-min[2])/2);
+        const mat=json.materials?.[material]||{},pbr=mat.pbrMetallicRoughness||{};
         items.push({
           name:node.name||mesh.name||('Part '+id+'-'+pi),
-          color:json.materials?.[material]?.pbrMetallicRoughness?.baseColorFactor?.slice(0,3)||[.7,.8,.8],
+          color:pbr.baseColorFactor?.slice(0,3)||[.7,.8,.8],
+          metallic:Number.isFinite(pbr.metallicFactor)?pbr.metallicFactor:0,
+          roughness:Number.isFinite(pbr.roughnessFactor)?pbr.roughnessFactor:.5,
+          emissive:mat.emissiveFactor?.slice(0,3)||[0,0,0],
           positions,normals,center,radius,min,max
         });
       });
@@ -79,7 +83,7 @@ function makeFallbackBox(name,center,size,color){
   face([x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1],[0,1,0]);
   face([x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1],[-1,0,0]);
   face([x1,y0,z0],[x1,y0,z1],[x1,y1,z1],[x1,y1,z0],[1,0,0]);
-  return {name,color,positions,normals,center:[cx,cy,cz],radius:Math.max(.06,Math.hypot(sx,sy,sz)/2),min:[x0,y0,z0],max:[x1,y1,z1]};
+  return {name,color,metallic:.08,roughness:.48,emissive:[0,0,0],positions,normals,center:[cx,cy,cz],radius:Math.max(.06,Math.hypot(sx,sy,sz)/2),min:[x0,y0,z0],max:[x1,y1,z1]};
 }
 function fallbackScene(id,mode=0){
   const green=[.25,.62,.43],orange=[.88,.53,.22],blue=[.25,.50,.78],cream=[.78,.82,.72],red=[.78,.28,.25],metal=[.58,.68,.66],dark=[.20,.28,.27],yellow=[.88,.74,.20];
@@ -90,7 +94,7 @@ function fallbackScene(id,mode=0){
     3:[['Release mechanism',[-1.0,0,2.6],[.8,.8,.55],green],['Ball bearing',[-1.0,0,1.65],[.45,.45,.45],metal],['Light gate',[-1.0,0,.55],[1.1,.5,.85],blue],['Data logger',[1.7,-.8,.55],[1.45,.9,.85],orange],['Metre rule',[.15,1.1,1.35],[.16,.18,3.4],cream]],
     4:[['Reference wire',[-.65,0,1.65],[.10,.10,3.6],metal],['Test wire',[.65,0,1.65],[.10,.10,3.6],metal],['Vernier comparison',[0,0,1.35],[1.75,.55,.45],blue],['Mass hanger',[.65,0,-.4],[.55,.55,1.1],yellow],['Micrometer',[2.2,-.7,.45],[1.25,.65,.55],green]],
     5:[['DC power supply',[-2.45,-.75,.55],[1.45,.9,.85],orange],['Ammeter',[-.65,-.8,.5],[1.05,.75,.72],blue],['Voltmeter',[.8,-.8,.5],[1.05,.75,.72],green],['Resistance wire',[.3,.55,.55],[4.3,.12,.12],metal],['Sliding contact',[.65,.55,.7],[.35,.45,.42],yellow]],
-    6:[['DC power supply',[-2.4,-.8,.55],[1.45,.9,.85],orange],['Ammeter',[-.55,-.85,.5],[1.05,.75,.72],blue],['Voltmeter',[.85,-.85,.5],[1.05,.75,.72],green],['Filament lamp',[.25,.55,.72],[.65,.65,.85],yellow],['Variable resistor',[1.75,.55,.55],[1.2,.55,.55],metal],['Switch',[2.65,-.45,.42],[.8,.45,.3],red]],
+    6:[['Cell holder',[-.1,-.7,.38],[1.2,.7,.45],cream],['Ammeter',[-2.2,-.8,.6],[.8,.5,1.0],yellow],['Voltmeter',[2.0,-.8,.6],[.8,.5,1.0],yellow],['Variable resistor',[.4,.55,.55],[2.0,.7,.75],metal],['Switch',[-1.0,-.65,.42],[.8,.45,.3],red]],
     7:mode?[['Retort stand',[-1.1,0,1.6],[.28,.4,3.3],metal],['Spring',[-.3,0,1.55],[.32,.32,2.35],green],['Mass hanger',[-.3,0,.0],[.65,.65,.85],yellow],['Metre rule',[1.1,.3,1.4],[.15,.18,3.1],cream]]:[['Retort stand',[-1.1,0,1.6],[.28,.4,3.3],metal],['Pendulum',[.1,0,1.55],[.13,.13,2.55],green],['Pendulum bob',[.1,0,.18],[.62,.62,.62],yellow],['Fiducial marker',[1.0,0,.35],[.22,.55,.85],orange],['Metre rule',[1.65,.35,1.4],[.15,.18,3.1],cream]],
     8:mode?[['Water bath',[0,0,.45],[2.7,2.0,.9],blue],['Gas flask',[0,0,1.3],[1.1,1.1,1.3],cream],['Thermometer',[1.2,0,1.55],[.18,.18,2.25],red],['Volume scale',[-1.35,0,1.05],[.18,.25,1.75],yellow]]:[['Gas syringe',[0,0,1.0],[3.2,.78,.82],cream],['Syringe plunger',[-1.7,0,1.0],[1.0,.45,.45],metal],['Mass hanger',[1.1,0,1.85],[.7,.7,.9],yellow],['Pressure scale',[0,1.0,.45],[2.4,.25,.55],blue]],
     9:[['DC power supply',[-2.4,-.75,.55],[1.45,.9,.85],orange],['Capacitor',[0,.35,.65],[1.1,.7,1.05],blue],['Voltmeter',[1.55,-.75,.5],[1.05,.75,.72],green],['Switch',[-.45,-.75,.42],[.85,.45,.3],red],['Variable resistor',[2.25,.35,.55],[1.2,.55,.55],metal]],
@@ -107,7 +111,7 @@ const unit=a=>{const d=Math.hypot(...a)||1;return a.map(v=>v/d);};
 function lookAt(eye,target){const z=unit(subtract(eye,target)),x=unit(cross([0,0,1],z)),y=cross(z,x);return [x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-x[0]*eye[0]-x[1]*eye[1]-x[2]*eye[2],-y[0]*eye[0]-y[1]*eye[1]-y[2]*eye[2],-z[0]*eye[0]-z[1]*eye[1]-z[2]*eye[2],1];}
 function perspective(fov,aspect,near,far){const f=1/Math.tan(fov/2);return [f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0];}
 function shader(gl,type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
-function program(gl){const vertex=`attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 uMVP;uniform vec3 uOffset;uniform vec3 uPivot;uniform float uAngle;varying vec3 vNormal;void main(){vNormal=aNormal;vec3 q=aPosition-uPivot;float c=cos(uAngle),s=sin(uAngle);vec3 rotated=vec3(c*q.x-s*q.y,s*q.x+c*q.y,q.z)+uPivot+uOffset;gl_Position=uMVP*vec4(rotated,1.0);}`;const fragment=`precision mediump float;varying vec3 vNormal;uniform vec3 uColor;uniform float uAlpha;void main(){vec3 n=normalize(vNormal);float diffuse=max(dot(n,normalize(vec3(-0.4,-0.7,0.8))),0.0);float fill=max(dot(n,normalize(vec3(0.8,0.4,0.4))),0.0);vec3 lit=uColor*(0.47+0.48*diffuse+0.18*fill);gl_FragColor=vec4(pow(lit,vec3(0.85)),uAlpha);}`;const p=gl.createProgram();gl.attachShader(p,shader(gl,gl.VERTEX_SHADER,vertex));gl.attachShader(p,shader(gl,gl.FRAGMENT_SHADER,fragment));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
+function program(gl){const vertex=`attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 uMVP;uniform vec3 uOffset;uniform vec3 uPivot;uniform float uAngle;varying vec3 vNormal;varying vec3 vWorldPos;void main(){vec3 q=aPosition-uPivot;float c=cos(uAngle),s=sin(uAngle);vec3 local=vec3(c*q.x-s*q.y,s*q.x+c*q.y,q.z);vec3 rotated=local+uPivot+uOffset;vec3 nn=vec3(c*aNormal.x-s*aNormal.y,s*aNormal.x+c*aNormal.y,aNormal.z);vNormal=normalize(nn);vWorldPos=rotated;gl_Position=uMVP*vec4(rotated,1.0);}`;const fragment=`precision mediump float;varying vec3 vNormal;varying vec3 vWorldPos;uniform vec3 uColor;uniform vec3 uEye;uniform float uMetallic;uniform float uRoughness;uniform vec3 uEmissive;uniform float uAlpha;float sat(float x){return clamp(x,0.0,1.0);}void main(){vec3 N=normalize(vNormal),V=normalize(uEye-vWorldPos);vec3 L1=normalize(vec3(-0.45,-0.70,0.90)),L2=normalize(vec3(0.80,0.35,0.55));float d1=max(dot(N,L1),0.0),d2=max(dot(N,L2),0.0);vec3 base=max(uColor,vec3(0.01));float rough=clamp(uRoughness,.06,1.0),metal=clamp(uMetallic,0.0,1.0);float shininess=mix(120.0,8.0,rough);vec3 H1=normalize(L1+V),H2=normalize(L2+V);float sp1=pow(max(dot(N,H1),0.0),shininess),sp2=pow(max(dot(N,H2),0.0),shininess);vec3 F0=mix(vec3(.035),base,metal);float fres=pow(1.0-max(dot(N,V),0.0),5.0);vec3 spec=F0*(1.0+2.1*fres)*(1.05*sp1+.42*sp2);vec3 diffuse=base*(.22+.72*d1+.25*d2)*(1.0-.58*metal);float rim=pow(1.0-max(dot(N,V),0.0),2.2)*.12;vec3 lit=diffuse+spec+base*rim+uEmissive*1.4;lit=lit/(lit+vec3(.72));lit=pow(lit,vec3(1.0/2.2));gl_FragColor=vec4(lit,uAlpha);}`;const p=gl.createProgram();gl.attachShader(p,shader(gl,gl.VERTEX_SHADER,vertex));gl.attachShader(p,shader(gl,gl.FRAGMENT_SHADER,fragment));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
 function projectPoint(m,p,w,h){const x=m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12],y=m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],q=m[3]*p[0]+m[7]*p[1]+m[11]*p[2]+m[15]||1;return[(x/q*.5+.5)*w,(1-(y/q*.5+.5))*h,q];}
 function mount(config){
   if(active)active.dispose();
@@ -156,17 +160,17 @@ function mount(config){
   const draw=()=>{
     if(disposed||!prog||!canvas.isConnected)return;
     const dpr=Math.min(window.devicePixelRatio||1,2),width=Math.max(1,Math.round(canvas.clientWidth*dpr)),height=Math.max(1,Math.round(canvas.clientHeight*dpr));if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
-    gl.viewport(0,0,width,height);gl.clearColor(.075,.12,.15,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);
+    gl.viewport(0,0,width,height);gl.clearColor(.64,.70,.69,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);
     if(state.xray){gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);}else{gl.disable(gl.BLEND);gl.depthMask(true);}
     const target=state.target,c=Math.cos(state.elevation),eye=[target[0]+state.radius*c*Math.cos(state.azimuth),target[1]+state.radius*c*Math.sin(state.azimuth),target[2]+state.radius*Math.sin(state.elevation)],mvp=multiply(perspective(Math.PI/4,width/height,.1,100),lookAt(eye,target));lastMVP=mvp;
-    gl.useProgram(prog);gl.uniformMatrix4fv(gl.getUniformLocation(prog,'uMVP'),false,new Float32Array(mvp));
+    gl.useProgram(prog);gl.uniformMatrix4fv(gl.getUniformLocation(prog,'uMVP'),false,new Float32Array(mvp));gl.uniform3fv(gl.getUniformLocation(prog,'uEye'),eye);
     const now=performance.now(),pulse=state.demoUntil>now?(0.5+0.5*Math.sin(now*.012)):0;
     for(const o of objects){
       gl.bindBuffer(gl.ARRAY_BUFFER,o.pos);const p=gl.getAttribLocation(prog,'aPosition');gl.enableVertexAttribArray(p);gl.vertexAttribPointer(p,3,gl.FLOAT,false,0,0);
       gl.bindBuffer(gl.ARRAY_BUFFER,o.normal);const n=gl.getAttribLocation(prog,'aNormal');gl.enableVertexAttribArray(n);gl.vertexAttribPointer(n,3,gl.FLOAT,false,0,0);
       const off=effectiveOffset(o),isSel=!!selected&&o.group===selected.group,isHover=!!hovered&&o.group===hovered.group;
       let color=o.color;if(isSel)color=pulse?[1,.88,.28]:[.96,.77,.24];else if(isHover)color=[.65,.9,.55];
-      gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),color);gl.uniform3fv(gl.getUniformLocation(prog,'uOffset'),off);gl.uniform3fv(gl.getUniformLocation(prog,'uPivot'),o.center);gl.uniform1f(gl.getUniformLocation(prog,'uAngle'),o.angle||0);gl.uniform1f(gl.getUniformLocation(prog,'uAlpha'),state.xray&&!isSel?.30:1);
+      gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),color);gl.uniform3fv(gl.getUniformLocation(prog,'uOffset'),off);gl.uniform3fv(gl.getUniformLocation(prog,'uPivot'),o.center);gl.uniform1f(gl.getUniformLocation(prog,'uAngle'),o.angle||0);gl.uniform1f(gl.getUniformLocation(prog,'uMetallic'),o.metallic??0);gl.uniform1f(gl.getUniformLocation(prog,'uRoughness'),o.roughness??.5);gl.uniform3fv(gl.getUniformLocation(prog,'uEmissive'),o.emissive||[0,0,0]);gl.uniform1f(gl.getUniformLocation(prog,'uAlpha'),state.xray&&!isSel?.30:1);
       gl.drawArrays(gl.TRIANGLES,0,o.count);
     }
     gl.depthMask(true);updateLabels();
@@ -297,10 +301,10 @@ const MODEL_REGISTRY={
  {file:'assets/rp02-double-slit.glb',target:[0,0,1.15],azimuth:-2.18,elevation:.38,radius:10.5,label:'Young double-slit optical bench'},
  {file:'assets/rp02-diffraction-grating.glb',target:[0,0,1.0],azimuth:-2.10,elevation:.34,radius:10.1,label:'diffraction-grating optical bench'}
 ],
-3:[{file:'assets/rp03-free-fall.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:11.4,label:'free-fall timing apparatus'}],
+3:[{file:'assets/rp03-free-fall.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:11.4,label:'free-fall light-gate timing apparatus'},{file:'assets/rp03-free-fall-impact.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:11.2,label:'AQA mechanical-release and impact-timer apparatus'}],
 4:[{file:'assets/rp04-young-modulus.glb',target:[0,0,2.55],azimuth:-1.02,elevation:.35,radius:11.9,label:'Young modulus twin-wire apparatus'}],
 5:[{file:'assets/rp05-resistivity-wire.glb',target:[0,0,.75],azimuth:-1.08,elevation:.32,radius:11.3,label:'resistivity-of-a-wire circuit'}],
-6:[{file:'assets/rp06-iv-characteristics.glb',target:[0,0,.75],azimuth:-1.05,elevation:.31,radius:10.8,label:'current-voltage characteristics circuit'}],
+6:[{file:'assets/rp06-iv-characteristics.glb',target:[0,0,.65],azimuth:-1.05,elevation:.34,radius:10.7,label:'AQA emf and internal-resistance circuit'}],
 7:[
  {file:'assets/rp07-pendulum.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.33,radius:10.8,label:'simple pendulum SHM setup'},
  {file:'assets/rp07-spring.glb',target:[0,0,2.0],azimuth:-1.10,elevation:.34,radius:10.8,label:'spring-mass SHM setup'}
