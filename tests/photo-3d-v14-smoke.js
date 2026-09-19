@@ -12,14 +12,14 @@ const { chromium } = require('playwright');
 
   // P8 Charles-law mode: renderer must expose PBR quality and preserve transparent glass alpha.
   await page.evaluate(()=>{navigate('practical',8);currentMode=1;renderModeTabs();renderPractical();});
-  await page.waitForFunction(()=>window.__practical3DInteractive?.version==='14.0'&&document.querySelector('#practical3d')?.dataset.modelLoaded==='true',{timeout:16000});
+  await page.waitForFunction(()=>window.__practical3DInteractive?.version==='14.1'&&document.querySelector('#practical3d')?.dataset.modelLoaded==='true',{timeout:16000});
   const render=await page.evaluate(()=>({
     version:window.__practical3DInteractive.version,
     quality:window.__practical3DInteractive.renderQuality,
     source:window.__practical3DInteractive.modelSource,
     alpha:window.__practical3DInteractive.objects.filter(o=>/beaker|water bath|thermometer glass|capillary/i.test(o.name)).map(o=>o.alpha)
   }));
-  if(render.version!=='14.0'||render.quality!=='photoreal-pbr'||render.source!=='glb')throw new Error('Photo renderer metadata incorrect: '+JSON.stringify(render));
+  if(render.version!=='14.1'||render.quality!=='photoreal-pbr'||render.source!=='glb')throw new Error('Photo renderer metadata incorrect: '+JSON.stringify(render));
   if(!render.alpha.some(a=>Number.isFinite(a)&&a<.95))throw new Error('Glass/water transparency was not preserved from PBR material data');
 
   // P3 free-fall: physically accelerated visual drop and numerical model isolation.
@@ -96,6 +96,14 @@ const { chromium } = require('playwright');
     return {angle:api.angleOf(n),axis:o?.axis,pivot:o?.pivot};
   });
   if(Math.abs(coil.angle-Math.PI/2)>.2||Math.abs((coil.axis||[])[2]-1)>.05)throw new Error('P11 search coil did not rotate about the vertical spindle');
+
+  // Repeated direct manipulation must remain within the usable apparatus workspace.
+  await page.evaluate(()=>{navigate('practical',12);currentMode=0;renderModeTabs();renderPractical();});
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelLoaded==='true'&&window.__practical3DInteractive,{timeout:16000});
+  const farther=page.locator('#practical3d .p3d-physical-actions button',{hasText:'Move detector farther'});
+  for(let i=0;i<10;i++)await farther.click();
+  const detectorOffset=await page.evaluate(()=>{const api=window.__practical3DInteractive,n=api.listObjects().find(x=>/gm tube/i.test(x))||api.listObjects().find(x=>/detector/i.test(x));return api.offsetOf(n);});
+  if(Math.abs(detectorOffset[0])>2.01)throw new Error('Repeated detector actions allowed apparatus to drift outside its bounded workspace');
 
   const bg=await page.locator('#practical3d').evaluate(el=>getComputedStyle(el).backgroundImage);
   if(!/gradient/i.test(bg))throw new Error('Photo 3D studio/lab background missing');

@@ -7,9 +7,9 @@
 .practical3d-info[hidden]{display:none}
 .practical3d-info .p3d-close{position:absolute;right:6px;top:6px;border:0;background:transparent;color:#617168;font-size:18px;line-height:1;padding:4px 7px;border-radius:6px}
 .practical3d-info .p3d-close:hover{background:#e7eee9}
-.practical3d-info .eyebrow{font-size:6.5px;letter-spacing:1px;color:#6a8177}.practical3d-info h4{font-size:13px;margin:3px 24px 9px 0}
-.practical3d-info dl{margin:0;display:grid;gap:7px}.practical3d-info dt{font-size:7px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#6a7b74}.practical3d-info dd{margin:1px 0 0;font-size:8.5px;line-height:1.45;color:#334940}
-.p3d-info-actions{display:flex;gap:6px;margin-top:10px}.p3d-info-actions button{border:1px solid #91a89e;background:#fff;color:#29463a;border-radius:7px;padding:6px 7px;font-size:7.5px;font-weight:700}
+.practical3d-info .eyebrow{font-size:6.5px;letter-spacing:1px;color:#6a8177}.practical3d-info h4{font-size:13px;margin:3px 24px 5px 0}
+.practical3d-info dl{margin:7px 0 0;display:grid;gap:7px}.practical3d-info dt{font-size:7px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#6a7b74}.practical3d-info dd{margin:1px 0 0;font-size:8.5px;line-height:1.45;color:#334940}
+.p3d-info-actions{position:sticky;top:-2px;z-index:2;display:flex;gap:6px;margin:0 -2px;padding:5px 2px 7px;background:linear-gradient(180deg,rgba(246,249,245,.99) 72%,rgba(246,249,245,.82),rgba(246,249,245,0))}.p3d-info-actions button{border:1px solid #91a89e;background:#fff;color:#29463a;border-radius:7px;padding:6px 7px;font-size:7.5px;font-weight:700}
 .practical3d-info>small{display:block;margin-top:8px;color:#809087;font-size:6.5px;overflow-wrap:anywhere}
 .practical3d-info.quiz-correct{outline:3px solid rgba(154,205,111,.55);box-shadow:0 0 0 5px rgba(154,205,111,.14),0 14px 38px rgba(0,0,0,.32)}
 .p3d-safety{margin:9px 0 0;padding:7px 8px;border-radius:7px;background:#fff3d8;color:#695326;font-size:7.5px;line-height:1.4}
@@ -47,3 +47,7 @@
 .dark #practical3d,.dark #doubleSlit3d,.dark #young3d{
   background:radial-gradient(circle at 35% 16%,#4d5a55 0,#303d38 44%,#17221e 100%);
 }
+
+.young3d.practical3d canvas:focus-visible{outline:3px solid rgba(211,236,166,.95);outline-offset:-4px}
+.practical3d-tools button:focus-visible,.p3d-info-actions button:focus-visible,.p3d-actions-buttons button:focus-visible{outline:2px solid #d3eca6;outline-offset:2px}
+.dark .p3d-info-actions{background:linear-gradient(180deg,rgba(24,39,32,.99) 72%,rgba(24,39,32,.84),rgba(24,39,32,0))}

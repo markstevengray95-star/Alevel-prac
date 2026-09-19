@@ -168,7 +168,7 @@ function mount(config){
     if(!o){ui.panel.hidden=true;return;}
     selected=o;const info=window.getPractical3DEquipmentInfo?.(o.name,current?.id)||{label:o.name,purpose:'Part of the practical apparatus.',how:'Used as part of the experimental setup.',use:'Keep it correctly positioned.',mistake:'Moving it unintentionally can affect the setup.'};
     const safety=info.safety?'<p class="p3d-safety">'+info.safety+'</p>':'';
-    ui.panel.hidden=false;ui.panel.innerHTML='<button type="button" class="p3d-close" aria-label="Close equipment information">×</button><span class="eyebrow">'+(prefix||'SELECTED EQUIPMENT')+'</span><h4>'+info.label+'</h4><dl><dt>Purpose</dt><dd>'+info.purpose+'</dd><dt>How it works</dt><dd>'+info.how+'</dd><dt>Correct use</dt><dd>'+info.use+'</dd><dt>Common mistake</dt><dd>'+info.mistake+'</dd></dl>'+safety+'<div class="p3d-info-actions"><button type="button" data-3d-demo>Show how it works</button><button type="button" data-3d-focus>Focus view</button></div><small>Mesh: '+info.meshName+'</small>';
+    ui.panel.hidden=false;ui.panel.innerHTML='<button type="button" class="p3d-close" aria-label="Close equipment information">×</button><span class="eyebrow">'+(prefix||'SELECTED EQUIPMENT')+'</span><h4>'+info.label+'</h4><div class="p3d-info-actions"><button type="button" data-3d-demo>Show how it works</button><button type="button" data-3d-focus>Focus view</button></div><dl><dt>Purpose</dt><dd>'+info.purpose+'</dd><dt>How it works</dt><dd>'+info.how+'</dd><dt>Correct use</dt><dd>'+info.use+'</dd><dt>Common mistake</dt><dd>'+info.mistake+'</dd></dl>'+safety+'<small>Mesh: '+info.meshName+'</small>';
     ui.panel.querySelector('.p3d-close').onclick=()=>{ui.panel.hidden=true;selected=null;draw();};
     ui.panel.querySelector('[data-3d-demo]').onclick=()=>{state.demoUntil=performance.now()+2600;status.textContent='Demonstrating '+info.label+'…';animate();};
     ui.panel.querySelector('[data-3d-focus]').onclick=()=>{const off=effectiveOffset(o);state.target=[o.center[0]+off[0],o.center[1]+off[1],o.center[2]+off[2]];state.radius=Math.max(5.8,Math.min(config.radius,o.radius*7+4));draw();};
@@ -288,7 +288,7 @@ function mount(config){
     fallback.hidden=true;
     status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'')+'Photo 3D · Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
     draw();observer=new ResizeObserver(draw);observer.observe(canvas);
-    window.__practical3DInteractive={version:'14.0',renderQuality:'photoreal-pbr',modelSource:source,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
+    window.__practical3DInteractive={version:'14.1',renderQuality:'photoreal-pbr',modelSource:source,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
   };
   loadModel(config.file).then(model=>installGeometry(geometry(model),'glb')).catch(e=>{
     if(disposed)return;
@@ -310,7 +310,23 @@ function mount(config){
       console.error('Apparatus 3D:',config.file,fallbackError);
     }
   });
+  const clampOffset=offset=>[
+    Math.max(-2.8,Math.min(2.8,offset[0]||0)),
+    Math.max(-2.3,Math.min(2.3,offset[1]||0)),
+    Math.max(-3.2,Math.min(3.2,offset[2]||0))
+  ];
+  const focusObject=o=>{
+    if(!o)return false;
+    selected=o;displayInfo(o,'FOCUSED EQUIPMENT');
+    const off=effectiveOffset(o);
+    state.target=[o.center[0]+off[0],o.center[1]+off[1],o.center[2]+off[2]];
+    state.radius=Math.max(5.8,Math.min(config.radius,o.radius*7+4));
+    draw();return true;
+  };
   let drag=null;
+  canvas.tabIndex=0;
+  canvas.setAttribute('role','application');
+  canvas.setAttribute('aria-label',(canvas.getAttribute('aria-label')||'Interactive 3D practical apparatus')+'. Arrow keys rotate, plus/minus zoom, Home resets the view.');
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('pointerdown',e=>{
     const hit=pick(e.clientX,e.clientY);canvas.setPointerCapture(e.pointerId);
@@ -324,12 +340,31 @@ function mount(config){
     if(drag.type==='orbit'){state.azimuth+=dx*.008;state.elevation=Math.max(-1.25,Math.min(1.25,state.elevation+dy*.006));}
     else{const right=[-Math.sin(state.azimuth),Math.cos(state.azimuth),0],up=[-Math.sin(state.elevation)*Math.cos(state.azimuth),-Math.sin(state.elevation)*Math.sin(state.azimuth),Math.cos(state.elevation)],scale=state.radius*.0025;
       if(drag.type==='pan'){for(let i=0;i<3;i++)state.target[i]+=(-dx*right[i]+dy*up[i])*scale;}
-      if(drag.type==='move'){for(const o of objects)if(o.group===drag.group)for(let i=0;i<3;i++)o.offset[i]+=(dx*right[i]-dy*up[i])*scale;}
+      if(drag.type==='move'){
+        const members=objects.filter(o=>o.group===drag.group);
+        if(members.length){
+          const next=clampOffset(members[0].offset.map((v,i)=>v+(dx*right[i]-dy*up[i])*scale));
+          members.forEach(o=>o.offset=[...next]);
+        }
+      }
     }draw();
   });
   const endDrag=()=>{drag=null;canvas.style.cursor='grab';};canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+  canvas.addEventListener('dblclick',e=>{const hit=pick(e.clientX,e.clientY);if(hit){e.preventDefault();focusObject(hit);status.textContent='Focused '+(window.getPractical3DEquipmentInfo?.(hit.name,current?.id)?.label||hit.name);}});
   canvas.addEventListener('wheel',e=>{e.preventDefault();state.radius=Math.max(4.5,Math.min(28,state.radius*Math.exp(e.deltaY*.001)));draw();},{passive:false});
-  host.querySelector('[data-young-reset]').onclick=()=>{state.azimuth=config.azimuth;state.elevation=config.elevation;state.radius=config.radius;state.target=[...config.target];draw();};
+  canvas.addEventListener('keydown',e=>{
+    let handled=true;
+    if(e.key==='ArrowLeft')state.azimuth-=.10;
+    else if(e.key==='ArrowRight')state.azimuth+=.10;
+    else if(e.key==='ArrowUp')state.elevation=Math.max(-1.25,Math.min(1.25,state.elevation-.08));
+    else if(e.key==='ArrowDown')state.elevation=Math.max(-1.25,Math.min(1.25,state.elevation+.08));
+    else if(e.key==='+'||e.key==='=')state.radius=Math.max(4.5,state.radius*.90);
+    else if(e.key==='-'||e.key==='_')state.radius=Math.min(28,state.radius*1.10);
+    else if(e.key==='Home'){state.azimuth=config.azimuth;state.elevation=config.elevation;state.radius=config.radius;state.target=[...config.target];}
+    else handled=false;
+    if(handled){e.preventDefault();draw();}
+  });
+  host.querySelector('[data-young-reset]').onclick=()=>{state.azimuth=config.azimuth;state.elevation=config.elevation;state.radius=config.radius;state.target=[...config.target];status.textContent='3D view reset';draw();};
   host.querySelector('[data-young-expand]').onclick=e=>{const expanded=host.classList.toggle('young3d-expanded');if(expanded)document.body.appendChild(host);else if(home.isConnected)home.insertBefore(host,next?.isConnected?next:null);e.currentTarget.textContent=expanded?'Close large view':'Enlarge 3D view';requestAnimationFrame(draw);};
   ui.tools.querySelector('[data-3d-mode]').onclick=e=>{state.tool=state.tool==='move'?'orbit':'move';e.currentTarget.textContent=state.tool==='move'?'Free move 3D':'Guided 3D';host.classList.toggle('p3d-free-move',state.tool==='move');status.textContent=state.tool==='move'?'Free move: drag equipment to reposition it':'Guided 3D: apparatus locked; drag to rotate';};
   ui.tools.querySelector('[data-3d-labels]').onclick=e=>{state.labels=!state.labels;e.currentTarget.classList.toggle('active',state.labels);draw();};

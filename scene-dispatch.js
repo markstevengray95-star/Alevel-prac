@@ -18,7 +18,7 @@ function inspect(name){let a=current.apparatus.find(x=>x[0].toLowerCase().includ
 window.addEventListener('load',()=>{
   if(!document.querySelector('link[data-physical-interactions]')){const l=document.createElement('link');l.rel='stylesheet';l.href='physical-interactions.css';l.dataset.physicalInteractions='1';document.head.appendChild(l);}
   const loadGeometry=()=>{if(document.querySelector('script[data-interaction-geometry]'))return;const g=document.createElement('script');g.src='interaction-geometry.js';g.async=false;g.dataset.interactionGeometry='1';document.body.appendChild(g);};
-  const loadLearningExtensions=()=>{if(document.querySelector('script[data-lab-book-bootstrap]'))return;const x=document.createElement('script');x.src='lab-book-bootstrap.js?v=20260919-live3d-111';x.async=false;x.dataset.labBookBootstrap='1';document.body.appendChild(x);};
+  const loadLearningExtensions=()=>{if(document.querySelector('script[data-lab-book-bootstrap]'))return;const x=document.createElement('script');x.src='lab-book-bootstrap.js?v=20260919-photoreal3d-v141';x.async=false;x.dataset.labBookBootstrap='1';document.body.appendChild(x);};
   loadLearningExtensions();
   if(!document.querySelector('script[data-physical-interactions]')){const s=document.createElement('script');s.src='physical-interactions.js';s.async=false;s.dataset.physicalInteractions='1';s.onload=loadGeometry;document.body.appendChild(s);}else loadGeometry();
 });

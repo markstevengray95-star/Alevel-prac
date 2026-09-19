@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
     for(let mode=0;mode<modes;mode++){
       await page.evaluate(mode=>{currentMode=mode;renderModeTabs();renderPractical();},mode);
       const selector=id===2?'#doubleSlit3d':id===4?'#young3d':'#practical3d';
-      await page.waitForFunction(sel=>document.querySelector(sel)?.dataset.interactive3d==='v14'&&window.__practical3DInteractive?.version==='14.0',selector,{timeout:16000});
+      await page.waitForFunction(sel=>document.querySelector(sel)?.dataset.interactive3d==='v14'&&window.__practical3DInteractive?.version==='14.1',selector,{timeout:16000});
       await page.locator(selector).evaluate(el=>{const d=el.closest('details');if(d)d.open=true;});
       await page.waitForTimeout(40);
 
@@ -120,10 +120,21 @@ const { chromium } = require('playwright');
   const restored=await page.evaluate(name=>window.__practical3DInteractive.offsetOf(name),dataName);
   if(restored.some(v=>Math.abs(v)>1e-8))throw new Error('Reset apparatus did not restore 3D equipment position');
 
-  // Actual hover/click selection and demo.
-  const p2=await page.evaluate(name=>window.__practical3DInteractive.screenPoint(name),dataName);
-  await page.mouse.move(p2.x,p2.y);
-  await page.mouse.click(p2.x,p2.y);
+  // Actual unobstructed canvas hover/click selection and demo.
+  const clickTarget=await page.evaluate(preferred=>{
+    const api=window.__practical3DInteractive,canvas=document.querySelector('#practical3d canvas');
+    const names=[preferred,...api.listObjects().filter(n=>n!==preferred&&!/bench|graduation|tick|lead|waveform|ray guide/i.test(n))];
+    for(const name of names){
+      const p=api.screenPoint(name);if(!p||!Number.isFinite(p.x)||!Number.isFinite(p.y))continue;
+      if(document.elementFromPoint(p.x,p.y)!==canvas)continue;
+      const picked=api.pickAt(p.x,p.y);if(picked)return {p,picked};
+    }
+    return null;
+  },dataName);
+  if(!clickTarget)throw new Error('No unobstructed selectable 3D equipment point was available for a real canvas click');
+  await page.mouse.move(clickTarget.p.x,clickTarget.p.y);
+  await page.mouse.click(clickTarget.p.x,clickTarget.p.y);
+  await page.locator('#practical3d .practical3d-info').waitFor({state:'visible',timeout:3000});
   await page.locator('#practical3d [data-3d-demo]').click();
   if(!/^Demonstrating /.test(await page.locator('#practical3d .young3d-status').innerText()))throw new Error('Show-how-it-works demo did not start');
 
@@ -133,6 +144,11 @@ const { chromium } = require('playwright');
   await page.mouse.wheel(0,-180);
   const camera=await page.evaluate(()=>({target:window.__practical3DInteractive.state.target,radius:window.__practical3DInteractive.state.radius}));
   if(!camera.target.every(Number.isFinite)||!Number.isFinite(camera.radius))throw new Error('3D pan/zoom produced invalid camera state');
+  await canvas.focus();
+  const az0=await page.evaluate(()=>window.__practical3DInteractive.state.azimuth);
+  await page.keyboard.press('ArrowRight');
+  const az1=await page.evaluate(()=>window.__practical3DInteractive.state.azimuth);
+  if(!(az1>az0))throw new Error('Keyboard 3D camera control did not rotate the view');
 
   if(errors.length)throw new Error('Browser errors:\n'+errors.join('\n'));
   console.log('Interactive Photo 3D v14 smoke passed: every practical/mode supports equipment selection, explanations, labels, X-ray, explode, tutorial, quiz, reset; free-move drag preserves physics.');
