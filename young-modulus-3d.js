@@ -122,6 +122,9 @@ function mount(config){
       if(pc[2]<=0)continue;const rp=Math.max(14,Math.min(95,Math.max(Math.hypot(px[0]-pc[0],px[1]-pc[1]),Math.hypot(py[0]-pc[0],py[1]-pc[1]),Math.hypot(pz[0]-pc[0],pz[1]-pc[1]))));const d=Math.hypot(x-pc[0],y-pc[1]),score=d/rp;if(score<1.18&&score<bestScore){best=o;bestScore=score;}
     }return best;
   };
+  const screenPointFor=name=>{
+    if(!lastMVP)return null;const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(!o)return null;const off=effectiveOffset(o),r=canvas.getBoundingClientRect(),p=projectPoint(lastMVP,[o.center[0]+off[0],o.center[1]+off[1],o.center[2]+off[2]],r.width,r.height);return{x:r.left+p[0],y:r.top+p[1],localX:p[0],localY:p[1]};
+  };
   const tutorialNext=()=>{
     if(!important.length)return;state.tutorialIndex=(state.tutorialIndex+1)%important.length;const x=important[state.tutorialIndex];displayInfo(x.object,'TUTORIAL '+(state.tutorialIndex+1)+' / '+important.length);status.textContent='Tutorial: '+x.info.label;
   };
@@ -134,7 +137,7 @@ function mount(config){
     if(!objects.length)throw Error('Blender model has no drawable geometry');
     important=window.getPractical3DImportantEquipment?.(objects)||objects.slice(0,12).map(object=>({object,info:{label:object.name}}));
     host.dataset.modelLoaded='true';host.dataset.interactive3d='v11';status.textContent='Drag to rotate · Shift/right-drag to pan · Scroll to zoom';draw();observer=new ResizeObserver(draw);observer.observe(canvas);
-    window.__practical3DInteractive={version:'11.0',host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};
+    window.__practical3DInteractive={version:'11.0',host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));return o?[...o.offset]:null;},toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};
   }).catch(e=>{if(disposed)return;status.textContent='3D could not load. The apparatus reference is shown below.';fallback.hidden=false;console.error('Apparatus 3D:',e);});
   let drag=null;
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
