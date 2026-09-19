@@ -1,4 +1,4 @@
-import os, sys, trimesh
+import os, sys, re, trimesh
 
 ROOT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "assets")
 
@@ -38,11 +38,14 @@ SPECS = {
     },
 }
 
+def norm(value):
+    return re.sub(r"[^a-z0-9]+", "", str(value).lower())
+
 def names(scene):
     out = []
-    out.extend(str(x).lower() for x in scene.geometry.keys())
+    out.extend(norm(x) for x in scene.geometry.keys())
     try:
-        out.extend(str(x).lower() for x in scene.graph.nodes_geometry)
+        out.extend(norm(x) for x in scene.graph.nodes_geometry)
     except Exception:
         pass
     return out
@@ -57,10 +60,12 @@ for filename, spec in SPECS.items():
         raise SystemExit(f"{filename}: expected >= {spec['min_geom']} geometry parts, got {geometry_count}")
     ns = names(scene)
     for term in spec["must"]:
-        if not any(term in n for n in ns):
+        wanted = norm(term)
+        if not any(wanted in n for n in ns):
             raise SystemExit(f"{filename}: missing expected apparatus name containing {term!r}")
     for term in spec.get("must_not", []):
-        if any(term in n for n in ns):
+        wanted = norm(term)
+        if any(wanted in n for n in ns):
             raise SystemExit(f"{filename}: obsolete/wrong apparatus still present: {term!r}")
     material_names = set()
     for geom in scene.geometry.values():
