@@ -106,7 +106,7 @@ function mount(config){
     for(const o of objects){
       gl.bindBuffer(gl.ARRAY_BUFFER,o.pos);const p=gl.getAttribLocation(prog,'aPosition');gl.enableVertexAttribArray(p);gl.vertexAttribPointer(p,3,gl.FLOAT,false,0,0);
       gl.bindBuffer(gl.ARRAY_BUFFER,o.normal);const n=gl.getAttribLocation(prog,'aNormal');gl.enableVertexAttribArray(n);gl.vertexAttribPointer(n,3,gl.FLOAT,false,0,0);
-      const off=effectiveOffset(o),isSel=o===selected,isHover=o===hovered;
+      const off=effectiveOffset(o),isSel=!!selected&&o.group===selected.group,isHover=!!hovered&&o.group===hovered.group;
       let color=o.color;if(isSel)color=pulse?[1,.88,.28]:[.96,.77,.24];else if(isHover)color=[.65,.9,.55];
       gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),color);gl.uniform3fv(gl.getUniformLocation(prog,'uOffset'),off);gl.uniform1f(gl.getUniformLocation(prog,'uAlpha'),state.xray&&!isSel?.30:1);
       gl.drawArrays(gl.TRIANGLES,0,o.count);
@@ -133,7 +133,7 @@ function mount(config){
   };
   loadModel(config.file).then(model=>{
     if(disposed)return;prog=program(gl);
-    for(const item of geometry(model)){const pos=gl.createBuffer(),normal=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.positions),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.normals),gl.STATIC_DRAW);const dir=unit(subtract(item.center,config.target)),scale=Math.max(.3,Math.min(1.25,item.radius*.42));objects.push({...item,pos,normal,count:item.positions.length/3,offset:[0,0,0],explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});}
+    for(const item of geometry(model)){const pos=gl.createBuffer(),normal=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.positions),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.normals),gl.STATIC_DRAW);const dir=unit(subtract(item.center,config.target)),scale=Math.max(.3,Math.min(1.25,item.radius*.42));objects.push({...item,pos,normal,count:item.positions.length/3,group:window.getPractical3DGroupKey?.(item.name,current?.id)||item.name,offset:[0,0,0],explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});}
     if(!objects.length)throw Error('Blender model has no drawable geometry');
     important=window.getPractical3DImportantEquipment?.(objects)||objects.slice(0,12).map(object=>({object,info:{label:object.name}}));
     host.dataset.modelLoaded='true';host.dataset.interactive3d='v11';status.textContent='Drag to rotate · Shift/right-drag to pan · Scroll to zoom';draw();observer=new ResizeObserver(draw);observer.observe(canvas);
@@ -143,7 +143,7 @@ function mount(config){
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('pointerdown',e=>{
     const hit=pick(e.clientX,e.clientY);canvas.setPointerCapture(e.pointerId);
-    if(state.tool==='move'&&hit&&!/bench/i.test(hit.name)){selected=hit;displayInfo(hit,'FREE MOVE');drag={type:'move',x:e.clientX,y:e.clientY,obj:hit};}
+    if(state.tool==='move'&&hit&&!/bench/i.test(hit.name)){selected=hit;displayInfo(hit,'FREE MOVE');drag={type:'move',x:e.clientX,y:e.clientY,group:hit.group};}
     else if(e.button===2||e.shiftKey)drag={type:'pan',x:e.clientX,y:e.clientY};
     else{if(hit){selected=hit;displayInfo(hit);}drag={type:'orbit',x:e.clientX,y:e.clientY};}
   });
@@ -153,7 +153,7 @@ function mount(config){
     if(drag.type==='orbit'){state.azimuth+=dx*.008;state.elevation=Math.max(-1.25,Math.min(1.25,state.elevation+dy*.006));}
     else{const right=[-Math.sin(state.azimuth),Math.cos(state.azimuth),0],up=[-Math.sin(state.elevation)*Math.cos(state.azimuth),-Math.sin(state.elevation)*Math.sin(state.azimuth),Math.cos(state.elevation)],scale=state.radius*.0025;
       if(drag.type==='pan'){for(let i=0;i<3;i++)state.target[i]+=(-dx*right[i]+dy*up[i])*scale;}
-      if(drag.type==='move'){for(let i=0;i<3;i++)drag.obj.offset[i]+=(dx*right[i]-dy*up[i])*scale;}
+      if(drag.type==='move'){for(const o of objects)if(o.group===drag.group)for(let i=0;i<3;i++)o.offset[i]+=(dx*right[i]-dy*up[i])*scale;}
     }draw();
   });
   const endDrag=()=>{drag=null;canvas.style.cursor='grab';};canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
