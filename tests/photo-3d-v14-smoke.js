@@ -53,6 +53,30 @@ const { chromium } = require('playwright');
   });
   if(Math.abs(pendEnd)>.08)throw new Error('Pendulum did not settle back near equilibrium');
 
+
+  // P7 spring mode: spring mesh must deform with the moving load assembly.
+  await page.evaluate(()=>{navigate('practical',7);currentMode=1;renderModeTabs();renderPractical();});
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelLoaded==='true'&&window.__practical3DInteractive,{timeout:16000});
+  const springBtn=page.locator('#practical3d .p3d-physical-actions button',{hasText:'Start spring oscillation'});
+  await springBtn.click();await page.waitForTimeout(250);
+  const springMid=await page.evaluate(()=>{
+    const api=window.__practical3DInteractive,s=api.listObjects().find(n=>/^spring/i.test(n));return {name:s,scale:s?api.scaleOf(s):null};
+  });
+  if(!springMid.name||Math.abs((springMid.scale??1)-1)<.025)throw new Error('Spring mesh did not visibly extend/compress with the load');
+  await page.waitForTimeout(1450);
+
+  // P8 Boyle mode: plunger and attached load must move vertically together.
+  await page.evaluate(()=>{navigate('practical',8);currentMode=0;renderModeTabs();renderPractical();});
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelLoaded==='true'&&window.__practical3DInteractive,{timeout:16000});
+  const beforeBoyle=await page.evaluate(()=>{
+    const api=window.__practical3DInteractive,p=api.listObjects().find(n=>/syringe plunger/i.test(n)),m=api.listObjects().find(n=>/mass hanger/i.test(n));return {p,m,po:api.offsetOf(p),mo:api.offsetOf(m)};
+  });
+  await page.locator('#practical3d .p3d-physical-actions button',{hasText:'Compress gas'}).click();await page.waitForTimeout(80);
+  const afterBoyle=await page.evaluate(x=>{
+    const api=window.__practical3DInteractive;return {po:api.offsetOf(x.p),mo:api.offsetOf(x.m)};
+  },beforeBoyle);
+  if(!(afterBoyle.po[2]>beforeBoyle.po[2]+.15&&afterBoyle.mo[2]>beforeBoyle.mo[2]+.15))throw new Error('Boyle plunger/load assembly did not move vertically together');
+
   // P6 switch hinge axis is physical, not a screen-space spin.
   await page.evaluate(()=>{navigate('practical',6);currentMode=0;renderModeTabs();renderPractical();});
   await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelLoaded==='true'&&window.__practical3DInteractive,{timeout:16000});
