@@ -1,0 +1,28 @@
+/* Interactive 3D virtual-lab controls v11 */
+.practical3d-tools{position:absolute;left:8px;top:8px;z-index:8;display:flex;flex-wrap:wrap;gap:5px;max-width:calc(100% - 16px);padding:6px;border:1px solid rgba(222,238,229,.14);border-radius:9px;background:rgba(12,25,31,.74);backdrop-filter:blur(8px)}
+.practical3d-tools button{border:1px solid rgba(220,235,226,.25);background:rgba(255,255,255,.07);color:#edf5f0;border-radius:7px;padding:5px 7px;font:700 7.5px Inter,sans-serif;white-space:nowrap}
+.practical3d-tools button:hover,.practical3d-tools button.active{background:rgba(202,235,161,.20);border-color:#bad88f;color:#f5ffed}
+.p3d-free-move .practical3d-tools [data-3d-mode]{background:rgba(239,186,91,.22);border-color:#e4b762;color:#fff6df}
+.practical3d-info{position:absolute;right:9px;top:50px;z-index:9;width:min(305px,44%);max-height:calc(100% - 112px);overflow:auto;padding:12px 12px 11px;border:1px solid rgba(221,235,226,.30);border-radius:11px;background:rgba(246,249,245,.96);box-shadow:0 14px 38px rgba(0,0,0,.32);backdrop-filter:blur(12px);color:#21342c}
+.practical3d-info[hidden]{display:none}
+.practical3d-info .p3d-close{position:absolute;right:6px;top:6px;border:0;background:transparent;color:#617168;font-size:18px;line-height:1;padding:4px 7px;border-radius:6px}
+.practical3d-info .p3d-close:hover{background:#e7eee9}
+.practical3d-info .eyebrow{font-size:6.5px;letter-spacing:1px;color:#6a8177}.practical3d-info h4{font-size:13px;margin:3px 24px 9px 0}
+.practical3d-info dl{margin:0;display:grid;gap:7px}.practical3d-info dt{font-size:7px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#6a7b74}.practical3d-info dd{margin:1px 0 0;font-size:8.5px;line-height:1.45;color:#334940}
+.p3d-info-actions{display:flex;gap:6px;margin-top:10px}.p3d-info-actions button{border:1px solid #91a89e;background:#fff;color:#29463a;border-radius:7px;padding:6px 7px;font-size:7.5px;font-weight:700}
+.practical3d-info>small{display:block;margin-top:8px;color:#809087;font-size:6.5px;overflow-wrap:anywhere}
+.practical3d-info.quiz-correct{outline:3px solid rgba(154,205,111,.55);box-shadow:0 0 0 5px rgba(154,205,111,.14),0 14px 38px rgba(0,0,0,.32)}
+.p3d-safety{margin:9px 0 0;padding:7px 8px;border-radius:7px;background:#fff3d8;color:#695326;font-size:7.5px;line-height:1.4}
+.practical3d-label-layer{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden}.practical3d-label-layer[hidden]{display:none}
+.practical3d-label-layer button{position:absolute;left:0;top:0;pointer-events:auto;transform:translate(-50%,-50%);border:1px solid rgba(232,242,236,.70);border-radius:999px;background:rgba(19,38,45,.82);color:#f2f7f3;padding:3px 6px;font:700 6.5px Inter,sans-serif;white-space:nowrap;box-shadow:0 2px 7px rgba(0,0,0,.25);max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.practical3d-label-layer button:hover{background:#d5eaa9;color:#21372d;border-color:#d5eaa9}
+.p3d-free-move canvas{cursor:move!important}
+.dark .practical3d-info{background:rgba(24,39,32,.97);color:#e9f0eb;border-color:#536a61}.dark .practical3d-info h4{color:#eef5ef}.dark .practical3d-info dd{color:#c1d0c8}.dark .p3d-info-actions button{background:#263c33;color:#e7f0e9;border-color:#60776d}
+@media(max-width:800px){
+ .practical3d-tools{right:8px;max-height:76px;overflow:auto}
+ .practical3d-tools button{padding:5px 6px;font-size:7px}
+ .practical3d-info{left:8px;right:8px;top:auto;bottom:54px;width:auto;max-height:46%;padding:10px}
+ .practical3d-info dl{grid-template-columns:74px 1fr;gap:5px}.practical3d-info dd{font-size:8px}
+ .practical3d-label-layer button{font-size:6px;padding:2px 5px}
+}
+@media(prefers-reduced-motion:reduce){.practical3d-info,.practical3d-label-layer button{transition:none!important}}
