@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
     for(let mode=0;mode<modes;mode++){
       await page.evaluate(mode=>{currentMode=mode;renderModeTabs();renderPractical();},mode);
       const selector=id===2?'#doubleSlit3d':id===4?'#young3d':'#practical3d';
-      await page.waitForFunction(sel=>document.querySelector(sel)?.dataset.interactive3d==='v11'&&window.__practical3DInteractive?.version==='11.0',selector,{timeout:16000});
+      await page.waitForFunction(sel=>document.querySelector(sel)?.dataset.interactive3d==='v11'&&window.__practical3DInteractive?.version==='11.2',selector,{timeout:16000});
       await page.locator(selector).evaluate(el=>{const d=el.closest('details');if(d)d.open=true;});
       await page.waitForTimeout(40);
 
