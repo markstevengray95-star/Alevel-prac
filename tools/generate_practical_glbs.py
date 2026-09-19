@@ -124,12 +124,50 @@ def p1():
  wire(s,'Generator red lead',[(-.35,-1.72,.40),(-.78,-1.60,.35),(-1.45,-.45,.42),(-1.72,-.35,.52)],.018,'rubber_red')
  wire(s,'Generator black lead',[(.10,-1.72,.40),(-.20,-1.90,.35),(-1.60,-.58,.35),(-1.88,-.35,.48)],.018,'black')
  return s
+def optical_support(s):
+ box(s,'Optics stand blue base',(-2.35,.15,.08),(1.45,.92,.17),'bluebase')
+ rod(s,'Optics stand vertical rod',(-2.35,.15,.15),(-2.35,.15,2.75),.052,'silver')
+ rod(s,'Optics clamp arm',(-2.35,.15,1.35),(-1.34,.15,1.35),.040,'silver')
+ box(s,'Optics boss head',(-2.27,.15,1.35),(.25,.23,.27),'dark')
+
+def optical_screen(s):
+ box(s,'Screen wooden base',(2.50,.06,.16),(1.02,.80,.22),'wood')
+ box(s,'Projection screen',(2.50,.06,1.24),(.12,2.38,2.04),'paper')
+ box(s,'Screen dark rear',(2.57,.06,1.24),(.07,2.40,2.08),'dark')
+
+def p2d():
+ s=trimesh.Scene();bench(s,8.6,4.8);optical_support(s)
+ # AQA photo: small slit plate held in a clamp near the stand, laser on the bench,
+ # long metre rule to a freestanding white screen.
+ box(s,'Double slit holder',(-1.30,.15,1.35),(.16,.76,.82),'dark')
+ box(s,'Double slit plate',(-1.21,.15,1.35),(.035,.46,.52),'silver')
+ for yy in (-.035,.035):box(s,'Double slit aperture '+str(yy),(-1.19,.15+yy,1.35),(.012,.012,.30),'black')
+ box(s,'Laser body',(-2.05,-.78,.38),(1.22,.28,.30),'black')
+ cyl(s,'Laser front lens',(-1.42,-.78,.38),.10,.10,'red','x')
+ cyl(s,'Laser rear cap',(-2.70,-.78,.38),.12,.11,'dark','x')
+ optical_screen(s);ruler(s,(.45,.93,.17),5.35)
+ rod(s,'Laser beam',(-1.37,-.78,.38),(-1.18,.15,1.35),.010,'red')
+ # Faint rays after the slit to the screen and a central fringe region.
+ for dy in (-.34,-.17,0,.17,.34):rod(s,'Interference ray '+str(dy),(-1.18,.15,1.35),(2.42,.06+dy,1.35),.005,'red',8)
+ for i,dy in enumerate((-.42,-.28,-.14,0,.14,.28,.42)):
+  box(s,f'Fringe {i}',(2.43,.06+dy,1.35),(.018,.045 if dy else .075,.78),'yellow')
+ return s
+
 def p2g():
- s=trimesh.Scene();bench(s);box(s,'Laser',(-2.7,0,.55),(1.05,.55,.45),'black');cyl(s,'LaserLens',(-2.13,0,.55),.11,.12,'red','x');box(s,'DiffractionGrating',(-.7,0,1.05),(.12,.75,1.4),'dark')
- for i in range(13):rod(s,f'GratingLine{i}',(-.765,-.30+i*.05,.55),(-.765,-.30+i*.05,1.55),.006,'white',6)
- box(s,'Screen',(2.45,0,1.15),(.15,2.2,2),'white')
- for j,y in enumerate([-.72,-.36,0,.36,.72]):box(s,f'Maximum{j}',(2.36,y,1.15),(.02,.07 if y else .11,.85),'yellow')
- rod(s,'LaserBeam',(-2.1,0,.55),(2.32,0,.55),.012,'red');ruler(s,(0,1.35,.16),5);return s
+ s=trimesh.Scene();bench(s,8.6,4.8);optical_support(s)
+ # Plane transmission grating held perpendicular to the laser beam.
+ box(s,'Diffraction grating holder',(-1.30,.15,1.35),(.17,.78,.84),'dark')
+ box(s,'Diffraction grating',(-1.20,.15,1.35),(.030,.50,.55),'glass')
+ for i in range(19):
+  yy=-.22+i*.44/18;rod(s,f'Grating line {i}',(-1.181,.15+yy,1.10),(-1.181,.15+yy,1.60),.003,'black',6)
+ box(s,'Laser body',(-2.05,-.78,.38),(1.22,.28,.30),'black')
+ cyl(s,'Laser front lens',(-1.42,-.78,.38),.10,.10,'red','x')
+ optical_screen(s);ruler(s,(.45,.93,.17),5.35)
+ rod(s,'Laser beam',(-1.37,-.78,.38),(-1.18,.15,1.35),.010,'red')
+ for i,dy in enumerate((-0.72,-0.36,0,.36,.72)):
+  rod(s,f'Diffracted ray {i}',(-1.18,.15,1.35),(2.42,.06+dy,1.35),.006,'red',8)
+  sphere(s,f'Diffraction maximum {i}',(2.42,.06+dy,1.35),.055 if dy else .085,'red')
+ return s
 def p3():
  s=trimesh.Scene();bench(s);stand(s,-.8,.2,4.5);box(s,'Release',(-.15,.2,4),(.8,.55,.35),'dark');sphere(s,'Ball',(-.15,.2,3.65),.18,'metal')
  for z in (2.4,1.15):
@@ -164,6 +202,6 @@ def p11():
  wire(s,'Waveform',pts,.012,'screen');wire(s,'ScopeLead',[(-.35,-.1,1.1),(.6,-1.1,.7),(1.7,-.75,.8)],.015,'black');return s
 def p12():
  s=trimesh.Scene();bench(s);stand(s,-2.1,.35,3.5);box(s,'SourceHolder',(-1.55,.35,1.9),(.55,.55,.35),'dark');cyl(s,'VirtualSource',(-1.55,.35,1.9),.16,.18,'yellow','x');stand(s,1.2,.35,3);cyl(s,'GMTube',(.65,.35,1.9),.23,1,'grey','x');box(s,'Scaler',(2.5,-.85,.55),(1.5,.8,.75),'white');box(s,'ScalerDisplay',(2.5,-1.27,.62),(.8,.03,.25),'black');ruler(s,(-.25,.95,.16),4.2);wire(s,'DetectorCable',[(1.15,.35,1.9),(1.7,-.2,1.2),(2,-.95,.65)],.02,'black');return s
-SC={'rp01-standing-waves':p1,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
+SC={'rp01-standing-waves':p1,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
 for name,fn in SC.items():
  blob=fn().export(file_type='glb');path=os.path.join(OUT,name+'.glb');open(path,'wb').write(blob);print('3D',os.path.basename(path),len(blob))
