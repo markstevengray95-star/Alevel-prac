@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260919-physical3d-v12';
+const REV='20260919-photoreal3d-v13';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
