@@ -1,0 +1,22 @@
+/* Shared interactive 3D apparatus viewer for all AQA practicals */
+.practical3d-details{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.practical3d-details>summary{cursor:pointer;padding:9px 11px;font-size:9px;font-weight:800;color:var(--ink);letter-spacing:.2px}
+.young3d.practical3d{position:relative;width:100%;min-height:330px;background:linear-gradient(180deg,#13232c,#0e171d);border-top:1px solid rgba(255,255,255,.08);overflow:hidden}
+.young3d.practical3d canvas{display:block;width:100%;height:330px;touch-action:none;cursor:grab}
+.young3d.practical3d canvas:active{cursor:grabbing}
+.young3d-fallback{position:absolute;inset:0;display:grid;place-items:center;background:#f0f3ef;z-index:2}
+.young3d-fallback[hidden]{display:none}
+.young3d-fallback img{width:100%;height:100%;object-fit:contain}
+.practical3d-fallback-copy{max-width:280px;text-align:center;padding:18px;color:#5e7168;font-size:9px;line-height:1.5}
+.young3d-controls{position:absolute;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:6px;z-index:4;padding:6px 7px;border-radius:9px;background:rgba(15,29,36,.78);backdrop-filter:blur(8px)}
+.young3d-status{margin-right:auto;color:#c8d6d0;font-size:8px}
+.young3d-controls button,.young3d-controls a{border:1px solid rgba(220,235,226,.28);background:rgba(255,255,255,.08);color:#edf5f0;border-radius:7px;padding:6px 8px;font:700 8px Inter,sans-serif;text-decoration:none;white-space:nowrap}
+.young3d-controls button:hover,.young3d-controls a:hover{background:rgba(211,236,166,.18);border-color:#b9d68f}
+.young3d-expanded{position:fixed!important;inset:20px!important;width:auto!important;height:auto!important;min-height:0!important;z-index:9999!important;border-radius:14px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.young3d-expanded canvas{height:calc(100vh - 40px)!important;min-height:680px}
+.young3d-expanded .young3d-controls{bottom:14px;left:14px;right:14px}
+.young3d-tool{white-space:nowrap}
+.practical3d-details ul{margin:8px 14px 0;padding-left:16px;color:var(--muted);font-size:8px;line-height:1.45}
+.practical3d-details>p{padding:0 12px 11px;margin:8px 0 0;color:var(--muted);font-size:8px;line-height:1.45}
+@media(max-width:800px){.young3d.practical3d,.young3d.practical3d canvas{min-height:280px;height:280px}.young3d-controls{flex-wrap:wrap}.young3d-status{width:100%;margin:0}.young3d-expanded{inset:8px!important}.young3d-expanded canvas{height:calc(100vh - 16px)!important;min-height:0}}
+@media(prefers-reduced-motion:reduce){.young3d.practical3d *{transition:none!important}}
