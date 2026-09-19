@@ -755,6 +755,251 @@ def photo_p6():
  return s
 
 
+
+# --- Photorealistic AQA apparatus pass: Practicals 7-12 ---
+def photo_stopclock(s,p,name='Stop clock'):
+ x,y,z=p
+ box(s,name+' grey case',p,(1.28,.72,.82),'cream')
+ box(s,name+' dark face',(x,y-.38,z+.03),(1.10,.035,.62),'dark')
+ box(s,name+' LCD bezel',(x-.18,y-.405,z+.13),(.54,.024,.25),'black')
+ box(s,name+' LCD',(x-.18,y-.420,z+.13),(.44,.010,.16),'lcd')
+ for i in range(4): box(s,name+f' LCD segment {i}',(x-.32+i*.095,y-.427,z+.13),(.052,.006,.045),'screen')
+ knob(s,name+' mode knob',(x+.38,y-.407,z+.10),.085,'silver')
+ box(s,name+' start button',(x+.34,y-.414,z-.17),(.20,.018,.12),'green')
+ box(s,name+' reset button',(x+.58,y-.414,z-.17),(.20,.018,.12),'red')
+ photo_foot(s,name+' foot L',(x-.42,y+.23,z-.45));photo_foot(s,name+' foot R',(x+.42,y+.23,z-.45))
+
+def photo_cell_pack(s,p,name='Cell holder'):
+ x,y,z=p
+ box(s,name+' white base',(x,y,z),(1.28,.68,.22),'white')
+ for i,xx in enumerate((x-.29,x+.29)):
+  cyl(s,f'{name} cell {i+1}',(xx,y,z+.22),.135,.56,'silver','x',48)
+  cyl(s,f'{name} cell {i+1} positive cap',(xx+.30,y,z+.22),.072,.045,'brass','x',30)
+  box(s,f'{name} cell {i+1} label band',(xx,y-.145,z+.22),(.28,.018,.13),'blue')
+ banana(s,name+' red terminal',(x+.52,y-.37,z+.09),'red')
+ banana(s,name+' black terminal',(x-.52,y-.37,z+.09),'black')
+
+def photo_p7p():
+ s=trimesh.Scene();photo_bench(s,8.9,5.0)
+ photo_retort(s,'Pendulum stand',-.95,.30,4.70)
+ rod(s,'Pendulum clamp arm',(-.95,.30,4.12),(.22,.30,4.12),.042,'silver',28);photo_boss(s,'Pendulum boss',(-.87,.30,4.12))
+ box(s,'Pendulum clamp jaws',(.20,.30,4.12),(.20,.38,.30),'black')
+ wire(s,'Pendulum string',[(.22,.30,4.02),(.22,.30,1.02)],.010,'white')
+ sphere(s,'Pendulum bob',(.22,.30,.80),.205,'silver')
+ # fixed fiducial/reference marker at equilibrium
+ box(s,'Fiducial marker weighted base',(.72,.08,.12),(.52,.48,.16),'bluebase')
+ rod(s,'Fiducial marker pin',(.72,.08,.18),(.72,.08,1.08),.018,'silver',18)
+ sphere(s,'Fiducial marker blob',(.72,.08,1.08),.065,'blue')
+ photo_ruler(s,'Metre rule',(-2.05,1.02,.17),3.60,False)
+ photo_stopclock(s,(2.22,-1.04,.56),'Stop clock')
+ cyl(s,'Stand counterweight',(-.95,.30,.32),.31,.17,'grey',sections=44)
+ return s
+
+def photo_p7s():
+ s=trimesh.Scene();photo_bench(s,8.9,5.0)
+ photo_retort(s,'Spring stand',-.88,.30,4.70)
+ rod(s,'Spring clamp arm',(-.88,.30,4.10),(.18,.30,4.10),.042,'silver',28);photo_boss(s,'Spring boss',(-.80,.30,4.10))
+ box(s,'Spring clamp hook',(.18,.30,4.05),(.22,.22,.30),'black')
+ pts=[]
+ for i in range(116):
+  t=i/115*14*math.pi
+  pts.append((.18+.135*math.cos(t),.30+.135*math.sin(t),3.90-i/115*2.16))
+ wire(s,'Spring',pts,.019,'silver')
+ rod(s,'Mass hanger stem',(.18,.30,1.72),(.18,.30,1.08),.024,'silver',20)
+ cyl(s,'Mass hanger tray',(.18,.30,1.05),.25,.07,'silver',sections=44)
+ for i,z in enumerate((1.16,1.27,1.38,1.49)):cyl(s,f'Slotted mass {i+1}',(.18,.30,z),.235,.082,'grey',sections=44)
+ box(s,'Fiducial marker weighted base',(.72,.06,.12),(.52,.48,.16),'bluebase')
+ rod(s,'Fiducial marker pin',(.72,.06,.18),(.72,.06,1.55),.018,'silver',18)
+ sphere(s,'Fiducial marker blob',(.72,.06,1.55),.065,'blue')
+ photo_ruler(s,'Metre rule',(-2.05,1.02,.17),3.60,False)
+ photo_stopclock(s,(2.22,-1.04,.56),'Stop clock')
+ cyl(s,'Stand counterweight',(-.88,.30,.32),.31,.17,'grey',sections=44)
+ return s
+
+def photo_p8b():
+ s=trimesh.Scene();photo_bench(s,8.9,5.0)
+ photo_retort(s,'Boyle stand',-1.42,.36,4.62)
+ rod(s,'Boyle clamp arm',(-1.42,.36,3.48),(-.24,.36,3.48),.042,'silver',28);photo_boss(s,'Boyle boss',(-1.34,.36,3.48))
+ box(s,'Gas syringe clamp',(-.18,.36,3.48),(.24,.48,.34),'black')
+ # transparent syringe with external graduations and distinct plunger
+ cyl(s,'Gas syringe transparent barrel',(-.02,.36,3.17),.305,2.26,'glass',sections=64)
+ torus(s,'Gas syringe upper rim',(-.02,.36,4.31),.315,.035,'white')
+ torus(s,'Gas syringe lower rim',(-.02,.36,2.03),.315,.035,'white')
+ cyl(s,'Syringe plunger seal',(-.02,.36,2.43),.255,.20,'rubber',sections=48)
+ rod(s,'Syringe plunger rod',(-.02,.36,2.36),(-.02,.36,1.38),.052,'silver',28)
+ cyl(s,'Syringe plunger flange',(-.02,.36,1.30),.30,.09,'white',sections=48)
+ cyl(s,'Sealed syringe nozzle',(-.02,.36,4.48),.075,.34,'white',sections=36)
+ box(s,'Syringe pinch clip',(.13,.36,4.64),(.26,.18,.14),'dark')
+ for i in range(21):
+  zz=2.22+i*.09
+  rod(s,f'Gas syringe graduation {i}',(.27,.12,zz),(.27+(.14 if i%5==0 else .065),.12,zz),.005,'black',6)
+ rod(s,'Mass hanger hook',(-.02,.36,1.26),(-.02,.36,.82),.024,'silver',20)
+ cyl(s,'Mass hanger tray',(-.02,.36,.79),.25,.07,'silver',sections=44)
+ for i,z in enumerate((.90,1.01,1.12,1.23)):cyl(s,f'Boyle slotted mass {i+1}',(-.02,.36,z),.235,.082,'grey',sections=44)
+ photo_micrometer(s,(2.25,1.38,.40),'Micrometer')
+ photo_label(s,'Syringe diameter reference card',(2.10,1.13,.22),(.92,.02,.34))
+ return s
+
+def photo_p8c():
+ s=trimesh.Scene();photo_bench(s,8.9,5.0)
+ # water bath / Charles-law arrangement
+ cyl(s,'Two litre beaker',(0,.20,.84),1.10,1.66,'glass',sections=72)
+ torus(s,'Beaker top rim',(0,.20,1.68),1.11,.035,'white')
+ cyl(s,'Water bath',(0,.20,.68),1.02,1.30,'glass',sections=72)
+ # darker base plate gives visible glass contact
+ cyl(s,'Beaker heatproof mat',(0,.20,.08),1.18,.08,'dark',sections=64)
+ photo_ruler(s,'Vertical ruler',(-.28,.20,2.20),3.55,True)
+ cyl(s,'Capillary tube',(.10,.16,2.05),.055,3.32,'glass',sections=40)
+ cyl(s,'Trapped air column',(.10,.16,1.86),.023,.82,'white',sections=32)
+ sphere(s,'Liquid marker drop',(.10,.16,2.28),.043,'red')
+ torus(s,'Upper elastic band',(-.08,.18,2.74),.225,.022,'rubber')
+ torus(s,'Lower elastic band',(-.08,.18,1.70),.225,.022,'rubber')
+ cyl(s,'Thermometer glass stem',(1.35,.20,2.06),.063,3.12,'glass',sections=40)
+ cyl(s,'Thermometer liquid column',(1.35,.20,1.70),.021,1.98,'red',sections=24)
+ sphere(s,'Thermometer bulb',(1.35,.20,.70),.105,'glass')
+ rod(s,'Stirring rod',(-1.24,.20,.50),(-.76,.20,2.34),.042,'glass',20)
+ # thermometer scale card
+ box(s,'Thermometer scale card',(1.57,.20,2.06),(.12,.18,3.08),'paper')
+ for i in range(17):
+  zz=.62+i*.18;rod(s,f'Thermometer graduation {i}',(1.49,.10,zz),(1.58 if i%4==0 else 1.54,.10,zz),.004,'black',6)
+ return s
+
+def photo_p9():
+ s=trimesh.Scene();photo_bench(s,9.2,5.1)
+ photo_dmm(s,'Voltmeter',(2.55,-1.04,.76),'V')
+ photo_stopclock(s,(-2.65,-1.02,.56),'Stop clock')
+ # two-position switch with three visible terminals
+ box(s,'Two-position switch base',(-.58,-.72,.29),(.96,.60,.18),'black')
+ banana(s,'Two-position switch terminal A',(-.84,-1.04,.39),'red')
+ banana(s,'Two-position switch terminal B',(-.32,-1.04,.39),'black')
+ banana(s,'Two-position switch common',(-.58,-.40,.39),'red')
+ rod(s,'Two-position switch blade',(-.58,-.40,.46),(-.82,-.80,.62),.035,'silver',24)
+ sphere(s,'Two-position switch pivot',(-.58,-.40,.46),.067,'brass')
+ # capacitor with polarity stripe and resistor with colour bands
+ box(s,'Capacitor holder',(.62,.43,.26),(.76,.58,.18),'white')
+ cyl(s,'Capacitor black body',(.62,.43,.65),.22,.72,'black',sections=56)
+ box(s,'Capacitor polarity stripe',(.43,.20,.65),(.09,.02,.55),'white')
+ banana(s,'Capacitor red terminal',(.34,.08,.32),'red');banana(s,'Capacitor black terminal',(.88,.08,.32),'black')
+ box(s,'Resistor holder',(-1.52,.43,.26),(.82,.58,.18),'white')
+ cyl(s,'Resistor ceramic body',(-1.52,.43,.56),.135,.66,'cream','x',48)
+ for i,k in enumerate(('red','black','gold')):torus(s,f'Resistor colour band {i}',(-1.68+i*.16,.43,.56),.137,.018,k,(1,0,0))
+ banana(s,'Resistor red terminal',(-1.88,.08,.32),'red');banana(s,'Resistor black terminal',(-1.16,.08,.32),'black')
+ photo_cell_pack(s,(1.72,.58,.27),'Cell holder')
+ wire(s,'Switch to capacitor',[(-.32,-1.00,.39),(.14,-.72,.45),(.34,.08,.32)],.018,'rubber_red')
+ wire(s,'Capacitor to resistor',[(.88,.08,.32),(.18,.92,.42),(-1.16,.08,.32)],.018,'rubber')
+ wire(s,'Resistor to switch',[(-1.88,.08,.32),(-2.12,-.43,.42),(-.84,-1.00,.39)],.018,'rubber_red')
+ wire(s,'Cell positive charge lead',[(2.24,.20,.36),(1.42,-.34,.45),(-.58,-.40,.39)],.018,'rubber_red')
+ wire(s,'Cell negative return',[(1.20,.20,.36),(1.10,-.52,.47),(.88,.08,.32)],.018,'rubber')
+ wire(s,'Voltmeter red branch',[(2.70,-1.35,.43),(2.16,-.45,.54),(.34,.08,.32)],.016,'rubber_red')
+ wire(s,'Voltmeter black branch',[(2.40,-1.35,.43),(1.92,-.66,.50),(.88,.08,.32)],.016,'rubber')
+ return s
+
+def photo_caliper(s,p,n='Digital caliper'):
+ x,y,z=p
+ box(s,n+' stainless beam',(x,y,z),(1.92,.15,.12),'silver')
+ box(s,n+' fixed jaw',(x-.86,y,z+.22),(.12,.18,.52),'silver')
+ box(s,n+' slider housing',(x-.28,y,z+.08),(.38,.34,.30),'dark')
+ box(s,n+' display bezel',(x-.28,y-.18,z+.10),(.30,.025,.16),'black')
+ box(s,n+' display',(x-.28,y-.195,z+.10),(.24,.010,.10),'lcd')
+ box(s,n+' moving jaw',(x-.05,y,z+.25),(.10,.18,.56),'silver')
+ rod(s,n+' depth rod',(x+.92,y,z),(x+1.22,y,z),.025,'silver',18)
+
+def photo_p10():
+ s=trimesh.Scene();photo_bench(s,9.5,5.1)
+ photo_supply(s,(-2.85,-1.28,.54),'Low voltage DC power supply',True)
+ photo_dmm(s,'Ammeter',(-1.02,-1.10,.76),'A')
+ photo_rheostat(s,(2.70,.68,.56))
+ # top-pan digital balance
+ box(s,'Top-pan balance navy base',(.68,.20,.31),(2.18,1.50,.56),'navy')
+ box(s,'Top-pan balance stainless pan',(.68,.20,.66),(1.78,1.18,.12),'silver')
+ box(s,'Top-pan balance front panel',(.68,-.58,.35),(1.26,.035,.34),'dark')
+ box(s,'Top-pan balance digital display',(.45,-.605,.37),(.56,.014,.19),'lcd')
+ box(s,'Top-pan balance tare button',(1.08,-.607,.37),(.20,.016,.12),'green')
+ # magnet pole assembly rests only on balance
+ box(s,'Magnet yoke base',(.68,.20,.92),(1.48,.48,.20),'dark')
+ box(s,'Magnet north pole',(.16,.20,1.39),(.32,.56,.88),'red')
+ box(s,'Magnet south pole',(1.20,.20,1.39),(.32,.56,.88),'blue')
+ box(s,'Magnet top yoke',(.68,.20,1.84),(1.36,.48,.18),'dark')
+ # independently supported straight wire through field gap
+ box(s,'Wire support left blue base',(-1.20,.20,.16),(.62,.78,.24),'bluebase')
+ box(s,'Wire support right blue base',(2.54,.20,.16),(.62,.78,.24),'bluebase')
+ rod(s,'Wire support left post',(-1.20,.20,.24),(-1.20,.20,1.55),.045,'silver',24)
+ rod(s,'Wire support right post',(2.54,.20,.24),(2.54,.20,1.55),.045,'silver',24)
+ rod(s,'Current-carrying straight wire',(-1.38,.20,1.44),(2.72,.20,1.44),.028,'copper',24)
+ banana(s,'Wire left terminal',(-1.38,-.20,1.44),'red');banana(s,'Wire right terminal',(2.72,-.20,1.44),'black')
+ photo_caliper(s,(2.82,-1.36,.29),'Digital caliper')
+ wire(s,'Supply to ammeter',[(-2.45,-1.77,.40),(-1.68,-1.90,.43),(-1.16,-1.42,.45)],.020,'rubber_red')
+ wire(s,'Ammeter to wire',[(-.88,-1.42,.45),(-.66,-.28,.64),(-1.38,-.20,1.44)],.020,'rubber_red')
+ wire(s,'Wire to variable resistor',[(2.72,-.20,1.44),(3.34,.06,.92),(1.64,.25,.64)],.020,'rubber')
+ wire(s,'Variable resistor return',[(3.72,.25,.64),(3.82,-1.92,.42),(-2.45,-1.97,.40)],.020,'rubber')
+ return s
+
+def photo_scope(s,p,n='Oscilloscope'):
+ x,y,z=p
+ box(s,n+' navy case',p,(2.12,.92,1.70),'navy')
+ box(s,n+' black front',(x,y-.48,z),(1.93,.035,1.48),'dark')
+ box(s,n+' screen bezel',(x-.30,y-.505,z+.14),(1.18,.026,.91),'black')
+ box(s,n+' phosphor screen',(x-.30,y-.520,z+.14),(1.04,.010,.77),'screen')
+ pts=[]
+ for i in range(41):
+  xx=x-.79+.98*i/40;zz=z+.14+.19*math.sin(i*math.pi/7);pts.append((xx,y-.528,zz))
+ wire(s,n+' waveform',pts,.010,'green')
+ for j,(dx,dz) in enumerate(((.58,.38),(.80,.38),(.58,.04),(.80,.04),(.58,-.30),(.80,-.30))):
+  knob(s,n+f' control {j}',(x+dx,y-.515,z+dz),.072,'silver')
+ banana(s,n+' input',(x+.58,y-.520,z-.55),'red');banana(s,n+' ground',(x+.82,y-.520,z-.55),'black')
+ photo_foot(s,n+' foot L',(x-.70,y+.28,z-.91));photo_foot(s,n+' foot R',(x+.70,y+.28,z-.91))
+
+def photo_p11():
+ s=trimesh.Scene();photo_bench(s,9.6,5.2)
+ photo_supply(s,(-2.90,-1.25,.54),'AC low-voltage source',True)
+ # field coil with multiple copper turns on rigid black former
+ box(s,'Large circular coil left foot',(-.82,.32,.24),(.62,.82,.22),'dark')
+ box(s,'Large circular coil right foot',(.92,.32,.24),(.62,.82,.22),'dark')
+ for r in (1.24,1.18,1.12,1.06,1.00):
+  torus(s,'Large circular coil winding '+str(r),(0.05,.32,1.80),r,.024,'copper',(0,1,0))
+ box(s,'Large circular coil lower former',(0.05,.32,.62),(2.12,.34,.22),'black')
+ # search coil on pivot with protractor
+ angle=math.radians(32);normal=(math.sin(angle),math.cos(angle),0)
+ for r in (.54,.49,.44,.39):
+  torus(s,'Search coil winding '+str(r),(0.05,-.04,1.80),r,.017,'gold',normal)
+ rod(s,'Search coil vertical pivot',(.05,-.04,.86),(.05,-.04,2.76),.027,'silver',24)
+ box(s,'Search coil clamp base',(.05,-.04,.80),(.56,.48,.17),'dark')
+ cyl(s,'Protractor disc',(.05,-.06,.47),.84,.035,'paper',sections=72)
+ for deg in range(0,181,10):
+  a=math.radians(deg);r0=.68;r1=.82
+  rod(s,f'Protractor tick {deg}',(.05+r0*math.cos(a),-.085,.47+r0*math.sin(a)),(.05+r1*math.cos(a),-.085,.47+r1*math.sin(a)),.005,'black',6)
+ rod(s,'Search coil angle pointer',(.05,-.09,.47),(.58,-.09,.84),.013,'red',8)
+ photo_scope(s,(2.92,-.12,1.18),'Oscilloscope')
+ wire(s,'Field coil red lead',[(-.18,.38,.60),(-.84,1.30,.46),(-2.50,-.76,.38)],.020,'rubber_red')
+ wire(s,'Field coil black lead',[(.28,.38,.60),(.78,1.28,.48),(-2.18,-.76,.38)],.020,'rubber')
+ wire(s,'Search coil signal lead',[(.05,-.04,1.05),(.92,-.95,.60),(1.92,-.86,.73),(2.18,-.60,1.04)],.016,'rubber')
+ return s
+
+def photo_p12():
+ s=trimesh.Scene();photo_bench(s,9.1,5.1)
+ # Simulation-only inverse-square detector geometry. No real-source handling hardware is modelled.
+ photo_stopclock(s,(-2.78,-1.02,.56),'Timer')
+ box(s,'Virtual scaler counter cream case',(.72,-1.08,.76),(2.05,.88,1.30),'cream')
+ box(s,'Virtual scaler counter dark front',(.72,-1.54,.80),(1.82,.035,.84),'dark')
+ box(s,'Virtual scaler counter display bezel',(.28,-1.565,.96),(.64,.024,.28),'black')
+ box(s,'Virtual scaler counter display',(.28,-1.580,.96),(.54,.010,.18),'lcd')
+ knob(s,'Virtual scaler voltage control',(1.02,-1.57,.82),.12,'black')
+ knob(s,'Virtual scaler count control',(1.34,-1.57,.82),.10,'black')
+ # virtual GM tube and support
+ box(s,'Virtual GM tube support',(-.82,.20,.30),(1.08,.72,.38),'burgundy')
+ cyl(s,'Virtual GM tube',(-.82,.20,.74),.22,1.26,'navy','x',56)
+ cyl(s,'Virtual GM tube window cap',(-1.48,.20,.74),.16,.09,'blue','x',40)
+ cyl(s,'Virtual GM tube rear cap',(-.16,.20,.74),.19,.07,'dark','x',36)
+ wire(s,'Virtual detector cable',[(-.16,.20,.74),(.12,-.40,.66),(.22,-1.06,.76)],.020,'rubber')
+ photo_ruler(s,'Metre rule',(.26,1.02,.17),5.90,False)
+ # clearly non-real simulation marker, intentionally not a real handling representation
+ box(s,'Simulation source holder',(2.62,.30,.35),(1.08,.88,.62),'burgundy')
+ box(s,'Simulation source holder lid',(2.62,.30,.72),(1.08,.88,.12),'wood')
+ cyl(s,'Simulation source marker',(2.14,.30,.65),.145,.17,'yellow','x',36)
+ box(s,'Simulation-only label plate',(2.62,-.16,.62),(.76,.025,.22),'paper')
+ box(s,'Distance reference block',(-.18,.64,.39),(.34,.48,.54),'white')
+ return s
+
 SC={
 'rp01-standing-waves':photo_p1,
 'rp02-double-slit':photo_p2d,
@@ -764,14 +1009,14 @@ SC={
 'rp04-young-modulus':photo_p4,
 'rp05-resistivity-wire':photo_p5,
 'rp06-iv-characteristics':photo_p6,
-'rp07-pendulum':p7p,
-'rp07-spring':p7s,
-'rp08-boyle-syringe':p8b,
-'rp08-charles-law':p8c,
-'rp09-capacitor':p9,
-'rp10-wire-balance':p10,
-'rp11-search-coil':p11,
-'rp12-inverse-square':p12
+'rp07-pendulum':photo_p7p,
+'rp07-spring':photo_p7s,
+'rp08-boyle-syringe':photo_p8b,
+'rp08-charles-law':photo_p8c,
+'rp09-capacitor':photo_p9,
+'rp10-wire-balance':photo_p10,
+'rp11-search-coil':photo_p11,
+'rp12-inverse-square':photo_p12
 }
 for name,fn in SC.items():
  blob=fn().export(file_type='glb');path=os.path.join(OUT,name+'.glb');open(path,'wb').write(blob);print('3D',os.path.basename(path),len(blob))
