@@ -348,7 +348,35 @@ def p8c():
  rod(s,'Stirring rod',(-1.25,.20,.50),(-.75,.20,2.30),.045,'glass')
  return s
 def p9():
- s=trimesh.Scene();bench(s);supply(s,(-2.7,-1.25,.4));box(s,'ChangeoverSwitch',(-1.15,-.65,.35),(.9,.55,.2),'dark');rod(s,'SwitchBlade',(-1.35,-.65,.5),(-.85,-.65,.75),.04,'metal');box(s,'Resistor',(0,-.25,.45),(1.1,.45,.32),'cream');cyl(s,'Capacitor',(1.4,.1,.65),.33,.85,'black');meter(s,'Voltmeter',(2.7,-.8,.45));wire(s,'RC',[(-2.35,-1.62,.3),(-1.4,-.8,.35),(-.55,-.25,.45),(.55,-.25,.45),(1.4,.1,.25),(2.45,-1.13,.35)],.02,'red');wire(s,'Return',[(2.95,-1.13,.35),(1.4,.1,.25),(-2.65,-1.62,.3)],.02,'black');return s
+ s=trimesh.Scene();bench(s,8.8,5.0)
+ # AQA-style capacitor circuit: yellow digital voltmeter, orange timer/data logger,
+ # two-position switch, capacitor and resistor on the bench.
+ multimeter(s,'Voltmeter',(2.45,-.95,.72),'V')
+ logger_box(s,(-2.55,-.95,.52),'Stop clock')
+ # Two-position/changeover switch on a black base.
+ box(s,'Two-position switch base',(-.55,-.72,.28),(.90,.56,.18),'black')
+ banana(s,'Switch terminal A',(-.80,-1.02,.38),'red');banana(s,'Switch terminal B',(-.30,-1.02,.38),'black')
+ banana(s,'Switch common',(-.55,-.44,.38),'red')
+ rod(s,'Changeover switch blade',(-.55,-.44,.44),(-.78,-.78,.58),.035,'silver')
+ sphere(s,'Switch pivot',(-.55,-.44,.44),.065,'brass')
+ # Capacitor and resistor mounted in small holders.
+ box(s,'Capacitor holder',(.55,.42,.26),(.70,.55,.18),'white')
+ cyl(s,'Capacitor',(.55,.42,.63),.21,.68,'black')
+ banana(s,'Capacitor red terminal',(.30,.08,.32),'red');banana(s,'Capacitor black terminal',(.80,.08,.32),'black')
+ box(s,'Resistor holder',(-1.45,.42,.26),(.78,.55,.18),'white')
+ cyl(s,'Resistor',(-1.45,.42,.55),.13,.60,'cream','x')
+ banana(s,'Resistor red terminal',(-1.78,.08,.32),'red');banana(s,'Resistor black terminal',(-1.12,.08,.32),'black')
+ # Low-voltage charging source.
+ cell_holder(s,(1.70,.55,.26))
+ # Circuit leads laid out visibly around the components.
+ wire(s,'Switch to capacitor',[(-.30,-.98,.38),(.15,-.72,.44),(.30,.08,.32)],.018,'red')
+ wire(s,'Capacitor to resistor',[(.80,.08,.32),(.18,.88,.42),(-1.12,.08,.32)],.018,'black')
+ wire(s,'Resistor to switch',[(-1.78,.08,.32),(-2.05,-.42,.42),(-.80,-.98,.38)],.018,'red')
+ wire(s,'Cell positive charge lead',[(2.18,.20,.34),(1.40,-.35,.44),(-.55,-.44,.38)],.018,'red')
+ wire(s,'Cell negative return',[(1.20,.20,.34),(1.10,-.50,.46),(.80,.08,.32)],.018,'black')
+ wire(s,'Voltmeter positive branch',[(2.58,-1.20,.42),(2.15,-.42,.52),(.30,.08,.32)],.016,'red')
+ wire(s,'Voltmeter negative branch',[(2.32,-1.20,.42),(1.90,-.65,.48),(.80,.08,.32)],.016,'black')
+ return s
 def p10():
  s=trimesh.Scene();bench(s,8.6,4.8);supply(s,(-3,-1.3,.4));meter(s,'Ammeter',(-1.35,-1.3,.4));cyl(s,'VariableResistor',(.15,-1.25,.45),.24,1.1,'dark','x');box(s,'Switch',(1.3,-1.25,.25),(.75,.45,.18),'dark');box(s,'Balance',(2,.5,.42),(2.2,1.55,.7),'white');box(s,'BalancePan',(2,.5,.83),(1.85,1.25,.12),'metal');box(s,'NorthMagnet',(1.55,.5,1.4),(.45,.7,1),'red');box(s,'SouthMagnet',(2.45,.5,1.4),(.45,.7,1),'blue');stand(s,.5,.5,3.2);stand(s,3.5,.5,3.2);rod(s,'CurrentWire',(.8,.5,1.45),(3.2,.5,1.45),.035,'copper');wire(s,'CurrentLead',[(1.3,-1.25,.35),(.8,.5,1.45)],.02,'red');wire(s,'ReturnLead',[(3.2,.5,1.45),(3.6,-1.6,.35),(-2.65,-1.65,.35)],.02,'black');ruler(s,(0,-.2,.15),4.8);return s
 def p11():
