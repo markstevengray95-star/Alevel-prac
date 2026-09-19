@@ -44,8 +44,12 @@ const { chromium } = require('playwright');
       if(!selected)throw new Error(`P${id} mode ${mode}: selection API failed for ${match}`);
       const panel=page.locator(selector+' .practical3d-info');
       await panel.waitFor({state:'visible',timeout:3000});
-      const info=await panel.innerText();
-      for(const phrase of ['Purpose','How it works','Correct use','Common mistake'])if(!info.includes(phrase))throw new Error(`P${id} mode ${mode}: info panel missing ${phrase}`);
+      const headings=await panel.locator('dt').allInnerTexts();
+      for(const phrase of ['Purpose','How it works','Correct use','Common mistake']){
+        if(!headings.includes(phrase))throw new Error(`P${id} mode ${mode}: info panel missing visible heading ${phrase}; got ${JSON.stringify(headings)}`);
+        if(!(await panel.locator('dt',{hasText:phrase}).first().isVisible()))throw new Error(`P${id} mode ${mode}: info heading not visible: ${phrase}`);
+      }
+      if(await panel.locator('dd').count()<4)throw new Error(`P${id} mode ${mode}: equipment explanations incomplete`);
       if(await panel.locator('[data-3d-demo]').count()!==1)throw new Error(`P${id} mode ${mode}: how-it-works demo missing`);
 
       await page.locator(selector+' [data-3d-labels]').click();
