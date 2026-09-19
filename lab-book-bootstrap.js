@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260919-live3d-112';
+const REV='20260919-physical3d-v12';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
@@ -39,7 +39,9 @@ async function start(){
   loadStyle(versioned('free-build-apparatus-v9.css'),'freeBuildApparatusV9Style');
   loadStyle(versioned('practical-3d.css'),'practical3DStyle');
   loadStyle(versioned('practical-3d-interactive-v11.css'),'practical3DInteractiveV11Style');
+  loadStyle(versioned('practical-3d-actions-v12.css'),'practical3DActionsV12Style');
   await loadScript(versioned('practical-3d-equipment-v11.js'),'practical3DEquipmentV11');
+  await loadScript(versioned('practical-3d-actions-v12.js'),'practical3DActionsV12');
   await loadScript(versioned('young-modulus-3d.js'),'youngModulus3D');
   await loadScript(versioned('aqa-setup-alignment.js'),'aqaSetupAlignment');
   await loadScript(versioned('aqa-setup-visual-fixes.js'),'aqaSetupVisualFixes');
