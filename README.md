@@ -64,6 +64,16 @@ node tests/test-worked-examples-complete.cjs
 
 Browser smoke tests in `tests/` run in the GitHub workflow. The Blender source for the optional apparatus views is in `tools/blender_apparatus.py`; the PNGs are in `assets/`.
 
+## Interactive 3D virtual lab v11
+
+The all-practical GLB viewer is now a teaching and manipulation layer rather than a passive orbit viewer. Every practical and investigation mode supports hover highlighting, click-to-identify apparatus, a contextual equipment panel explaining purpose/how it works/correct use/common mistakes, object labels, X-ray transparency, exploded view, guided tutorial steps, equipment-identification quiz prompts and a practical-specific full-screen 3D view.
+
+**Guided 3D** keeps the apparatus in its reference arrangement while students inspect and learn it. **Free move 3D** lets students drag complete equipment groups around the 3D scene; multi-mesh instruments such as meters move together rather than falling apart. Shift-drag/right-drag pans, ordinary drag orbits, wheel/pinch zooms, and Reset apparatus restores all moved equipment and visual modes. 3D exploratory movement is deliberately separate from the numerical physics model; the validated Free-build bench remains the setup-assessment workflow.
+
+The equipment metadata covers the major measuring instruments, circuit components, optical components, supports, SHM apparatus, gas-law equipment, magnetic/induction equipment and the simulation-only P12 detector geometry. “Show how it works” pulses/highlights the selected equipment while its explanation remains visible. P12 continues to be simulation-only and contains no real-source handling procedure.
+
+The `interactive-3d-v11` browser regression visits every practical/mode, performs real canvas picking, checks the equipment explanation panel, labels, X-ray, explode, tutorial, quiz and reset controls, then physically drags P3 equipment in Free move and verifies that 3D exploration does not alter the underlying physics model.
+
 ## Full interactive 3D apparatus v10
 
 Every required practical now has a real interactive GLB apparatus scene in the same inspector section that previously existed only for Young double slit and Young modulus. The existing detailed Blender GLBs remain the primary models for Practical 2 double slit and Practical 4; the remaining setups are generated as PBR-material GLBs during validation and GitHub Pages deployment.
