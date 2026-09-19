@@ -11,7 +11,10 @@ COL={
 'white':([222,229,224,255],.05,.45),'cream':([190,181,151,255],.05,.65),'wood':([187,137,76,255],0,.65),
 'red':([190,62,51,255],.15,.38),'blue':([58,98,155,255],.18,.38),'green':([107,153,89,255],.05,.45),
 'copper':([176,90,37,255],.62,.26),'gold':([195,128,49,255],.48,.30),'glass':([162,205,214,210],0,.20),
-'screen':([153,228,151,255],.05,.28),'yellow':([221,184,88,255],.05,.45),'grey':([100,110,106,255],.18,.45)}
+'screen':([153,228,151,255],.05,.28),'yellow':([221,184,88,255],.05,.45),'grey':([100,110,106,255],.18,.45),
+'orange':([218,104,34,255],.04,.34),'meter_yellow':([230,178,34,255],.02,.42),'navy':([25,45,62,255],.20,.36),
+'lcd':([112,158,128,255],.02,.22),'burgundy':([96,37,30,255],.08,.45),'silver':([190,198,196,255],.78,.20),
+'rubber_red':([150,25,24,255],.02,.62),'bluebase':([38,85,155,255],.10,.38),'paper':([235,232,218,255],0,.70),'brass':([168,118,42,255],.62,.25)}
 M={k:PBRMaterial(name=k,baseColorFactor=v[0],metallicFactor=v[1],roughnessFactor=v[2]) for k,v in COL.items()}
 def add(s,m,n,k):m.visual.material=M[k];s.add_geometry(m,geom_name=n,node_name=n);return m
 def box(s,n,p,z,k='dark'):m=trimesh.creation.box(extents=z);m.apply_translation(p);return add(s,m,n,k)
@@ -39,6 +42,54 @@ def bench(s,w=8.2,d=4.6):box(s,'LabBench',(0,0,-.18),(w,d,.32),'cream')
 def stand(s,x,y,h=4.5):box(s,f'StandBase{x}{y}',(x,y,.08),(.9,.65,.16),'dark');rod(s,f'StandRod{x}{y}',(x,y,.15),(x,y,h),.055,'metal')
 def meter(s,n,p):x,y,z=p;box(s,n,p,(1,.65,.55),'dark');box(s,n+'Face',(x,y-.34,z+.05),(.68,.035,.29),'white');cyl(s,n+'Red',(x-.22,y-.37,z-.16),.055,.08,'red','y');cyl(s,n+'Black',(x+.22,y-.37,z-.16),.055,.08,'black','y')
 def supply(s,p):x,y,z=p;box(s,'PowerSupply',p,(1.35,.75,.62),'white');box(s,'SupplyDisplay',(x-.18,y-.39,z+.08),(.52,.03,.18),'black');cyl(s,'SupplyRed',(x+.36,y-.40,z-.12),.06,.08,'red','y');cyl(s,'SupplyBlack',(x+.12,y-.40,z-.12),.06,.08,'black','y')
+
+def banana(s,n,p,k='red'):
+ x,y,z=p;cyl(s,n,(x,y,z),.055,.09,k,'y',24);cyl(s,n+' Collar',(x,y+.055,z),.08,.035,'black','y',24)
+def knob(s,n,p,r=.10,k='black'):
+ cyl(s,n,p,r,.09,k,'y',32);rod(s,n+' Pointer',(p[0],p[1]-.052,p[2]),(p[0],p[1]-.052,p[2]+r*.72),.010,'white',8)
+def orange_supply(s,p,name='Signal generator'):
+ x,y,z=p
+ box(s,name,p,(1.65,.83,.78),'orange');box(s,name+' black top',(x,y+.02,z+.43),(1.58,.76,.10),'black')
+ box(s,name+' front',(x,y-.425,z),(1.47,.035,.59),'orange')
+ box(s,name+' LCD',(x-.38,y-.448,z+.13),(.46,.025,.18),'lcd')
+ knob(s,name+' coarse knob',(x+.12,y-.455,z+.10),.115);knob(s,name+' fine knob',(x+.42,y-.455,z+.10),.085)
+ banana(s,name+' red socket',(x+.37,y-.465,z-.18),'red');banana(s,name+' black socket',(x+.10,y-.465,z-.18),'black')
+ box(s,name+' foot L',(x-.55,y+.18,z-.43),(.18,.25,.10),'rubber');box(s,name+' foot R',(x+.55,y+.18,z-.43),(.18,.25,.10),'rubber')
+def multimeter(s,n,p,kind='A'):
+ x,y,z=p
+ box(s,n,p,(.72,.40,1.08),'meter_yellow');box(s,n+' black face',(x,y-.213,z+.05),(.59,.035,.88),'black')
+ box(s,n+' LCD',(x,y-.235,z+.34),(.42,.025,.19),'lcd');knob(s,n+' selector',(x,y-.238,z-.10),.145,'dark')
+ banana(s,n+' COM',(x-.13,y-.245,z-.37),'black');banana(s,n+' V/A',(x+.14,y-.245,z-.37),'red')
+ box(s,n+' label '+kind,(x,y-.242,z+.51),(.18,.018,.10),'paper')
+def crocodile(s,n,p,k='red',axis='x'):
+ x,y,z=p
+ if axis=='x': box(s,n,(x,y,z),(.34,.13,.12),k);box(s,n+' jaw',(x+.19,y,z),(.16,.07,.05),'silver')
+ else: box(s,n,(x,y,z),(.13,.34,.12),k);box(s,n+' jaw',(x,y+.19,z),(.07,.16,.05),'silver')
+def rheostat(s,n,p):
+ x,y,z=p
+ box(s,n+' wooden base',(x,y,z-.18),(2.05,.70,.20),'burgundy')
+ cyl(s,n+' ceramic former',(x,y,z+.08),.24,1.65,'cream','x',48)
+ for i in range(24):
+  xx=x-.78+i*1.56/23
+  torus(s,n+f' resistance turn {i}',(xx,y,z+.08),.235,.012,'black',(1,0,0))
+ rod(s,n+' slider rail',(x-.84,y,z+.48),(x+.84,y,z+.48),.035,'silver')
+ box(s,n+' sliding contact',(x+.18,y,z+.50),(.20,.28,.14),'silver')
+ rod(s,n+' contact arm',(x+.18,y,z+.48),(x+.18,y,z+.19),.025,'silver')
+ banana(s,n+' left terminal',(x-.92,y-.39,z-.10),'red');banana(s,n+' right terminal',(x+.92,y-.39,z-.10),'black')
+def knife_switch(s,n,p,closed=False):
+ x,y,z=p
+ box(s,n+' base',p,(.78,.48,.16),'black')
+ banana(s,n+' terminal A',(x-.22,y-.29,z+.10),'red');banana(s,n+' terminal B',(x+.22,y-.29,z+.10),'black')
+ a=np.array([x-.22,y,z+.17]);b=np.array([x+.22,y,z+.17 if closed else z+.48])
+ rod(s,n+' blade',a,b,.035,'silver')
+ sphere(s,n+' pivot',a,.065,'brass')
+def cell_holder(s,p):
+ x,y,z=p
+ box(s,'Cell holder',(x,y,z),(1.18,.62,.20),'white')
+ for i,xx in enumerate((x-.28,x+.28)):
+  cyl(s,f'Cell {i+1}',(xx,y,z+.20),.13,.54,'silver','x',40)
+  cyl(s,f'Cell {i+1} positive cap',(xx+.285,y,z+.20),.075,.04,'brass','x',32)
+ banana(s,'Cell red terminal',(x+.50,y-.34,z+.08),'red');banana(s,'Cell black terminal',(x-.50,y-.34,z+.08),'black')
 def ruler(s,p=(0,.9,.18),length=5.2):
  x,y,z=p;box(s,'MetreRule',p,(length,.26,.12),'wood')
  for i in range(21):
