@@ -65,6 +65,42 @@ function geometry(model){
   for(const id of json.scenes[json.scene||0].nodes)visit(id,identity());
   return items;
 }
+
+function makeFallbackBox(name,center,size,color){
+  const [cx,cy,cz]=center,[sx,sy,sz]=size;
+  const x0=cx-sx/2,x1=cx+sx/2,y0=cy-sy/2,y1=cy+sy/2,z0=cz-sz/2,z1=cz+sz/2;
+  const positions=[],normals=[];
+  const face=(a,b,c,d,n)=>{
+    for(const p of [a,b,c,a,c,d]){positions.push(...p);normals.push(...n);}
+  };
+  face([x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[0,0,-1]);
+  face([x0,y0,z1],[x0,y1,z1],[x1,y1,z1],[x1,y0,z1],[0,0,1]);
+  face([x0,y0,z0],[x0,y0,z1],[x1,y0,z1],[x1,y0,z0],[0,-1,0]);
+  face([x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1],[0,1,0]);
+  face([x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1],[-1,0,0]);
+  face([x1,y0,z0],[x1,y0,z1],[x1,y1,z1],[x1,y1,z0],[1,0,0]);
+  return {name,color,positions,normals,center:[cx,cy,cz],radius:Math.max(.06,Math.hypot(sx,sy,sz)/2),min:[x0,y0,z0],max:[x1,y1,z1]};
+}
+function fallbackScene(id,mode=0){
+  const green=[.25,.62,.43],orange=[.88,.53,.22],blue=[.25,.50,.78],cream=[.78,.82,.72],red=[.78,.28,.25],metal=[.58,.68,.66],dark=[.20,.28,.27],yellow=[.88,.74,.20];
+  const common=[['Lab bench',[0,0,-.18],[7.8,4.2,.35],dark]];
+  const scenes={
+    1:[['Signal generator',[-2.5,-.9,.55],[1.25,.8,.8],orange],['Vibration generator',[-1.05,0,.55],[.65,.65,.85],green],['Metre rule',[.7,.1,.25],[4.1,.18,.12],cream],['Pulley',[2.5,.1,.75],[.55,.38,.55],metal],['Mass hanger',[2.65,.1,-.15],[.5,.5,1.25],yellow]],
+    2:[['Laser',[-2.6,0,.55],[1.0,.55,.55],red],[mode?'Diffraction grating':'Double slit',[-.8,0,.65],[.18,1.0,1.1],metal],['Projection screen',[2.2,0,1.0],[.18,2.4,2.0],cream],['Metre rule',[.25,1.35,.18],[5.0,.16,.12],yellow]],
+    3:[['Release mechanism',[-1.0,0,2.6],[.8,.8,.55],green],['Ball bearing',[-1.0,0,1.65],[.45,.45,.45],metal],['Light gate',[-1.0,0,.55],[1.1,.5,.85],blue],['Data logger',[1.7,-.8,.55],[1.45,.9,.85],orange],['Metre rule',[.15,1.1,1.35],[.16,.18,3.4],cream]],
+    4:[['Reference wire',[-.65,0,1.65],[.10,.10,3.6],metal],['Test wire',[.65,0,1.65],[.10,.10,3.6],metal],['Vernier comparison',[0,0,1.35],[1.75,.55,.45],blue],['Mass hanger',[.65,0,-.4],[.55,.55,1.1],yellow],['Micrometer',[2.2,-.7,.45],[1.25,.65,.55],green]],
+    5:[['DC power supply',[-2.45,-.75,.55],[1.45,.9,.85],orange],['Ammeter',[-.65,-.8,.5],[1.05,.75,.72],blue],['Voltmeter',[.8,-.8,.5],[1.05,.75,.72],green],['Resistance wire',[.3,.55,.55],[4.3,.12,.12],metal],['Sliding contact',[.65,.55,.7],[.35,.45,.42],yellow]],
+    6:[['DC power supply',[-2.4,-.8,.55],[1.45,.9,.85],orange],['Ammeter',[-.55,-.85,.5],[1.05,.75,.72],blue],['Voltmeter',[.85,-.85,.5],[1.05,.75,.72],green],['Filament lamp',[.25,.55,.72],[.65,.65,.85],yellow],['Variable resistor',[1.75,.55,.55],[1.2,.55,.55],metal],['Switch',[2.65,-.45,.42],[.8,.45,.3],red]],
+    7:mode?[['Retort stand',[-1.1,0,1.6],[.28,.4,3.3],metal],['Spring',[-.3,0,1.55],[.32,.32,2.35],green],['Mass hanger',[-.3,0,.0],[.65,.65,.85],yellow],['Metre rule',[1.1,.3,1.4],[.15,.18,3.1],cream]]:[['Retort stand',[-1.1,0,1.6],[.28,.4,3.3],metal],['Pendulum',[.1,0,1.55],[.13,.13,2.55],green],['Pendulum bob',[.1,0,.18],[.62,.62,.62],yellow],['Fiducial marker',[1.0,0,.35],[.22,.55,.85],orange],['Metre rule',[1.65,.35,1.4],[.15,.18,3.1],cream]],
+    8:mode?[['Water bath',[0,0,.45],[2.7,2.0,.9],blue],['Gas flask',[0,0,1.3],[1.1,1.1,1.3],cream],['Thermometer',[1.2,0,1.55],[.18,.18,2.25],red],['Volume scale',[-1.35,0,1.05],[.18,.25,1.75],yellow]]:[['Gas syringe',[0,0,1.0],[3.2,.78,.82],cream],['Syringe plunger',[-1.7,0,1.0],[1.0,.45,.45],metal],['Mass hanger',[1.1,0,1.85],[.7,.7,.9],yellow],['Pressure scale',[0,1.0,.45],[2.4,.25,.55],blue]],
+    9:[['DC power supply',[-2.4,-.75,.55],[1.45,.9,.85],orange],['Capacitor',[0,.35,.65],[1.1,.7,1.05],blue],['Voltmeter',[1.55,-.75,.5],[1.05,.75,.72],green],['Switch',[-.45,-.75,.42],[.85,.45,.3],red],['Variable resistor',[2.25,.35,.55],[1.2,.55,.55],metal]],
+    10:[['Balance',[0,0,.4],[3.1,1.2,.55],blue],['Current-carrying straight wire',[0,0,1.0],[4.3,.10,.10],metal],['Magnet',[-.75,0,1.05],[.8,1.2,1.1],red],['Magnet',[.75,0,1.05],[.8,1.2,1.1],blue],['Ammeter',[2.45,-.85,.5],[1.05,.75,.72],green]],
+    11:[['Search coil',[0,0,1.15],[1.4,.38,1.4],green],['Field coil',[-1.8,0,1.15],[1.3,.5,1.65],blue],['Signal generator',[1.9,-.75,.55],[1.4,.85,.8],orange],['Oscilloscope',[1.9,.7,.65],[1.5,.9,1.0],dark],['Metre rule',[0,1.25,.22],[4.7,.16,.12],cream]],
+    12:[['GM tube',[0,0,1.0],[.65,.65,1.7],blue],['Detector stand',[0,0,.25],[1.2,1.0,.45],metal],['Counter',[2.0,-.75,.55],[1.4,.9,.85],orange],['Distance scale',[0,1.15,.22],[4.6,.16,.12],yellow],['Simulation source marker',[-2.0,0,.9],[.55,.55,.55],red]]
+  };
+  return [...common,...(scenes[id]||[])].map(x=>makeFallbackBox(...x));
+}
+
 const subtract=(a,b)=>a.map((v,i)=>v-b[i]);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const unit=a=>{const d=Math.hypot(...a)||1;return a.map(v=>v/d);};
@@ -153,25 +189,43 @@ function mount(config){
   const quizNext=()=>{
     if(!important.length)return;const index=(state.tutorialIndex+2)%important.length;state.tutorialIndex=index;state.quizTarget=important[index].info.label;selected=null;ui.panel.hidden=true;status.textContent='Quiz: click the '+state.quizTarget;draw();
   };
-  loadModel(config.file).then(model=>{
-    if(disposed)return;prog=program(gl);
-    for(const item of geometry(model)){const pos=gl.createBuffer(),normal=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.positions),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.normals),gl.STATIC_DRAW);const dir=unit(subtract(item.center,config.target)),scale=Math.max(.3,Math.min(1.25,item.radius*.42));objects.push({...item,pos,normal,count:item.positions.length/3,group:window.getPractical3DGroupKey?.(item.name,current?.id)||item.name,offset:[0,0,0],explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});}
-    if(!objects.length)throw Error('Blender model has no drawable geometry');
-    important=window.getPractical3DImportantEquipment?.(objects)||objects.slice(0,12).map(object=>({object,info:{label:object.name}}));
-    host.dataset.modelLoaded='true';host.dataset.interactive3d='v11';status.textContent='Drag to rotate · Shift/right-drag to pan · Scroll to zoom';draw();observer=new ResizeObserver(draw);observer.observe(canvas);
-    window.__practical3DInteractive={version:'11.0',host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));return o?[...o.offset]:null;},toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};
-  }).catch(e=>{
+  const installGeometry=(items,source)=>{
     if(disposed)return;
-    host.dataset.modelError=e?.message||'Unknown 3D load error';
-    status.textContent='3D model failed to load: '+host.dataset.modelError;
-    fallback.hidden=false;
-    let retry=host.querySelector('[data-3d-retry]');
-    if(!retry){
-      retry=document.createElement('button');retry.type='button';retry.dataset['3dRetry']='1';retry.textContent='Retry 3D model';
-      retry.onclick=()=>{modelPromises.delete(config.file);host.dataset.modelError='';retry.remove();fallback.hidden=true;status.textContent='Retrying 3D model…';mount(config);};
-      host.querySelector('.young3d-controls')?.appendChild(retry);
+    prog=program(gl);
+    for(const item of items){
+      const pos=gl.createBuffer(),normal=gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.positions),gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.normals),gl.STATIC_DRAW);
+      const dir=unit(subtract(item.center,config.target)),scale=Math.max(.3,Math.min(1.25,item.radius*.42));
+      objects.push({...item,pos,normal,count:item.positions.length/3,group:window.getPractical3DGroupKey?.(item.name,current?.id)||item.name,offset:[0,0,0],explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});
     }
-    console.error('Apparatus 3D:',config.file,e);
+    if(!objects.length)throw Error('3D apparatus has no drawable geometry');
+    important=window.getPractical3DImportantEquipment?.(objects)||objects.filter(o=>!/lab bench/i.test(o.name)).slice(0,12).map(object=>({object,info:{label:object.name}}));
+    host.dataset.modelLoaded='true';host.dataset.interactive3d='v11';host.dataset.modelSource=source;
+    fallback.hidden=true;
+    status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'')+'Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
+    draw();observer=new ResizeObserver(draw);observer.observe(canvas);
+    window.__practical3DInteractive={version:'11.2',modelSource:source,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));return o?[...o.offset]:null;},toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};
+  };
+  loadModel(config.file).then(model=>installGeometry(geometry(model),'glb')).catch(e=>{
+    if(disposed)return;
+    console.warn('Primary GLB unavailable; using built-in apparatus geometry:',config.file,e);
+    try{
+      host.dataset.modelError=e?.message||'Primary GLB unavailable';
+      installGeometry(fallbackScene(config.id,config.mode),'procedural');
+      status.textContent='Built-in 3D fallback active · primary model unavailable · all interaction tools still work';
+    }catch(fallbackError){
+      host.dataset.modelError=(e?.message||'Unknown 3D load error')+'; fallback: '+(fallbackError?.message||fallbackError);
+      status.textContent='3D model failed to load: '+host.dataset.modelError;
+      fallback.hidden=false;
+      let retry=host.querySelector('[data-3d-retry]');
+      if(!retry){
+        retry=document.createElement('button');retry.type='button';retry.dataset['3dRetry']='1';retry.textContent='Retry 3D model';
+        retry.onclick=()=>{modelPromises.delete(config.file);host.dataset.modelError='';retry.remove();fallback.hidden=true;status.textContent='Retrying 3D model…';mount(config);};
+        host.querySelector('.young3d-controls')?.appendChild(retry);
+      }
+      console.error('Apparatus 3D:',config.file,fallbackError);
+    }
   });
   let drag=null;
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
@@ -227,7 +281,7 @@ const MODEL_REGISTRY={
 function currentConfig(id=current?.id,mode=typeof currentMode==='number'?currentMode:0){
  const list=MODEL_REGISTRY[id],base=list?.[mode]||list?.[0];if(!base)return null;
  const selector=id===2?'#doubleSlit3d':id===4?'#young3d':'#practical3d';
- return {selector,...base};
+ return {selector,id,mode,...base};
 }
 window.PRACTICAL_3D_MODELS=MODEL_REGISTRY;
 window.getPractical3DConfig=currentConfig;
