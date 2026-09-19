@@ -10,7 +10,29 @@ function transform(node){if(node.matrix)return node.matrix;const [x,y,z,w]=node.
  2*(x*y-z*w)*s[1],(1-2*(x*x+z*z))*s[1],2*(y*z+x*w)*s[1],0,
  2*(x*z+y*w)*s[2],2*(y*z-x*w)*s[2],(1-2*(x*x+y*y))*s[2],0,
  t[0],t[1],t[2],1];}
-function loadModel(file){if(modelPromises.has(file))return modelPromises.get(file);const promise=fetch(file).then(async r=>{if(!r.ok)throw Error(`3D model HTTP ${r.status}`);const bytes=await r.arrayBuffer(),dv=new DataView(bytes);if(dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2)throw Error('Invalid Blender GLB');let json,binOffset=0;for(let p=12;p<bytes.byteLength;){const n=dv.getUint32(p,true),type=dv.getUint32(p+4,true);if(type===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(new Uint8Array(bytes,p+8,n)));if(type===0x004e4942)binOffset=p+8;p+=8+n;}if(!json||!binOffset)throw Error('Incomplete Blender GLB');return {json,dv,binOffset};}).catch(e=>{modelPromises.delete(file);throw e;});modelPromises.set(file,promise);return promise;}
+async function fetchModelFile(file,retry=false){
+  const url=retry?(file+(file.includes('?')?'&':'?')+'retry3d='+Date.now()):file;
+  const r=await fetch(url,{cache:retry?'reload':'default'});
+  if(!r.ok)throw Error(`3D model HTTP ${r.status}`);
+  const bytes=await r.arrayBuffer(),dv=new DataView(bytes);
+  if(bytes.byteLength<20||dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2)throw Error('Invalid Blender GLB');
+  let json,binOffset=0;
+  for(let p=12;p<bytes.byteLength;){const n=dv.getUint32(p,true),type=dv.getUint32(p+4,true);if(type===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(new Uint8Array(bytes,p+8,n)));if(type===0x004e4942)binOffset=p+8;p+=8+n;}
+  if(!json||!binOffset)throw Error('Incomplete Blender GLB');
+  return {json,dv,binOffset};
+}
+function loadModel(file){
+  if(modelPromises.has(file))return modelPromises.get(file);
+  const promise=(async()=>{
+    try{return await fetchModelFile(file,false);}
+    catch(first){
+      console.warn('3D model first load failed, retrying:',file,first);
+      try{return await fetchModelFile(file,true);}
+      catch(second){second.message=`${second.message}; retry failed after: ${first.message}`;throw second;}
+    }
+  })().catch(e=>{modelPromises.delete(file);throw e;});
+  modelPromises.set(file,promise);return promise;
+}
 function readAccessor(model,id){const {json,dv,binOffset}=model,a=json.accessors[id],view=json.bufferViews[a.bufferView],parts={SCALAR:1,VEC2:2,VEC3:3,VEC4:4}[a.type],width={5121:1,5123:2,5125:4,5126:4}[a.componentType];if(!parts||!width)throw Error('Unsupported GLB accessor');const start=binOffset+(view.byteOffset||0)+(a.byteOffset||0),stride=view.byteStride||parts*width,values=new Array(a.count*parts);for(let i=0;i<a.count;i++)for(let j=0;j<parts;j++){const at=start+i*stride+j*width;values[i*parts+j]=a.componentType===5126?dv.getFloat32(at,true):a.componentType===5125?dv.getUint32(at,true):a.componentType===5123?dv.getUint16(at,true):dv.getUint8(at);}return values;}
 function geometry(model){
   const {json}=model,items=[];
@@ -138,7 +160,19 @@ function mount(config){
     important=window.getPractical3DImportantEquipment?.(objects)||objects.slice(0,12).map(object=>({object,info:{label:object.name}}));
     host.dataset.modelLoaded='true';host.dataset.interactive3d='v11';status.textContent='Drag to rotate · Shift/right-drag to pan · Scroll to zoom';draw();observer=new ResizeObserver(draw);observer.observe(canvas);
     window.__practical3DInteractive={version:'11.0',host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));return o?[...o.offset]:null;},toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};
-  }).catch(e=>{if(disposed)return;status.textContent='3D could not load. The apparatus reference is shown below.';fallback.hidden=false;console.error('Apparatus 3D:',e);});
+  }).catch(e=>{
+    if(disposed)return;
+    host.dataset.modelError=e?.message||'Unknown 3D load error';
+    status.textContent='3D model failed to load: '+host.dataset.modelError;
+    fallback.hidden=false;
+    let retry=host.querySelector('[data-3d-retry]');
+    if(!retry){
+      retry=document.createElement('button');retry.type='button';retry.dataset['3dRetry']='1';retry.textContent='Retry 3D model';
+      retry.onclick=()=>{modelPromises.delete(config.file);host.dataset.modelError='';retry.remove();fallback.hidden=true;status.textContent='Retrying 3D model…';mount(config);};
+      host.querySelector('.young3d-controls')?.appendChild(retry);
+    }
+    console.error('Apparatus 3D:',config.file,e);
+  });
   let drag=null;
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('pointerdown',e=>{
