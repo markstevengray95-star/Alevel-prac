@@ -258,12 +258,44 @@ def p6():
  # AQA setup has the switch open between readings; blade geometry visibly shows this.
  return s
 def p7p():
- s=trimesh.Scene();bench(s);stand(s,-1.4,.2,4.5);rod(s,'ClampArm',(-1.4,.2,4),(.15,.2,4),.05,'metal');wire(s,'PendulumString',[(.05,.2,3.95),(.35,.2,1.25)],.012,'white');sphere(s,'PendulumBob',(.35,.2,1.05),.22,'metal');box(s,'Fiducial',(.35,-.1,.72),(.08,.55,.95),'white');box(s,'Stopwatch',(2.1,-1.05,.3),(.75,.35,.50),'black');ruler(s,(.7,.95,.16),4.2);return s
+ s=trimesh.Scene();bench(s,8.5,4.9)
+ box(s,'Pendulum stand blue base',(-.95,.30,.08),(1.24,.84,.17),'bluebase')
+ rod(s,'Pendulum stand vertical rod',(-.95,.30,.15),(-.95,.30,4.55),.052,'silver')
+ rod(s,'Pendulum clamp arm',(-.95,.30,4.03),(.15,.30,4.03),.040,'silver')
+ box(s,'Pendulum boss head',(-.88,.30,4.03),(.24,.24,.28),'dark')
+ box(s,'Pendulum clamp jaws',(.15,.30,4.03),(.18,.34,.28),'dark')
+ wire(s,'Pendulum string',[(.18,.30,3.94),(.18,.30,.98)],.012,'white')
+ sphere(s,'Pendulum bob',(.18,.30,.77),.20,'silver')
+ # Fiducial pin/marker near equilibrium, as shown in the AQA guide.
+ rod(s,'Fiducial marker pin',(.58,.18,.44),(.58,.18,.98),.018,'silver')
+ sphere(s,'Fiducial marker blob',(.58,.18,.98),.065,'blue')
+ ruler(s,(-2.10,.94,.17),3.50)
+ logger_box(s,(2.00,-.95,.52),'Stop clock')
+ # A small clamp weight keeps the stand visibly stable.
+ cyl(s,'Stand counterweight',(-.95,.30,.31),.30,.16,'grey')
+ return s
 def p7s():
- s=trimesh.Scene();bench(s);stand(s,-1.1,.2,4.5);rod(s,'ClampArm',(-1.1,.2,4),(.25,.2,4),.05,'metal');pts=[]
- for i in range(70):
-  t=i/69*10*math.pi;pts.append((.15+.16*math.cos(t),.2+.16*math.sin(t),3.9-i/69*2.2))
- wire(s,'Spring',pts,.025,'metal');masses(s,(.15,.2,.45),4);ruler(s,(1.4,.65,1.9),3.5);box(s,'Timer',(2.45,-1,.4),(1,.55,.6),'white');return s
+ s=trimesh.Scene();bench(s,8.5,4.9)
+ box(s,'Spring stand blue base',(-.85,.30,.08),(1.24,.84,.17),'bluebase')
+ rod(s,'Spring stand vertical rod',(-.85,.30,.15),(-.85,.30,4.55),.052,'silver')
+ rod(s,'Spring clamp arm',(-.85,.30,4.00),(.08,.30,4.00),.040,'silver')
+ box(s,'Spring boss head',(-.78,.30,4.00),(.24,.24,.28),'dark')
+ box(s,'Spring clamp hook',(.08,.30,3.95),(.20,.20,.28),'dark')
+ pts=[]
+ for i in range(88):
+  t=i/87*12*math.pi
+  pts.append((.10+.13*math.cos(t),.30+.13*math.sin(t),3.82-i/87*2.05))
+ wire(s,'Spring',pts,.021,'silver')
+ rod(s,'Mass hanger stem',(.10,.30,1.75),(.10,.30,1.10),.025,'silver')
+ cyl(s,'Mass hanger tray',(.10,.30,1.08),.25,.07,'silver')
+ for i,z in enumerate((1.18,1.29,1.40)):
+  cyl(s,f'Slotted mass {i+1}',(.10,.30,z),.235,.085,'grey')
+ rod(s,'Fiducial marker pin',(.56,.15,.78),(.56,.15,1.48),.018,'silver')
+ sphere(s,'Fiducial marker blob',(.56,.15,1.48),.065,'blue')
+ ruler(s,(-2.05,.94,.17),3.45)
+ logger_box(s,(2.00,-.95,.52),'Stop clock')
+ cyl(s,'Stand counterweight',(-.85,.30,.31),.30,.16,'grey')
+ return s
 def p8b():
  s=trimesh.Scene();bench(s);stand(s,-1.4,.4,4.6);rod(s,'ClampArm',(-1.4,.4,3.4),(-.2,.4,3.4),.05,'metal');cyl(s,'GasSyringe',(-.05,.4,3.25),.34,2.1,'glass');cyl(s,'Plunger',(-.05,.4,2),.26,.22,'dark');rod(s,'PlungerRod',(-.05,.4,1.95),(-.05,.4,.95),.06,'metal');masses(s,(-.05,.4,.20),4);return s
 def p8c():
