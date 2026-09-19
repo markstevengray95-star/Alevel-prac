@@ -12,7 +12,37 @@ function transform(node){if(node.matrix)return node.matrix;const [x,y,z,w]=node.
  t[0],t[1],t[2],1];}
 function loadModel(file){if(modelPromises.has(file))return modelPromises.get(file);const promise=fetch(file).then(async r=>{if(!r.ok)throw Error(`3D model HTTP ${r.status}`);const bytes=await r.arrayBuffer(),dv=new DataView(bytes);if(dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2)throw Error('Invalid Blender GLB');let json,binOffset=0;for(let p=12;p<bytes.byteLength;){const n=dv.getUint32(p,true),type=dv.getUint32(p+4,true);if(type===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(new Uint8Array(bytes,p+8,n)));if(type===0x004e4942)binOffset=p+8;p+=8+n;}if(!json||!binOffset)throw Error('Incomplete Blender GLB');return {json,dv,binOffset};}).catch(e=>{modelPromises.delete(file);throw e;});modelPromises.set(file,promise);return promise;}
 function readAccessor(model,id){const {json,dv,binOffset}=model,a=json.accessors[id],view=json.bufferViews[a.bufferView],parts={SCALAR:1,VEC2:2,VEC3:3,VEC4:4}[a.type],width={5121:1,5123:2,5125:4,5126:4}[a.componentType];if(!parts||!width)throw Error('Unsupported GLB accessor');const start=binOffset+(view.byteOffset||0)+(a.byteOffset||0),stride=view.byteStride||parts*width,values=new Array(a.count*parts);for(let i=0;i<a.count;i++)for(let j=0;j<parts;j++){const at=start+i*stride+j*width;values[i*parts+j]=a.componentType===5126?dv.getFloat32(at,true):a.componentType===5125?dv.getUint32(at,true):a.componentType===5123?dv.getUint16(at,true):dv.getUint8(at);}return values;}
-function geometry(model){const {json}=model,groups=new Map();function visit(id,parent){const node=json.nodes[id],matrix=multiply(parent,transform(node));if(node.mesh!==undefined){for(const primitive of json.meshes[node.mesh].primitives){if(primitive.mode!==undefined&&primitive.mode!==4)continue;const material=primitive.material??0,group=groups.get(material)||{positions:[],normals:[]};groups.set(material,group);const pos=readAccessor(model,primitive.attributes.POSITION),norm=primitive.attributes.NORMAL!==undefined?readAccessor(model,primitive.attributes.NORMAL):null,indices=primitive.indices!==undefined?readAccessor(model,primitive.indices):Array.from({length:pos.length/3},(_,i)=>i);for(const ix of indices){const i=ix*3,x=pos[i],y=pos[i+1],z=pos[i+2],nx=norm?norm[i]:0,ny=norm?norm[i+1]:0,nz=norm?norm[i+2]:1;group.positions.push(matrix[0]*x+matrix[4]*y+matrix[8]*z+matrix[12],matrix[1]*x+matrix[5]*y+matrix[9]*z+matrix[13],matrix[2]*x+matrix[6]*y+matrix[10]*z+matrix[14]);let ax=matrix[0]*nx+matrix[4]*ny+matrix[8]*nz,ay=matrix[1]*nx+matrix[5]*ny+matrix[9]*nz,az=matrix[2]*nx+matrix[6]*ny+matrix[10]*nz;const d=Math.hypot(ax,ay,az)||1;group.normals.push(ax/d,ay/d,az/d);}}}for(const child of node.children||[])visit(child,matrix);}for(const id of json.scenes[json.scene||0].nodes)visit(id,identity());return [...groups].map(([material,g])=>({color:json.materials?.[material]?.pbrMetallicRoughness?.baseColorFactor?.slice(0,3)||[.7,.8,.8],...g}));}
+function geometry(model){
+  const {json}=model,items=[];
+  function visit(id,parent){
+    const node=json.nodes[id],matrix=multiply(parent,transform(node));
+    if(node.mesh!==undefined){
+      const mesh=json.meshes[node.mesh];
+      mesh.primitives.forEach((primitive,pi)=>{
+        if(primitive.mode!==undefined&&primitive.mode!==4)return;
+        const material=primitive.material??0,positions=[],normals=[];
+        const pos=readAccessor(model,primitive.attributes.POSITION),norm=primitive.attributes.NORMAL!==undefined?readAccessor(model,primitive.attributes.NORMAL):null;
+        const indices=primitive.indices!==undefined?readAccessor(model,primitive.indices):Array.from({length:pos.length/3},(_,i)=>i);
+        let min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];
+        for(const ix of indices){
+          const i=ix*3,x=pos[i],y=pos[i+1],z=pos[i+2],nx=norm?norm[i]:0,ny=norm?norm[i+1]:0,nz=norm?norm[i+2]:1;
+          const px=matrix[0]*x+matrix[4]*y+matrix[8]*z+matrix[12],py=matrix[1]*x+matrix[5]*y+matrix[9]*z+matrix[13],pz=matrix[2]*x+matrix[6]*y+matrix[10]*z+matrix[14];
+          positions.push(px,py,pz);min=[Math.min(min[0],px),Math.min(min[1],py),Math.min(min[2],pz)];max=[Math.max(max[0],px),Math.max(max[1],py),Math.max(max[2],pz)];
+          let ax=matrix[0]*nx+matrix[4]*ny+matrix[8]*nz,ay=matrix[1]*nx+matrix[5]*ny+matrix[9]*nz,az=matrix[2]*nx+matrix[6]*ny+matrix[10]*nz;const d=Math.hypot(ax,ay,az)||1;normals.push(ax/d,ay/d,az/d);
+        }
+        const center=[(min[0]+max[0])/2,(min[1]+max[1])/2,(min[2]+max[2])/2],radius=Math.max(.06,Math.hypot(max[0]-min[0],max[1]-min[1],max[2]-min[2])/2);
+        items.push({
+          name:node.name||mesh.name||('Part '+id+'-'+pi),
+          color:json.materials?.[material]?.pbrMetallicRoughness?.baseColorFactor?.slice(0,3)||[.7,.8,.8],
+          positions,normals,center,radius,min,max
+        });
+      });
+    }
+    for(const child of node.children||[])visit(child,matrix);
+  }
+  for(const id of json.scenes[json.scene||0].nodes)visit(id,identity());
+  return items;
+}
 const subtract=(a,b)=>a.map((v,i)=>v-b[i]);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const unit=a=>{const d=Math.hypot(...a)||1;return a.map(v=>v/d);};
