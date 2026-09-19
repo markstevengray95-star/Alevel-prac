@@ -283,9 +283,9 @@ function mount(config){
     }
     if(!objects.length)throw Error('3D apparatus has no drawable geometry');
     important=window.getPractical3DImportantEquipment?.(objects)||objects.filter(o=>!/lab bench/i.test(o.name)).slice(0,12).map(object=>({object,info:{label:object.name}}));
-    host.dataset.modelLoaded='true';host.dataset.interactive3d='v11';host.dataset.modelSource=source;
+    host.dataset.modelLoaded='true';host.dataset.interactive3d='v14';host.dataset.modelSource=source;
     fallback.hidden=true;
-    status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'')+'Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
+    status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'')+'Photo 3D · drag to rotate · Shift/right-drag to pan · scroll to zoom';
     draw();observer=new ResizeObserver(draw);observer.observe(canvas);
     window.__practical3DInteractive={version:'14.0',renderQuality:'photoreal-pbr',modelSource:source,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
   };
@@ -338,27 +338,27 @@ function mount(config){
   ui.tools.querySelector('[data-3d-reset-objects]').onclick=()=>{objects.forEach(o=>{o.offset=[0,0,0];o.angle=0;o.axis=[0,0,1];o.pivot=[...o.center];});state.exploded=false;state.xray=false;state.labels=false;state.tool='orbit';selected=hovered=null;ui.panel.hidden=true;ui.labels.hidden=true;ui.tools.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));ui.tools.querySelector('[data-3d-mode]').textContent='Guided 3D';host.classList.remove('p3d-free-move');status.textContent='Apparatus reset';draw();};
 }
 const MODEL_REGISTRY={
-1:[{file:'assets/rp01-standing-waves.glb',target:[0,0,.8],azimuth:-1.03,elevation:.34,radius:10.4,label:'standing waves on a string'}],
+1:[{file:'assets/rp01-standing-waves.glb',target:[0,0,.8],azimuth:-1.03,elevation:.34,radius:9.3,label:'standing waves on a string'}],
 2:[
- {file:'assets/rp02-double-slit.glb',target:[0,0,1.15],azimuth:-2.18,elevation:.38,radius:10.5,label:'Young double-slit optical bench'},
- {file:'assets/rp02-diffraction-grating.glb',target:[0,0,1.0],azimuth:-2.10,elevation:.34,radius:10.1,label:'diffraction-grating optical bench'}
+ {file:'assets/rp02-double-slit.glb',target:[0,0,1.15],azimuth:-2.18,elevation:.38,radius:9.5,label:'Young double-slit optical bench'},
+ {file:'assets/rp02-diffraction-grating.glb',target:[0,0,1.0],azimuth:-2.10,elevation:.34,radius:9.4,label:'diffraction-grating optical bench'}
 ],
-3:[{file:'assets/rp03-free-fall.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:11.4,label:'free-fall light-gate timing apparatus'},{file:'assets/rp03-free-fall-impact.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:11.2,label:'AQA mechanical-release and impact-timer apparatus'}],
-4:[{file:'assets/rp04-young-modulus.glb',target:[0,0,2.55],azimuth:-1.02,elevation:.35,radius:11.9,label:'Young modulus twin-wire apparatus'}],
-5:[{file:'assets/rp05-resistivity-wire.glb',target:[0,0,.75],azimuth:-1.08,elevation:.32,radius:11.3,label:'resistivity-of-a-wire circuit'}],
-6:[{file:'assets/rp06-iv-characteristics.glb',target:[0,0,.65],azimuth:-1.05,elevation:.34,radius:10.7,label:'AQA emf and internal-resistance circuit'}],
+3:[{file:'assets/rp03-free-fall.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:10.2,label:'free-fall light-gate timing apparatus'},{file:'assets/rp03-free-fall-impact.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.34,radius:10.1,label:'AQA mechanical-release and impact-timer apparatus'}],
+4:[{file:'assets/rp04-young-modulus.glb',target:[0,0,2.55],azimuth:-1.02,elevation:.35,radius:10.6,label:'Young modulus twin-wire apparatus'}],
+5:[{file:'assets/rp05-resistivity-wire.glb',target:[0,0,.75],azimuth:-1.08,elevation:.32,radius:10.2,label:'resistivity-of-a-wire circuit'}],
+6:[{file:'assets/rp06-iv-characteristics.glb',target:[0,0,.65],azimuth:-1.05,elevation:.34,radius:9.7,label:'AQA emf and internal-resistance circuit'}],
 7:[
- {file:'assets/rp07-pendulum.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.33,radius:10.8,label:'simple pendulum SHM setup'},
- {file:'assets/rp07-spring.glb',target:[0,0,2.0],azimuth:-1.10,elevation:.34,radius:10.8,label:'spring-mass SHM setup'}
+ {file:'assets/rp07-pendulum.glb',target:[0,0,2.0],azimuth:-1.12,elevation:.33,radius:9.8,label:'simple pendulum SHM setup'},
+ {file:'assets/rp07-spring.glb',target:[0,0,2.0],azimuth:-1.10,elevation:.34,radius:9.8,label:'spring-mass SHM setup'}
 ],
 8:[
- {file:'assets/rp08-boyle-syringe.glb',target:[0,0,2.25],azimuth:-1.12,elevation:.32,radius:10.8,label:'Boyle-law gas syringe setup'},
- {file:'assets/rp08-charles-law.glb',target:[0,0,1.2],azimuth:-1.10,elevation:.31,radius:10.4,label:'Charles-law water-bath setup'}
+ {file:'assets/rp08-boyle-syringe.glb',target:[0,0,2.25],azimuth:-1.12,elevation:.32,radius:9.8,label:'Boyle-law gas syringe setup'},
+ {file:'assets/rp08-charles-law.glb',target:[0,0,1.2],azimuth:-1.10,elevation:.31,radius:9.5,label:'Charles-law water-bath setup'}
 ],
-9:[{file:'assets/rp09-capacitor.glb',target:[0,0,.7],azimuth:-1.08,elevation:.30,radius:10.4,label:'capacitor charge/discharge circuit'}],
-10:[{file:'assets/rp10-wire-balance.glb',target:[.3,0,1.0],azimuth:-1.02,elevation:.31,radius:11.3,label:'force-on-a-wire balance setup'}],
-11:[{file:'assets/rp11-search-coil.glb',target:[0,0,1.5],azimuth:-1.05,elevation:.31,radius:11.0,label:'search-coil induction setup'}],
-12:[{file:'assets/rp12-inverse-square.glb',target:[0,0,1.25],azimuth:-1.10,elevation:.31,radius:10.5,label:'inverse-square detector geometry'}]
+9:[{file:'assets/rp09-capacitor.glb',target:[0,0,.7],azimuth:-1.08,elevation:.30,radius:9.5,label:'capacitor charge/discharge circuit'}],
+10:[{file:'assets/rp10-wire-balance.glb',target:[.3,0,1.0],azimuth:-1.02,elevation:.31,radius:10.3,label:'force-on-a-wire balance setup'}],
+11:[{file:'assets/rp11-search-coil.glb',target:[0,0,1.5],azimuth:-1.05,elevation:.31,radius:10.0,label:'search-coil induction setup'}],
+12:[{file:'assets/rp12-inverse-square.glb',target:[0,0,1.25],azimuth:-1.10,elevation:.31,radius:9.6,label:'inverse-square detector geometry'}]
 };
 function currentConfig(id=current?.id,mode=typeof currentMode==='number'?currentMode:0){
  const list=MODEL_REGISTRY[id],base=list?.[mode]||list?.[0];if(!base)return null;
