@@ -168,11 +168,49 @@ def p2g():
   rod(s,f'Diffracted ray {i}',(-1.18,.15,1.35),(2.42,.06+dy,1.35),.006,'red',8)
   sphere(s,f'Diffraction maximum {i}',(2.42,.06+dy,1.35),.055 if dy else .085,'red')
  return s
+def logger_box(s,p,name='Data logger'):
+ x,y,z=p
+ box(s,name,p,(1.35,.72,.78),'orange');box(s,name+' display',(x,y-.38,z+.10),(.72,.025,.22),'lcd')
+ banana(s,name+' input A',(x-.24,y-.39,z-.18),'green');banana(s,name+' input B',(x+.18,y-.39,z-.18),'yellow')
+ knob(s,name+' control',(x+.46,y-.39,z+.12),.09,'black')
+
 def p3():
- s=trimesh.Scene();bench(s);stand(s,-.8,.2,4.5);box(s,'Release',(-.15,.2,4),(.8,.55,.35),'dark');sphere(s,'Ball',(-.15,.2,3.65),.18,'metal')
- for z in (2.4,1.15):
-  box(s,f'GateTop{z}',(-.15,.2,z),(1.15,.35,.18),'dark');box(s,f'GateL{z}',(-.63,.2,z-.38),(.18,.35,.75),'dark');box(s,f'GateR{z}',(.33,.2,z-.38),(.18,.35,.75),'dark');rod(s,f'GateBeam{z}',(-.52,0,z-.38),(.22,0,z-.38),.012,'red')
- box(s,'DataLogger',(2.35,-.85,.55),(1.45,.8,.75),'white');box(s,'LoggerDisplay',(2.35,-1.27,.62),(.75,.03,.24),'black');wire(s,'GateCable',[(-.15,.38,2),(0.8,.7,1.1),(1.7,-.6,.7),(2,-.95,.62)],.02,'black');ruler(s,(1.05,.95,1.9),3.5);return s
+ s=trimesh.Scene();bench(s,8.4,4.8)
+ box(s,'Retort stand blue base',(-1.05,.28,.08),(1.18,.80,.16),'bluebase');rod(s,'Retort stand vertical rod',(-1.05,.28,.15),(-1.05,.28,4.55),.052,'silver')
+ rod(s,'Upper clamp arm',(-1.05,.28,4.10),(-.15,.28,4.10),.042,'silver');box(s,'Upper boss head',(-.98,.28,4.10),(.24,.24,.28),'dark')
+ box(s,'Release mechanism',(-.08,.28,4.10),(.65,.54,.36),'green');cyl(s,'Release screw',(.25,.28,4.10),.055,.24,'silver','x')
+ sphere(s,'Ball bearing',(-.08,.28,3.72),.18,'silver')
+ # Two realistic U-shaped light gates on separate mounting blocks.
+ for idx,z in enumerate((2.55,1.20)):
+  box(s,f'Light gate {idx+1} base',(-.08,.28,z-.62),(.92,.72,.18),'black')
+  box(s,f'Light gate {idx+1} left',(-.47,.28,z-.20),(.17,.42,.78),'black')
+  box(s,f'Light gate {idx+1} right',(.31,.28,z-.20),(.17,.42,.78),'black')
+  box(s,f'Light gate {idx+1} top',(-.08,.28,z+.16),(.95,.42,.16),'black')
+  rod(s,f'Light gate {idx+1} beam',(-.37,.05,z-.18),(.21,.05,z-.18),.010,'red',8)
+ logger_box(s,(2.15,-.92,.55),'Data logger')
+ wire(s,'Upper gate cable',[(-.45,.48,2.12),(.50,.82,1.55),(1.55,-.55,.78),(1.78,-1.18,.52)],.018,'green')
+ wire(s,'Lower gate cable',[(.28,.48,.77),(.85,.58,.65),(1.60,-.72,.55),(2.10,-1.18,.45)],.018,'yellow')
+ # Vertical metre rule and plumb-line check.
+ box(s,'Vertical metre rule',(.92,.72,2.30),(.18,.15,3.85),'wood')
+ for i in range(21):
+  zz=.45+i*3.55/20;rod(s,f'Vertical ruler tick {i}',(.82,.63,zz),(.94 if i%5==0 else .89,.63,zz),.005,'black',6)
+ wire(s,'Plumb line',[(-.72,.76,4.10),(-.72,.76,.48)],.008,'black');sphere(s,'Plumb bob',(-.72,.76,.38),.10,'grey')
+ return s
+
+def p3impact():
+ s=trimesh.Scene();bench(s,8.4,4.8)
+ # AQA alternative arrangement: mechanical release, ball bearing, impact pad and orange logger.
+ box(s,'Retort stand blue base',(-.65,.25,.08),(1.20,.82,.16),'bluebase');rod(s,'Retort stand vertical rod',(-.65,.25,.15),(-.65,.25,4.35),.052,'silver')
+ rod(s,'Mechanical release clamp arm',(-.65,.25,3.92),(.28,.25,3.92),.042,'silver');box(s,'Release boss head',(-.58,.25,3.92),(.24,.24,.28),'dark')
+ box(s,'Mechanical release',(.28,.25,3.92),(.86,.56,.40),'green');cyl(s,'Release trigger',(.70,.25,3.92),.06,.24,'silver','x')
+ sphere(s,'Ball bearing',(.28,.25,3.52),.18,'silver')
+ box(s,'Impact pressure pad',(.28,.25,.28),(1.04,.84,.18),'black');box(s,'Impact sensor plate',(.28,.25,.41),(.80,.62,.08),'silver')
+ logger_box(s,(2.15,-.88,.55),'Data logger')
+ wire(s,'Release timer lead',[(.58,.52,3.92),(1.15,.72,2.45),(1.55,-.48,.95),(1.78,-1.16,.52)],.018,'green')
+ wire(s,'Impact timer lead',[(.65,.45,.34),(1.20,.70,.42),(1.72,-.65,.42),(2.12,-1.16,.42)],.018,'yellow')
+ box(s,'Vertical metre rule',(1.03,.76,2.22),(.18,.15,3.70),'wood')
+ wire(s,'Plumb line',[(-.30,.82,3.92),(-.30,.82,.62)],.008,'black');sphere(s,'Plumb bob',(-.30,.82,.52),.10,'grey')
+ return s
 def p5():
  s=trimesh.Scene();bench(s,8.6,4.8);supply(s,(-3,-1.25,.4));meter(s,'Ammeter',(-1.3,-1.25,.4));meter(s,'Voltmeter',(.5,-1.25,.4));ruler(s,(.1,.72,.20),5.7);rod(s,'ResistanceWire',(-2.7,.35,.48),(2.8,.35,.48),.022,'copper');box(s,'LeftTerminal',(-2.7,.35,.56),(.24,.22,.18),'dark');box(s,'RightTerminal',(2.8,.35,.56),(.24,.22,.18),'dark');box(s,'Slider',(.65,.35,.78),(.22,.25,.25),'red');rod(s,'Probe',(.65,.35,.72),(.65,.35,.5),.025,'metal');torus(s,'MicrometerFrame',(2.85,1.22,.76),.48,.08,'dark',(0,1,0));rod(s,'MicSpindle',(2.45,1.22,.76),(2.88,1.22,.76),.05,'metal');cyl(s,'MicThimble',(2.28,1.22,.76),.16,.36,'metal','x');wire(s,'Series',[(-2.7,-1.62,.3),(-1.8,-1.7,.35),(-1.3,-1.62,.35),(-2.7,.35,.56)],.018,'red');wire(s,'Return',[(2.8,.35,.56),(3.2,-1.9,.35),(-2.75,-1.9,.35)],.018,'black');wire(s,'VoltProbe',[(.3,-1.62,.35),(.65,.35,.78)],.014,'red');wire(s,'VoltZero',[(.7,-1.62,.35),(-2.7,.35,.56)],.014,'blue');return s
 def p6():
@@ -202,6 +240,6 @@ def p11():
  wire(s,'Waveform',pts,.012,'screen');wire(s,'ScopeLead',[(-.35,-.1,1.1),(.6,-1.1,.7),(1.7,-.75,.8)],.015,'black');return s
 def p12():
  s=trimesh.Scene();bench(s);stand(s,-2.1,.35,3.5);box(s,'SourceHolder',(-1.55,.35,1.9),(.55,.55,.35),'dark');cyl(s,'VirtualSource',(-1.55,.35,1.9),.16,.18,'yellow','x');stand(s,1.2,.35,3);cyl(s,'GMTube',(.65,.35,1.9),.23,1,'grey','x');box(s,'Scaler',(2.5,-.85,.55),(1.5,.8,.75),'white');box(s,'ScalerDisplay',(2.5,-1.27,.62),(.8,.03,.25),'black');ruler(s,(-.25,.95,.16),4.2);wire(s,'DetectorCable',[(1.15,.35,1.9),(1.7,-.2,1.2),(2,-.95,.65)],.02,'black');return s
-SC={'rp01-standing-waves':p1,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
+SC={'rp01-standing-waves':p1,'rp02-double-slit':p2d,'rp02-diffraction-grating':p2g,'rp03-free-fall':p3,'rp03-free-fall-impact':p3impact,'rp05-resistivity-wire':p5,'rp06-iv-characteristics':p6,'rp07-pendulum':p7p,'rp07-spring':p7s,'rp08-boyle-syringe':p8b,'rp08-charles-law':p8c,'rp09-capacitor':p9,'rp10-wire-balance':p10,'rp11-search-coil':p11,'rp12-inverse-square':p12}
 for name,fn in SC.items():
  blob=fn().export(file_type='glb');path=os.path.join(OUT,name+'.glb');open(path,'wb').write(blob);print('3D',os.path.basename(path),len(blob))
