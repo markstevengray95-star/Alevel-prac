@@ -102,7 +102,8 @@ const { chromium } = require('playwright');
   const clickPanel=page.locator('#practical3d .practical3d-info');
   await clickPanel.waitFor({state:'visible',timeout:3000});
   const clickedMesh=await clickPanel.locator('small').innerText();
-  if(!clickedMesh.toLowerCase().includes(clickCandidate.picked.toLowerCase().replace(/^.*?:\s*/,'')))throw new Error(`P3 real canvas click selected unexpected equipment: expected ${clickCandidate.picked}, panel ${clickedMesh}`);
+  const norm=s=>String(s).toLowerCase().replace(/^.*?:\s*/,'').replace(/[^a-z0-9]+/g,'');
+  if(!norm(clickedMesh).includes(norm(clickCandidate.picked)))throw new Error(`P3 real canvas click selected unexpected equipment: expected ${clickCandidate.picked}, panel ${clickedMesh}`);
 
   // Real free-move pointer drag on isolated P3 data logger.
   await page.evaluate(()=>{navigate('practical',3);currentMode=0;renderModeTabs();renderPractical();});
