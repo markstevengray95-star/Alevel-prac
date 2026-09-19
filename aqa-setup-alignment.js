@@ -112,12 +112,17 @@ renderP8Scene=function(){
 
 const priorCoach=renderCoach;
 renderCoach=function(){
-  window.unmountYoungModulus3D?.();priorCoach();if(!current)return;const g=setupGuide[current.id],panel=document.querySelector('#equipmentInspector');if(!g||!panel)return;
-  panel.innerHTML=`<div class="aqa-setup-card"><span class="eyebrow">AQA SET-UP CHECK</span><h4>${g.title}</h4><p>${g.summary}</p><div class="aqa-checks">${g.checks.map(x=>`<div><span>✓</span>${x}</div>`).join('')}</div><small>Based on AQA Physics 7407/7408 apparatus set-up guidance. Your school/college may use an equivalent teacher-approved arrangement.</small><p class="aqa-source-links"><a href="https://filestore.aqa.org.uk/resources/physics/AQA-7407-7408-SUG-P${current.id}.PDF" target="_blank" rel="noopener">AQA Practical ${current.id} apparatus guide ↗</a><br><a href="https://www.aqa.org.uk/subjects/physics/a-level/physics-7408/specification/practical-assessment" target="_blank" rel="noopener">AQA 7408 required-practical specification ↗</a></p>${apparatusReference(current.id)}</div>`;
-  if(current.id===2&&currentMode===0){window.mountDoubleSlit3D?.();requestAnimationFrame(()=>{if(current?.id!==2||currentMode!==0)return;const tools=document.querySelector('#view-practical .visual-tools');if(tools&&!tools.querySelector('#doubleSlit3dTool')){const button=document.createElement('button');button.type='button';button.id='doubleSlit3dTool';button.className='visual-tool-btn young3d-tool';button.textContent='◇ Explore Blender 3D';button.onclick=()=>{const details=document.querySelector('#doubleSlit3d')?.closest('details');if(details)details.open=true;const host=document.querySelector('#doubleSlit3d');if(host&&!host.classList.contains('young3d-expanded'))host.querySelector('[data-young-expand]')?.click();};tools.insertBefore(button,tools.querySelector('.zoom-wrap'));}});}
-  if(current.id===2&&currentMode!==0)requestAnimationFrame(()=>document.querySelector('#doubleSlit3dTool')?.remove());
-  if(current.id!==4)requestAnimationFrame(()=>document.querySelector('#young3dTool')?.remove());
-  if(current.id===4){window.mountYoungModulus3D?.();requestAnimationFrame(()=>{if(current?.id!==4)return;const tools=document.querySelector('#view-practical .visual-tools');if(tools&&!tools.querySelector('#young3dTool')){const button=document.createElement('button');button.type='button';button.id='young3dTool';button.className='visual-tool-btn young3d-tool';button.textContent='◇ Explore Blender 3D';button.onclick=()=>{const details=document.querySelector('#young3d')?.closest('details');if(details)details.open=true;const host=document.querySelector('#young3d');if(host&&!host.classList.contains('young3d-expanded'))host.querySelector('[data-young-expand]')?.click();};tools.insertBefore(button,tools.querySelector('.zoom-wrap'));}});}
+  window.unmountPractical3D?.();priorCoach();if(!current)return;const g=setupGuide[current.id],panel=document.querySelector('#equipmentInspector');if(!g||!panel)return;
+  panel.innerHTML='<div class="aqa-setup-card"><span class="eyebrow">AQA SET-UP CHECK</span><h4>'+g.title+'</h4><p>'+g.summary+'</p><div class="aqa-checks">'+g.checks.map(x=>'<div><span>✓</span>'+x+'</div>').join('')+'</div><small>Based on AQA Physics 7407/7408 apparatus set-up guidance. Your school/college may use an equivalent teacher-approved arrangement.</small><p class="aqa-source-links"><a href="https://filestore.aqa.org.uk/resources/physics/AQA-7407-7408-SUG-P'+current.id+'.PDF" target="_blank" rel="noopener">AQA Practical '+current.id+' apparatus guide ↗</a><br><a href="https://www.aqa.org.uk/subjects/physics/a-level/physics-7408/specification/practical-assessment" target="_blank" rel="noopener">AQA 7408 required-practical specification ↗</a></p>'+apparatusReference(current.id)+'</div>';
+  window.mountCurrentPractical3D?.();
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('#doubleSlit3dTool,#young3dTool,#practical3dTool').forEach(x=>x.remove());
+    const tools=document.querySelector('#view-practical .visual-tools');if(!tools||!window.getPractical3DConfig?.())return;
+    const id=current.id,button=document.createElement('button');button.type='button';
+    button.id=id===2?'doubleSlit3dTool':id===4?'young3dTool':'practical3dTool';button.className='visual-tool-btn young3d-tool';button.textContent='◇ Explore full 3D';
+    button.onclick=()=>{const host=document.querySelector(id===2?'#doubleSlit3d':id===4?'#young3d':'#practical3d');const details=host?.closest('details');if(details)details.open=true;if(host&&!host.classList.contains('young3d-expanded'))host.querySelector('[data-young-expand]')?.click();};
+    tools.insertBefore(button,tools.querySelector('.zoom-wrap'));
+  });
 };
 
 const priorRenderData=renderData;
