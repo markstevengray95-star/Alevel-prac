@@ -56,7 +56,7 @@ const { chromium } = require('playwright');
   // P6: a switch action should change the switch blade angle and remain visual-only.
   await page.evaluate(()=>navigate('practical',6));
   await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelLoaded==='true'&&window.__practical3DInteractive,{timeout:16000});
-  const switchName=await page.evaluate(()=>window.__practical3DInteractive.listObjects().find(n=>/switch/i.test(n)));
+  const switchName=await page.evaluate(()=>window.__practical3DInteractive.listObjects().find(n=>/switch blade/i.test(n))||window.__practical3DInteractive.listObjects().find(n=>/switch insulated handle/i.test(n)));
   if(switchName){
     const physicsBefore=await page.evaluate(()=>JSON.stringify(theoretical()));
     const angleBefore=await page.evaluate(name=>window.__practical3DInteractive.angleOf(name),switchName);
