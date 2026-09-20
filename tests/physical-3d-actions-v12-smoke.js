@@ -9,7 +9,23 @@ const { chromium } = require('playwright');
   page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/i.test(m.text()))errors.push('console: '+m.text());});
 
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__practical3DPhysicalActionsV12?.version==='14.1',{timeout:20000});
+  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__practical3DPhysicalActionsV12?.version==='14.3',{timeout:20000});
+
+  // P1: guided walkthrough and a genuinely segmented standing-wave string must exist.
+  await page.evaluate(()=>navigate('practical',1));
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelLoaded==='true'&&window.__practical3DInteractive?.version==='14.3',{timeout:16000});
+  if(await page.locator('#practical3d .p3d-walkthrough',{hasText:'Walk through setup'}).count()!==1)throw new Error('P1 guided setup walkthrough button missing');
+  const waveSegments=await page.evaluate(()=>window.__practical3DInteractive.listObjects().filter(n=>/standing wave string segment/i.test(n)).length);
+  if(waveSegments<20)throw new Error('P1 standing-wave string is not sufficiently segmented for animation: '+waveSegments);
+  const waveButton=page.locator('#practical3d .p3d-physical-actions button',{hasText:'Run standing wave'});
+  if(await waveButton.count()!==1)throw new Error('P1 standing-wave demo button missing');
+  await waveButton.click();await page.waitForTimeout(520);
+  const waveMotion=await page.evaluate(()=>{
+    const seg=window.__practical3DInteractive.objects.filter(o=>/standing wave string segment/i.test(o.name));
+    return Math.max(...seg.map(o=>Math.abs(o.offset?.[2]||0)));
+  });
+  if(waveMotion<.02)throw new Error('P1 standing-wave segments did not visibly move');
+  await page.waitForTimeout(1500);
 
   // P3: manual visual ball release must move the ball through the scene.
   await page.evaluate(()=>navigate('practical',3));
