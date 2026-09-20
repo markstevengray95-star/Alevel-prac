@@ -6,3 +6,6 @@
 .p3d-actions-buttons button:disabled{opacity:.55;cursor:wait;transform:none}
 .p3d-physical-actions small{opacity:.72;line-height:1.35;pointer-events:none}
 @media(max-width:760px){.p3d-actions-buttons{display:grid;grid-template-columns:1fr 1fr}.p3d-actions-buttons button{width:100%}}
+
+.p3d-actions-buttons .p3d-walkthrough{background:linear-gradient(135deg,rgba(31,92,69,.96),rgba(43,119,88,.92));color:#fff;border-color:rgba(24,78,58,.95);box-shadow:0 5px 16px rgba(24,62,48,.18)}
+.p3d-actions-buttons .p3d-walkthrough:hover{box-shadow:0 8px 20px rgba(24,62,48,.26)}
