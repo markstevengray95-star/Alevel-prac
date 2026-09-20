@@ -19,13 +19,11 @@ const { chromium } = require('playwright');
   if(waveSegments<20)throw new Error('P1 standing-wave string is not sufficiently segmented for animation: '+waveSegments);
   const waveButton=page.locator('#practical3d .p3d-physical-actions button',{hasText:'Run standing wave'});
   if(await waveButton.count()!==1)throw new Error('P1 standing-wave demo button missing');
-  await waveButton.click();await page.waitForTimeout(520);
-  const waveMotion=await page.evaluate(()=>{
-    const seg=window.__practical3DInteractive.objects.filter(o=>/standing wave string segment/i.test(o.name));
-    return Math.max(...seg.map(o=>Math.abs(o.offset?.[2]||0)));
-  });
+  await waveButton.click();
+  await page.waitForFunction(()=>window.__practical3DInteractive?.state?.waveMaxObserved>.02,{timeout:2500});
+  const waveMotion=await page.evaluate(()=>window.__practical3DInteractive.state.waveMaxObserved||0);
   if(waveMotion<.02)throw new Error('P1 standing-wave segments did not visibly move');
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(1900);
 
   // P3: manual visual ball release must move the ball through the scene.
   await page.evaluate(()=>navigate('practical',3));
