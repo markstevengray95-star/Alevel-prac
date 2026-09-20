@@ -3,7 +3,7 @@
 'use strict';
 let active=null;
 const modelPromises=new Map();
-const MODEL_ASSET_REV='20260920-p1p6-photoreal-r2';
+const MODEL_ASSET_REV='20260920-p1p6-walkthrough-r3';
 const identity=()=>[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
 function multiply(a,b){const out=new Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)out[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return out;}
 function transform(node){if(node.matrix)return node.matrix;const [x,y,z,w]=node.rotation||[0,0,0,1],s=node.scale||[1,1,1],t=node.translation||[0,0,0];return [
@@ -204,9 +204,9 @@ function mount(config){
       gl.bindBuffer(gl.ARRAY_BUFFER,o.pos);const p=gl.getAttribLocation(prog,'aPosition');gl.enableVertexAttribArray(p);gl.vertexAttribPointer(p,3,gl.FLOAT,false,0,0);
       gl.bindBuffer(gl.ARRAY_BUFFER,o.normal);const n=gl.getAttribLocation(prog,'aNormal');gl.enableVertexAttribArray(n);gl.vertexAttribPointer(n,3,gl.FLOAT,false,0,0);
       const off=effectiveOffset(o),isSel=!!selected&&o.group===selected.group,isHover=!!hovered&&o.group===hovered.group;
-      let color=o.color;if(isSel)color=pulse?[1,.88,.28]:[.96,.77,.24];else if(isHover)color=[.65,.9,.55];
-      const alpha=state.xray&&!isSel?.28:(o.alpha??1);gl.depthMask(alpha>.985);
-      gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),color);gl.uniform3fv(gl.getUniformLocation(prog,'uOffset'),off);gl.uniform3fv(gl.getUniformLocation(prog,'uPivot'),o.pivot||o.center);gl.uniform3fv(gl.getUniformLocation(prog,'uAxis'),o.axis||[0,0,1]);gl.uniform1f(gl.getUniformLocation(prog,'uAngle'),o.angle||0);gl.uniform1f(gl.getUniformLocation(prog,'uScaleZ'),o.scaleZ??1);gl.uniform1f(gl.getUniformLocation(prog,'uMetallic'),o.metallic??0);gl.uniform1f(gl.getUniformLocation(prog,'uRoughness'),o.roughness??.5);gl.uniform3fv(gl.getUniformLocation(prog,'uEmissive'),o.emissive||[0,0,0]);gl.uniform1f(gl.getUniformLocation(prog,'uAlpha'),alpha);
+      let color=o.visualColor||o.color;if(isSel)color=pulse?[1,.88,.28]:[.96,.77,.24];else if(isHover)color=[.65,.9,.55];
+      const baseAlpha=o.visualAlpha??o.alpha??1,alpha=state.xray&&!isSel?.28:baseAlpha;gl.depthMask(alpha>.985);
+      gl.uniform3fv(gl.getUniformLocation(prog,'uColor'),color);gl.uniform3fv(gl.getUniformLocation(prog,'uOffset'),off);gl.uniform3fv(gl.getUniformLocation(prog,'uPivot'),o.pivot||o.center);gl.uniform3fv(gl.getUniformLocation(prog,'uAxis'),o.axis||[0,0,1]);gl.uniform1f(gl.getUniformLocation(prog,'uAngle'),o.angle||0);gl.uniform1f(gl.getUniformLocation(prog,'uScaleZ'),o.scaleZ??1);gl.uniform1f(gl.getUniformLocation(prog,'uMetallic'),o.metallic??0);gl.uniform1f(gl.getUniformLocation(prog,'uRoughness'),o.roughness??.5);gl.uniform3fv(gl.getUniformLocation(prog,'uEmissive'),o.visualEmissive||o.emissive||[0,0,0]);gl.uniform1f(gl.getUniformLocation(prog,'uAlpha'),alpha);
       gl.drawArrays(gl.TRIANGLES,0,o.count);
     }
     gl.depthMask(true);updateLabels();
@@ -268,6 +268,55 @@ function mount(config){
       };requestAnimationFrame(step);
     });
   };
+  const setGroupVisual=(name,next={})=>{
+    const members=membersFor(name);if(!members.length)return false;
+    members.forEach(o=>{
+      if(Array.isArray(next.color))o.visualColor=[...next.color];
+      else if(next.color===null)o.visualColor=null;
+      if(Array.isArray(next.emissive))o.visualEmissive=[...next.emissive];
+      else if(next.emissive===null)o.visualEmissive=null;
+      if(Number.isFinite(next.alpha))o.visualAlpha=next.alpha;
+      else if(next.alpha===null)o.visualAlpha=null;
+    });draw();return true;
+  };
+  const clearVisuals=()=>{
+    objects.forEach(o=>{o.visualColor=null;o.visualEmissive=null;o.visualAlpha=null;});draw();
+  };
+  const setCamera=(next={})=>{
+    if(Array.isArray(next.target))state.target=[...next.target];
+    if(Number.isFinite(next.radius))state.radius=Math.max(3.8,Math.min(18,next.radius));
+    if(Number.isFinite(next.azimuth))state.azimuth=next.azimuth;
+    if(Number.isFinite(next.elevation))state.elevation=Math.max(-1.15,Math.min(1.25,next.elevation));
+    draw();return {target:[...state.target],radius:state.radius,azimuth:state.azimuth,elevation:state.elevation};
+  };
+  const animateCamera=(to={},duration=700)=>{
+    const start={target:[...state.target],radius:state.radius,azimuth:state.azimuth,elevation:state.elevation};
+    const end={
+      target:Array.isArray(to.target)?[...to.target]:start.target,
+      radius:Number.isFinite(to.radius)?Math.max(3.8,Math.min(18,to.radius)):start.radius,
+      azimuth:Number.isFinite(to.azimuth)?to.azimuth:start.azimuth,
+      elevation:Number.isFinite(to.elevation)?Math.max(-1.15,Math.min(1.25,to.elevation)):start.elevation
+    };
+    const t0=performance.now();
+    return new Promise(resolve=>{
+      const step=now=>{
+        if(disposed){resolve(false);return;}
+        const raw=Math.min(1,(now-t0)/Math.max(1,duration)),k=raw*raw*(3-2*raw);
+        state.target=start.target.map((v,i)=>v+(end.target[i]-v)*k);
+        state.radius=start.radius+(end.radius-start.radius)*k;
+        state.azimuth=start.azimuth+(end.azimuth-start.azimuth)*k;
+        state.elevation=start.elevation+(end.elevation-start.elevation)*k;
+        draw();
+        if(raw<1)requestAnimationFrame(step);else resolve(true);
+      };requestAnimationFrame(step);
+    });
+  };
+  const focusByName=(name,duration=650,view={})=>{
+    const o=matchObject(name);if(!o)return Promise.resolve(false);
+    const off=effectiveOffset(o),target=[o.center[0]+off[0],o.center[1]+off[1],o.center[2]+off[2]];
+    const radius=Number.isFinite(view.radius)?view.radius:Math.max(4.4,Math.min(8.4,o.radius*5.2+3.7));
+    return animateCamera({target,radius,azimuth:view.azimuth,elevation:view.elevation},duration);
+  };
   const tutorialNext=()=>{
     if(!important.length)return;state.tutorialIndex=(state.tutorialIndex+1)%important.length;const x=important[state.tutorialIndex];displayInfo(x.object,'TUTORIAL '+(state.tutorialIndex+1)+' / '+important.length);status.textContent='Tutorial: '+x.info.label;
   };
@@ -282,15 +331,15 @@ function mount(config){
       gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.positions),gl.STATIC_DRAW);
       gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(item.normals),gl.STATIC_DRAW);
       const dir=unit(subtract(item.center,config.target)),scale=Math.max(.3,Math.min(1.25,item.radius*.42));
-      objects.push({...item,pos,normal,count:item.positions.length/3,group:window.getPractical3DGroupKey?.(item.name,current?.id)||item.name,offset:[0,0,0],angle:0,axis:[0,0,1],pivot:[...item.center],scaleZ:1,explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});
+      objects.push({...item,pos,normal,count:item.positions.length/3,group:window.getPractical3DGroupKey?.(item.name,current?.id)||item.name,offset:[0,0,0],angle:0,axis:[0,0,1],pivot:[...item.center],scaleZ:1,visualColor:null,visualEmissive:null,visualAlpha:null,explode:[dir[0]*scale,dir[1]*scale,Math.max(-.4,dir[2]*scale)]});
     }
     if(!objects.length)throw Error('3D apparatus has no drawable geometry');
     important=window.getPractical3DImportantEquipment?.(objects)||objects.filter(o=>!/lab bench/i.test(o.name)).slice(0,12).map(object=>({object,info:{label:object.name}}));
-    host.dataset.modelLoaded='true';host.dataset.interactive3d='v14.2';host.dataset.modelSource=source;host.dataset.modelRevision=MODEL_ASSET_REV;
+    host.dataset.modelLoaded='true';host.dataset.interactive3d='v14.3';host.dataset.modelSource=source;host.dataset.modelRevision=MODEL_ASSET_REV;
     fallback.hidden=true;
-    status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'Detailed GLB · ')+'Photo 3D v14.2 · Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
+    status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'Detailed GLB · ')+'Photo 3D v14.3 · Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
     draw();observer=new ResizeObserver(draw);observer.observe(canvas);
-    window.__practical3DInteractive={version:'14.2',renderQuality:'photoreal-pbr',modelSource:source,modelRevision:MODEL_ASSET_REV,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
+    window.__practical3DInteractive={version:'14.3',renderQuality:'photoreal-pbr',modelSource:source,modelRevision:MODEL_ASSET_REV,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,setGroupVisual,clearVisuals,setCamera,animateCamera,focusByName,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
   };
   loadModel(config.file).then(model=>installGeometry(geometry(model),'glb')).catch(e=>{
     if(disposed)return;
@@ -389,7 +438,7 @@ function mount(config){
   ui.tools.querySelector('[data-3d-xray]').onclick=e=>{state.xray=!state.xray;e.currentTarget.classList.toggle('active',state.xray);draw();};
   ui.tools.querySelector('[data-3d-explode]').onclick=e=>{state.exploded=!state.exploded;e.currentTarget.classList.toggle('active',state.exploded);draw();};
   ui.tools.querySelector('[data-3d-tutorial]').onclick=tutorialNext;ui.tools.querySelector('[data-3d-quiz]').onclick=quizNext;
-  ui.tools.querySelector('[data-3d-reset-objects]').onclick=()=>{objects.forEach(o=>{o.offset=[0,0,0];o.angle=0;o.axis=[0,0,1];o.pivot=[...o.center];o.scaleZ=1;});state.exploded=false;state.xray=false;state.labels=false;state.tool='orbit';selected=hovered=null;ui.panel.hidden=true;ui.labels.hidden=true;ui.tools.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));ui.tools.querySelector('[data-3d-mode]').textContent='Guided 3D';host.classList.remove('p3d-free-move');status.textContent='Apparatus reset';draw();};
+  ui.tools.querySelector('[data-3d-reset-objects]').onclick=()=>{objects.forEach(o=>{o.offset=[0,0,0];o.angle=0;o.axis=[0,0,1];o.pivot=[...o.center];o.scaleZ=1;o.visualColor=null;o.visualEmissive=null;o.visualAlpha=null;});state.exploded=false;state.xray=false;state.labels=false;state.tool='orbit';selected=hovered=null;ui.panel.hidden=true;ui.labels.hidden=true;ui.tools.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));ui.tools.querySelector('[data-3d-mode]').textContent='Guided 3D';host.classList.remove('p3d-free-move');status.textContent='Apparatus reset';draw();};
 }
 const MODEL_REGISTRY={
 1:[{file:'assets/rp01-standing-waves.glb',target:[0,0,.8],azimuth:-1.03,elevation:.34,radius:9.3,label:'standing waves on a string'}],
