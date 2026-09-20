@@ -77,7 +77,7 @@ function groupKey(name,practicalId=current?.id){
 }
 function important(objects=[]){
   const seen=new Set(),out=[];
-  for(const o of objects){const i=lookup(o.name);if(/bench|graduation|tick|lead|wireform|waveform/i.test(o.name)&&!/(ammeter|voltmeter|resistance wire|current-carrying)/i.test(o.name))continue;if(seen.has(i.label))continue;seen.add(i.label);out.push({object:o,info:i});}
+  for(const o of objects){const i=lookup(o.name);if(/bench|laboratory background|cabinet|socket|service rail|graduation|tick|lead|wireform|waveform/i.test(o.name)&&!/(ammeter|voltmeter|resistance wire|current-carrying)/i.test(o.name))continue;if(seen.has(i.label))continue;seen.add(i.label);out.push({object:o,info:i});}
   return out;
 }
 window.getPractical3DEquipmentInfo=lookup;
