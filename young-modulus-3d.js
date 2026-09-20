@@ -215,7 +215,7 @@ function mount(config){
   const pick=(clientX,clientY)=>{
     if(!lastMVP)return null;const r=canvas.getBoundingClientRect(),x=clientX-r.left,y=clientY-r.top;let best=null,bestScore=Infinity;
     for(const o of objects){
-      if(/lab bench|bench surface|bench front|graduation|tick|waveform|ray guide|lead/i.test(o.name))continue;
+      if(/lab bench|laboratory background|cabinet|socket|service rail|bench surface|bench front|graduation|tick|waveform|ray guide|lead/i.test(o.name))continue;
       const off=effectiveOffset(o),c0=[o.center[0]+off[0],o.center[1]+off[1],o.center[2]+off[2]],pc=projectPoint(lastMVP,c0,r.width,r.height),px=projectPoint(lastMVP,[c0[0]+o.radius,c0[1],c0[2]],r.width,r.height),py=projectPoint(lastMVP,[c0[0],c0[1]+o.radius,c0[2]],r.width,r.height),pz=projectPoint(lastMVP,[c0[0],c0[1],c0[2]+o.radius],r.width,r.height);
       if(pc[2]<=0)continue;const rp=Math.max(14,Math.min(95,Math.max(Math.hypot(px[0]-pc[0],px[1]-pc[1]),Math.hypot(py[0]-pc[0],py[1]-pc[1]),Math.hypot(pz[0]-pc[0],pz[1]-pc[1]))));const d=Math.hypot(x-pc[0],y-pc[1]),score=d/rp;if(score<1.18&&score<bestScore){best=o;bestScore=score;}
     }return best;
