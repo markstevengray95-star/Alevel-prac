@@ -3,7 +3,10 @@ const { chromium } = require('playwright');
 
 (async()=>{
   const browser=await chromium.launch({headless:true});
-  const page=await browser.newPage({viewport:{width:1400,height:1000}});
+  // Block service workers so this regression can genuinely force the model
+  // request to fail instead of receiving a cached GLB from the PWA cache.
+  const context=await browser.newContext({viewport:{width:1400,height:1000},serviceWorkers:'block'});
+  const page=await context.newPage();
   const errors=[];
   page.on('pageerror',e=>errors.push('pageerror: '+e.message));
   page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/i.test(m.text()))errors.push('console: '+m.text());});
