@@ -29,7 +29,7 @@ const { chromium } = require('playwright');
 
   // Later practicals retain a procedural offline fallback.
   await page.evaluate(()=>{navigate('practical',7);currentMode=0;renderModeTabs();renderPractical();});
-  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelSource==='procedural'&&window.__practical3DInteractive?.version==='14.2',{timeout:16000});
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelSource==='procedural'&&window.__practical3DInteractive?.version==='14.3',{timeout:16000});
   const state=await page.evaluate(()=>({
     source:window.__practical3DInteractive.modelSource,
     names:window.__practical3DInteractive.listObjects(),
