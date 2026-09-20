@@ -1,6 +1,6 @@
 /* Interactive 3D virtual-lab controls v11 */
-.practical3d-tools{position:absolute;left:8px;top:8px;z-index:8;display:flex;flex-wrap:wrap;gap:5px;max-width:calc(100% - 16px);padding:6px;border:1px solid rgba(222,238,229,.14);border-radius:9px;background:rgba(12,25,31,.74);backdrop-filter:blur(8px)}
-.practical3d-tools button{border:1px solid rgba(220,235,226,.25);background:rgba(255,255,255,.07);color:#edf5f0;border-radius:7px;padding:5px 7px;font:700 7.5px Inter,sans-serif;white-space:nowrap}
+.practical3d-tools{pointer-events:none;position:absolute;left:8px;top:8px;z-index:8;display:flex;flex-wrap:wrap;gap:5px;max-width:calc(100% - 16px);padding:6px;border:1px solid rgba(222,238,229,.14);border-radius:9px;background:rgba(12,25,31,.74);backdrop-filter:blur(8px)}
+.practical3d-tools button{pointer-events:auto;border:1px solid rgba(220,235,226,.25);background:rgba(255,255,255,.07);color:#edf5f0;border-radius:7px;padding:5px 7px;font:700 7.5px Inter,sans-serif;white-space:nowrap}
 .practical3d-tools button:hover,.practical3d-tools button.active{background:rgba(202,235,161,.20);border-color:#bad88f;color:#f5ffed}
 .p3d-free-move .practical3d-tools [data-3d-mode]{background:rgba(239,186,91,.22);border-color:#e4b762;color:#fff6df}
 .practical3d-info{position:absolute;right:9px;top:50px;z-index:9;width:min(305px,44%);max-height:calc(100% - 112px);overflow:auto;padding:12px 12px 11px;border:1px solid rgba(221,235,226,.30);border-radius:11px;background:rgba(246,249,245,.96);box-shadow:0 14px 38px rgba(0,0,0,.32);backdrop-filter:blur(12px);color:#21342c}

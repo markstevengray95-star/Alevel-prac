@@ -121,17 +121,19 @@ const { chromium } = require('playwright');
   if(restored.some(v=>Math.abs(v)>1e-8))throw new Error('Reset apparatus did not restore 3D equipment position');
 
   // Actual unobstructed canvas hover/click selection and demo.
-  const clickTarget=await page.evaluate(preferred=>{
-    const api=window.__practical3DInteractive,canvas=document.querySelector('#practical3d canvas');
-    const names=[preferred,...api.listObjects().filter(n=>n!==preferred&&!/bench|graduation|tick|lead|waveform|ray guide/i.test(n))];
-    for(const name of names){
-      const p=api.screenPoint(name);if(!p||!Number.isFinite(p.x)||!Number.isFinite(p.y))continue;
-      if(document.elementFromPoint(p.x,p.y)!==canvas)continue;
-      const picked=api.pickAt(p.x,p.y);if(picked)return {p,picked};
+  // Scan the visible canvas, rather than assuming the geometric centre of an
+  // apparatus mesh is itself a visible/selectable surface.
+  const clickTarget=await page.evaluate(()=>{
+    const api=window.__practical3DInteractive,canvas=document.querySelector('#practical3d canvas'),r=canvas.getBoundingClientRect();
+    for(let gy=2;gy<=18;gy++)for(let gx=2;gx<=28;gx++){
+      const x=r.left+r.width*gx/30,y=r.top+r.height*gy/20;
+      if(document.elementFromPoint(x,y)!==canvas)continue;
+      const picked=api.pickAt(x,y);
+      if(picked)return {p:{x,y},picked};
     }
     return null;
-  },dataName);
-  if(!clickTarget)throw new Error('No unobstructed selectable 3D equipment point was available for a real canvas click');
+  });
+  if(!clickTarget)throw new Error('No unobstructed selectable 3D surface was available for a real canvas click');
   await page.mouse.move(clickTarget.p.x,clickTarget.p.y);
   await page.mouse.click(clickTarget.p.x,clickTarget.p.y);
   await page.locator('#practical3d .practical3d-info').waitFor({state:'visible',timeout:3000});
