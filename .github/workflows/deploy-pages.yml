@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -32,6 +32,17 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check trimesh==4.11.1 numpy==2.3.5
           python tools/generate_practical_glbs.py assets
+      - name: Persist generated GLB models to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f assets/*.glb
+          if git diff --cached --quiet; then
+            echo "Generated GLBs already match main"
+          else
+            git commit -m "Persist generated 3D apparatus assets"
+            git push origin HEAD:main
+          fi
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
