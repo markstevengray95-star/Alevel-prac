@@ -221,7 +221,28 @@ function mount(config){
     }return best;
   };
   const screenPointFor=name=>{
-    if(!lastMVP)return null;const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(!o)return null;const off=effectiveOffset(o),r=canvas.getBoundingClientRect(),p=projectPoint(lastMVP,[o.center[0]+off[0],o.center[1]+off[1],o.center[2]+off[2]],r.width,r.height);return{x:r.left+p[0],y:r.top+p[1],localX:p[0],localY:p[1]};
+    if(!lastMVP)return null;
+    const query=String(name||'').toLowerCase(),o=objects.find(x=>x.name.toLowerCase().includes(query));
+    if(!o)return null;
+    const r=canvas.getBoundingClientRect(),members=objects.filter(x=>x.group===o.group);
+    const projectObject=obj=>{
+      const off=effectiveOffset(obj),p=projectPoint(lastMVP,[obj.center[0]+off[0],obj.center[1]+off[1],obj.center[2]+off[2]],r.width,r.height);
+      return{x:r.left+p[0],y:r.top+p[1],localX:p[0],localY:p[1]};
+    };
+    // Prefer a projected point that the real picking routine resolves back to
+    // this equipment group. This avoids overlapping apparatus meshes stealing
+    // pointer-down events in Free move 3D.
+    const baseCandidates=[o,...members.filter(x=>x!==o)];
+    for(const obj of baseCandidates){
+      const p=projectObject(obj),hit=pick(p.x,p.y);
+      if(hit&&hit.group===o.group)return p;
+      for(const [dx,dy] of [[18,0],[-18,0],[0,18],[0,-18],[28,16],[-28,16],[28,-16],[-28,-16]]){
+        const q={x:p.x+dx,y:p.y+dy,localX:p.localX+dx,localY:p.localY+dy};
+        const h=pick(q.x,q.y);
+        if(h&&h.group===o.group)return q;
+      }
+    }
+    return projectObject(o);
   };
   const matchObject=name=>{
     const query=String(name||'').toLowerCase();
