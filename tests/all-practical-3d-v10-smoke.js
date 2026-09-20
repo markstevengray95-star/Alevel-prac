@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
 
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.PRACTICAL_3D_MODELS,{timeout:20000});
-  if((await page.locator('#appVersionBadge').innerText()).trim()!=='Photo 3D v14.2')throw new Error('Live 3D version badge missing or stale');
+  if((await page.locator('#appVersionBadge').innerText()).trim()!=='Photo 3D v14.3')throw new Error('Live 3D version badge missing or stale');
   if(await page.locator('script[src^="lab-book-bootstrap.js"]').count()!==1)throw new Error('Enhancement bootstrap is not loaded explicitly by index.html');
 
   const checked=new Set();
@@ -32,7 +32,7 @@ const { chromium } = require('playwright');
       if(info.download!==info.file)throw new Error(`P${id} mode ${mode}: GLB download link mismatch`);
       if(!/Drag to rotate/.test(info.status||''))throw new Error(`P${id} mode ${mode}: model did not finish loading`);
       if(id<=6&&info.source!=='glb')throw new Error(`P${id} mode ${mode}: first-six practical regressed from detailed GLB to ${info.source}`);
-      if(id<=6&&info.revision!=='20260920-p1p6-photoreal-r2')throw new Error(`P${id} mode ${mode}: stale model revision ${info.revision}`);
+      if(id<=6&&info.revision!=='20260920-p1p6-walkthrough-r3')throw new Error(`P${id} mode ${mode}: stale model revision ${info.revision}`);
       checked.add(info.file);
 
       const glb=await page.evaluate(async file=>{
