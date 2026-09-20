@@ -157,7 +157,7 @@ function mount(config){
   const state={azimuth:config.azimuth,elevation:config.elevation,radius:config.radius,target:[...config.target],xray:false,exploded:false,labels:false,tool:'orbit',tutorialIndex:-1,quizTarget:null,demoUntil:0};
   const ensureUI=()=>{
     let tools=host.querySelector('.practical3d-tools');
-    if(!tools){tools=document.createElement('div');tools.className='practical3d-tools';tools.innerHTML='<button type="button" data-3d-mode>Guided 3D</button><button type="button" data-3d-labels>Labels</button><button type="button" data-3d-xray>X-ray</button><button type="button" data-3d-explode>Explode</button><button type="button" data-3d-tutorial>Tutorial</button><button type="button" data-3d-quiz>Quiz</button><button type="button" data-3d-reset-objects>Reset apparatus</button>';host.appendChild(tools);}
+    if(!tools){tools=document.createElement('div');tools.className='practical3d-tools';tools.innerHTML='<button type="button" data-3d-mode>Guided 3D</button><button type="button" data-3d-labels>Labels</button><button type="button" data-3d-xray>X-ray</button><button type="button" data-3d-explode>Explode</button><button type="button" data-3d-tutorial>Tutorial</button><button type="button" data-3d-quiz>Quiz</button><button type="button" data-3d-reset-objects>Reset apparatus</button><button type="button" data-3d-reload class="p3d-health" aria-label="Reload detailed 3D model">3D loading…</button>';host.appendChild(tools);}
     let labels=host.querySelector('.practical3d-label-layer');if(!labels){labels=document.createElement('div');labels.className='practical3d-label-layer';host.appendChild(labels);}
     let panel=host.querySelector('.practical3d-info');if(!panel){panel=document.createElement('aside');panel.className='practical3d-info';panel.hidden=true;host.appendChild(panel);}
     return{tools,labels,panel};
@@ -337,6 +337,7 @@ function mount(config){
     important=window.getPractical3DImportantEquipment?.(objects)||objects.filter(o=>!/lab bench/i.test(o.name)).slice(0,12).map(object=>({object,info:{label:object.name}}));
     host.dataset.modelLoaded='true';host.dataset.interactive3d='v14.3';host.dataset.modelSource=source;host.dataset.modelRevision=MODEL_ASSET_REV;
     fallback.hidden=true;
+    const health=ui.tools.querySelector('[data-3d-reload]');if(health){health.textContent=source==='glb'?'3D ready ✓':'Fallback 3D';health.classList.toggle('ready',source==='glb');health.classList.toggle('fallback',source!=='glb');}
     status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'Detailed GLB · ')+'Photo 3D v14.3 · Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
     draw();observer=new ResizeObserver(draw);observer.observe(canvas);
     window.__practical3DInteractive={version:'14.3',renderQuality:'photoreal-pbr',modelSource:source,modelRevision:MODEL_ASSET_REV,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,setGroupVisual,clearVisuals,setCamera,animateCamera,focusByName,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
@@ -350,6 +351,7 @@ function mount(config){
       host.dataset.modelSource='error';
       host.dataset.modelLoaded='false';
       status.textContent='Detailed 3D model failed to load · click Retry 3D model';
+      const health=ui.tools.querySelector('[data-3d-reload]');if(health){health.textContent='Retry 3D';health.classList.remove('ready');health.classList.add('error');}
       fallback.hidden=false;
       let retry=host.querySelector('[data-3d-retry]');
       if(!retry){
@@ -433,6 +435,8 @@ function mount(config){
   });
   host.querySelector('[data-young-reset]').onclick=()=>{state.azimuth=config.azimuth;state.elevation=config.elevation;state.radius=config.radius;state.target=[...config.target];status.textContent='3D view reset';draw();};
   host.querySelector('[data-young-expand]').onclick=e=>{const expanded=host.classList.toggle('young3d-expanded');if(expanded)document.body.appendChild(host);else if(home.isConnected)home.insertBefore(host,next?.isConnected?next:null);e.currentTarget.textContent=expanded?'Close large view':'Enlarge 3D view';requestAnimationFrame(draw);};
+  const reloadButton=ui.tools.querySelector('[data-3d-reload]');
+  if(reloadButton)reloadButton.onclick=()=>{modelPromises.delete(config.file);host.dataset.modelError='';reloadButton.textContent='3D loading…';reloadButton.classList.remove('ready','error','fallback');status.textContent='Reloading detailed 3D model…';mount(config);};
   ui.tools.querySelector('[data-3d-mode]').onclick=e=>{state.tool=state.tool==='move'?'orbit':'move';e.currentTarget.textContent=state.tool==='move'?'Free move 3D':'Guided 3D';host.classList.toggle('p3d-free-move',state.tool==='move');status.textContent=state.tool==='move'?'Free move: drag equipment to reposition it':'Guided 3D: apparatus locked; drag to rotate';};
   ui.tools.querySelector('[data-3d-labels]').onclick=e=>{state.labels=!state.labels;e.currentTarget.classList.toggle('active',state.labels);draw();};
   ui.tools.querySelector('[data-3d-xray]').onclick=e=>{state.xray=!state.xray;e.currentTarget.classList.toggle('active',state.xray);draw();};
