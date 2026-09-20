@@ -61,7 +61,17 @@ function lookup(name,practicalId=current?.id){
   return info;
 }
 function groupKey(name,practicalId=current?.id){
-  const info=lookup(name,practicalId),n=cleanName(name);
+  const n=cleanName(name);
+  // Moving assemblies must stay separate from their fixed bases so physical
+  // demonstrations animate only the part that moves in the real experiment.
+  if(/light gate 1/i.test(n))return 'Light gate 1';
+  if(/light gate 2/i.test(n))return 'Light gate 2';
+  if(/\btest (mass hanger|slotted mass)/i.test(n))return 'Test load';
+  if(/\breference (mass hanger|slotted mass)/i.test(n))return 'Reference load';
+  if(/switch (blade|insulated handle)/i.test(n))return 'Switch moving arm';
+  if(/variable resistor (sliding contact|contact arm|slider knob)/i.test(n))return 'Variable resistor slider';
+  if(/standing wave string segment/i.test(n))return n;
+  const info=lookup(name,practicalId);
   if(info.label&&info.label!==n)return info.label;
   return n.replace(/\b(face|display|screen|red|black|knob|base|pan|terminal|stem|shaft|arm|body|housing|support|foot|rod)\b.*$/i,'').trim()||n;
 }
