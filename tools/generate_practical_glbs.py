@@ -491,11 +491,32 @@ def p12():
 # These functions deliberately use named sub-components so the web viewer can
 # identify whole instruments while retaining detailed materials and geometry.
 def photo_bench(s,w=9.0,d=5.0):
- box(s,'Laboratory bench laminate',(0,0,-.20),(w,d,.30),'paper')
+ # Main student bench.
+ box(s,'Laboratory bench laminate',(0,0,-.20),(w,d,.30),'wood')
  box(s,'Laboratory bench dark edge',(0,-d/2+.04,-.10),(w,.08,.16),'dark')
  box(s,'Laboratory bench rear edge',(0,d/2-.04,-.10),(w,.08,.16),'dark')
  for x in (-w/2+.32,w/2-.32):
   box(s,'Bench rubber corner '+str(x),(x,-d/2+.28,-.38),(.34,.34,.18),'rubber')
+ # Quiet laboratory context behind the apparatus gives students a true sense of
+ # scale without competing with the experiment itself.
+ rear_y=d/2+1.10
+ box(s,'Laboratory background wall',(0,rear_y+.62,2.25),(w+2.0,.12,5.2),'paper')
+ box(s,'Laboratory background worktop',(0,rear_y,.62),(w+1.0,1.02,.18),'dark')
+ box(s,'Laboratory background cabinet carcass',(0,rear_y+.10,.12),(w+.80,.86,.92),'white')
+ doors=6
+ for i in range(doors):
+  xx=-(w*.78)/2+i*(w*.78)/(doors-1)
+  soft_box(s,f'Laboratory background cabinet door {i}',(xx,rear_y-.35,.15),(1.02,.035,.70),'white',.05,6)
+  rod(s,f'Laboratory background cabinet handle {i}',(xx-.16,rear_y-.38,.34),(xx+.16,rear_y-.38,.34),.018,'silver',16)
+ # blue storage bins and a simple service rail recall a real school lab.
+ for row in range(2):
+  for col in range(3):
+   soft_box(s,f'Laboratory background blue tray {row}-{col}',(-2.15+col*.58,rear_y-.37,.17+row*.31),(.48,.08,.24),'blue',.035,5)
+ box(s,'Laboratory background service rail',(0,rear_y+.49,1.40),(w+.7,.10,.22),'white')
+ for xx in (-2.7,-1.35,0,1.35,2.7):
+  soft_box(s,'Laboratory background socket '+str(xx),(xx,rear_y+.42,1.40),(.48,.05,.18),'white',.025,5)
+  cyl(s,'Laboratory background socket L '+str(xx),(xx-.10,rear_y+.38,1.40),.027,.025,'black','y',16)
+  cyl(s,'Laboratory background socket R '+str(xx),(xx+.10,rear_y+.38,1.40),.027,.025,'black','y',16)
 
 def photo_boss(s,n,p):
  x,y,z=p
@@ -599,7 +620,17 @@ def photo_p1():
  cyl(s,'Pulley axle',(3.05,-.20,.72),.052,.44,'black','y',36)
  soft_box(s,'Pulley black fork',(3.05,.04,.48),(.44,.34,.58),'black',.06,7)
  soft_box(s,'Pulley G clamp',(3.05,.29,.10),(.62,.36,.28),'dark',.07,7)
- wire(s,'String',[(-1.15,-.20,.90),(2.15,-.20,.74),(2.80,-.20,.74),(3.13,-.20,.56),(3.13,-.20,-.72)],.010,'white')
+ # The active vibrating length is split into individually animatable sections.
+ # At rest they form one continuous string; the walkthrough moves them into the
+ # standing-wave shape rather than moving a single rigid cylinder.
+ x0,x1=-1.15,2.15;z0,z1=.90,.74;segments=28
+ for i in range(segments):
+  xa=x0+(x1-x0)*i/segments;xb=x0+(x1-x0)*(i+1)/segments
+  za=z0+(z1-z0)*i/segments;zb=z0+(z1-z0)*(i+1)/segments
+  rod(s,f'Standing wave string segment {i:02d}',(xa,-.20,za),(xb,-.20,zb),.011,'white',10)
+ rod(s,'String to pulley',(2.15,-.20,.74),(2.80,-.20,.74),.011,'white',12)
+ rod(s,'String over pulley',(2.80,-.20,.74),(3.13,-.20,.56),.011,'white',12)
+ rod(s,'String hanging section',(3.13,-.20,.56),(3.13,-.20,-.72),.011,'white',12)
  photo_ruler(s,'Metre rule',(.25,.82,.17),5.65,False)
  rod(s,'Mass hanger stem',(3.13,-.20,-.72),(3.13,-.20,-1.25),.023,'silver',28)
  cyl(s,'Mass hanger tray',(3.13,-.20,-1.31),.24,.075,'silver',sections=56)
