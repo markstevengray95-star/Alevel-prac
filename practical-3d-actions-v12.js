@@ -51,15 +51,24 @@ const animateStandingWave=async api=>{
   if(!segments.length)return false;
   status(api,'Standing wave forming · fixed nodes stay nearly still while antinodes oscillate');
   const cycles=3,frames=72,amp=.16;
+  api.state.waveActive=true;api.state.waveMaxObserved=0;
+  const applyPhase=phase=>{
+    let max=0;
+    segments.forEach((o,i)=>{
+      const x=(i+.5)/segments.length,dz=amp*Math.sin(3*Math.PI*x)*Math.sin(phase);
+      o.offset=[0,0,dz];max=Math.max(max,Math.abs(dz));
+    });
+    api.state.waveMaxObserved=Math.max(api.state.waveMaxObserved,max);
+    api.draw?.();
+  };
+  // Hold one clear antinode shape first so students can identify nodes/antinodes
+  // before the string begins oscillating rapidly.
+  applyPhase(Math.PI/2);await sleep(320);
   for(let f=0;f<=frames;f++){
     const phase=cycles*Math.PI*2*f/frames;
-    segments.forEach((o,i)=>{
-      const x=(i+.5)/segments.length;
-      o.offset=[0,0,amp*Math.sin(3*Math.PI*x)*Math.sin(phase)];
-    });
-    api.draw?.();await sleep(24);
+    applyPhase(phase);await sleep(24);
   }
-  segments.forEach(o=>o.offset=[0,0,0]);api.draw?.();
+  segments.forEach(o=>o.offset=[0,0,0]);api.state.waveActive=false;api.draw?.();
   status(api,'Standing-wave demo complete · measure node spacing along the metre rule');
   return true;
 };
