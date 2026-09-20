@@ -160,13 +160,13 @@ function actionsFor(id,mode){
       action('Release ball · run free fall','Release the ball and show the detector sequence.',['ball bearing','ball'],async(api,name)=>{
         api.setGroupOffset(name,[0,0,0]);status(api,'Ball released from rest…');
         if(Number(mode)===0){
-          await api.animateGroup(name,{offset:[0,0,-1.30]},390,'gravity');await pulseMatching(api,/light gate 1 (emitter|detector|bridge)/i,[.95,.05,.02],220);
+          await api.animateGroup(name,{offset:[0,0,-1.30]},320,'gravity');await pulseMatching(api,/light gate 1 (emitter|detector|bridge)/i,[.95,.05,.02],150);
           status(api,'Ball interrupts light gate 1 · timer starts');
-          await api.animateGroup(name,{offset:[0,0,-2.68]},330,'gravity');await pulseMatching(api,/light gate 2 (emitter|detector|bridge)/i,[.95,.05,.02],220);
+          await api.animateGroup(name,{offset:[0,0,-2.68]},260,'gravity');await pulseMatching(api,/light gate 2 (emitter|detector|bridge)/i,[.95,.05,.02],170);
           status(api,'Ball interrupts light gate 2 · timer stops');
-          await api.animateGroup(name,{offset:[0,0,-3.25]},220,'gravity');await pulseMatching(api,/data logger (lcd|screen|display)/i,[.05,.65,.10],320);
+          await api.animateGroup(name,{offset:[0,0,-3.25]},180,'gravity');await pulseMatching(api,/data logger (lcd|screen|display)/i,[.05,.65,.10],260);
         }else{
-          await api.animateGroup(name,{offset:[0,0,-3.25]},760,'gravity');await pulseMatching(api,/impact sensor plate|data logger (lcd|screen|display)/i,[.05,.65,.10],360);
+          await api.animateGroup(name,{offset:[0,0,-3.25]},650,'gravity');await pulseMatching(api,/impact sensor plate|data logger (lcd|screen|display)/i,[.05,.65,.10],300);
           status(api,'Ball reaches the impact detector · elapsed time is recorded');
         }
         status(api,'Free-fall demo complete · reset apparatus to repeat');
