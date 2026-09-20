@@ -84,11 +84,10 @@
 <script>
 (()=>{
   if(!('serviceWorker' in navigator))return;
-  const hadController=!!navigator.serviceWorker.controller;
-  let reloaded=false;
+  // Do not force a reload on controllerchange. The current page already uses
+  // revisioned dynamic assets, so a surprise reload can interrupt students mid-task.
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(!hadController||!navigator.onLine||reloaded||sessionStorage.getItem('pl_sw_reload_final3d_r4'))return;
-    reloaded=true;sessionStorage.setItem('pl_sw_reload_final3d_r4','1');location.reload();
+    document.documentElement.dataset.swUpdated='true';
   });
   navigator.serviceWorker.register('./sw.js?v=20260920-final3d-r4',{scope:'./'}).then(r=>r?.update?.()).catch(err=>console.warn('Service worker unavailable:',err));
 })();
