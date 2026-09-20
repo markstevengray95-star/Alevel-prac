@@ -51,3 +51,8 @@
 .young3d.practical3d canvas:focus-visible{outline:3px solid rgba(211,236,166,.95);outline-offset:-4px}
 .practical3d-tools button:focus-visible,.p3d-info-actions button:focus-visible,.p3d-actions-buttons button:focus-visible{outline:2px solid #d3eca6;outline-offset:2px}
 .dark .p3d-info-actions{background:linear-gradient(180deg,rgba(24,39,32,.99) 72%,rgba(24,39,32,.84),rgba(24,39,32,0))}
+
+.practical3d-tools .p3d-health{margin-left:auto;border-color:#9aa7a1;background:rgba(255,255,255,.86)}
+.practical3d-tools .p3d-health.ready{border-color:#5c9b76;background:rgba(226,246,234,.94);color:#174d32}
+.practical3d-tools .p3d-health.error{border-color:#bd6b6b;background:rgba(255,235,235,.96);color:#7b2020}
+.practical3d-tools .p3d-health.fallback{border-color:#b08a53;background:rgba(255,245,222,.95);color:#6f4a12}
