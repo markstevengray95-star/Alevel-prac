@@ -1,4 +1,4 @@
-const CACHE='practical-lab-v20260919-photoreal3d-v141';
+const CACHE='practical-lab-v20260920-photoreal3d-v142-p1p6r2';
 const ASSETS=[
 './','./index.html','./styles.css','./visual-upgrades.css','./learning-tools.css','./ui-polish-v3.css','./sandbox-tools-v3.css','./experimental-sandbox-v4.css','./simulation-visuals-v5.css','./realistic-instruments-v6.css','./apparatus-interaction-v7.css','./free-build-bench-v8.css','./free-build-apparatus-v9.css','./practical-3d.css','./practical-3d-interactive-v11.css','./practical-3d-actions-v12.css','./app-icon.svg','./manifest.webmanifest','./assets/rp01-standing-waves.glb','./assets/rp02-double-slit.png','./assets/rp02-double-slit.glb','./assets/rp02-diffraction-grating.glb','./assets/rp03-free-fall.glb','./assets/rp03-free-fall-impact.glb','./assets/rp04-young-modulus.png','./assets/rp04-young-modulus.glb','./assets/rp05-resistivity-wire.png','./assets/rp05-resistivity-wire.glb','./assets/rp06-iv-characteristics.glb','./assets/rp07-pendulum.glb','./assets/rp07-spring.glb','./assets/rp08-boyle-syringe.png','./assets/rp08-boyle-syringe.glb','./assets/rp08-charles-law.glb','./assets/rp09-capacitor.glb','./assets/rp10-wire-balance.png','./assets/rp10-wire-balance.glb','./assets/rp11-search-coil.png','./assets/rp11-search-coil.glb','./assets/rp12-inverse-square.glb',
 './data-base.js','./data-extra.js','./core-a.js','./core-b.js','./scene-helpers.js','./scene-p1-4.js','./scene-p5-8.js','./scene-p9-12.js','./scene-dispatch.js','./scenes-b.js','./visual-upgrades.js','./animation-runtime-v2.js','./experimental-sandbox-v4.js','./simulation-visuals-v5.js','./realistic-instruments-v6.js','./apparatus-interaction-v7.js','./free-build-core-v8.js','./free-build-apparatus-v9.js','./free-build-ui-v8.js','./practical-toolkit-v4.js','./feature-26-live-scope.js','./feature-27-setup-snapshots.js','./feature-28-repeat-analysis.js',
@@ -20,7 +20,12 @@ self.addEventListener('fetch',event=>{
    event.respondWith(fetch(event.request,{cache:'no-store'}).then(r=>{if(r.ok){const c=r.clone();caches.open(CACHE).then(x=>x.put(event.request,c));}return r;}).catch(()=>caches.match(event.request,{ignoreSearch:true})));return;
  }
  if(event.request.mode==='navigate'){
-   event.respondWith(fetch(event.request).then(r=>{const c=r.clone();caches.open(CACHE).then(x=>x.put('./index.html',c));return r;}).catch(()=>caches.match('./index.html',{ignoreSearch:true})));return;
+   event.respondWith(fetch(event.request,{cache:'no-store'}).then(r=>{const c=r.clone();caches.open(CACHE).then(x=>x.put('./index.html',c));return r;}).catch(()=>caches.match('./index.html',{ignoreSearch:true})));return;
+ }
+ // Core 3D runtime files are network-first so a deployed model/rendering fix cannot
+ // remain hidden behind an older installed PWA cache.
+ if(/\/(young-modulus-3d|practical-3d-equipment-v11|practical-3d-actions-v12|scene-dispatch)\.js$/i.test(requestUrl.pathname)){
+   event.respondWith(fetch(event.request,{cache:'no-store'}).then(r=>{if(r.ok){const c=r.clone();caches.open(CACHE).then(x=>x.put(event.request,c));}return r;}).catch(()=>caches.match(event.request,{ignoreSearch:true})));return;
  }
  event.respondWith(caches.match(event.request,{ignoreSearch:true}).then(cached=>cached||fetch(event.request).then(r=>{if(r.ok){const c=r.clone();caches.open(CACHE).then(x=>x.put(event.request,c));}return r;})));
 });
