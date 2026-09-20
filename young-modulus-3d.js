@@ -3,6 +3,7 @@
 'use strict';
 let active=null;
 const modelPromises=new Map();
+const MODEL_ASSET_REV='20260920-p1p6-photoreal-r2';
 const identity=()=>[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
 function multiply(a,b){const out=new Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)out[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return out;}
 function transform(node){if(node.matrix)return node.matrix;const [x,y,z,w]=node.rotation||[0,0,0,1],s=node.scale||[1,1,1],t=node.translation||[0,0,0];return [
@@ -11,8 +12,9 @@ function transform(node){if(node.matrix)return node.matrix;const [x,y,z,w]=node.
  2*(x*z+y*w)*s[2],2*(y*z-x*w)*s[2],(1-2*(x*x+y*y))*s[2],0,
  t[0],t[1],t[2],1];}
 async function fetchModelFile(file,retry=false){
-  const url=retry?(file+(file.includes('?')?'&':'?')+'retry3d='+Date.now()):file;
-  const r=await fetch(url,{cache:retry?'reload':'default'});
+  const sep=file.includes('?')?'&':'?';
+  const url=file+sep+'modelrev='+encodeURIComponent(MODEL_ASSET_REV)+(retry?'&retry3d='+Date.now():'');
+  const r=await fetch(url,{cache:'no-store'});
   if(!r.ok)throw Error(`3D model HTTP ${r.status}`);
   const bytes=await r.arrayBuffer(),dv=new DataView(bytes);
   if(bytes.byteLength<20||dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2)throw Error('Invalid Blender GLB');
@@ -284,17 +286,33 @@ function mount(config){
     }
     if(!objects.length)throw Error('3D apparatus has no drawable geometry');
     important=window.getPractical3DImportantEquipment?.(objects)||objects.filter(o=>!/lab bench/i.test(o.name)).slice(0,12).map(object=>({object,info:{label:object.name}}));
-    host.dataset.modelLoaded='true';host.dataset.interactive3d='v14';host.dataset.modelSource=source;
+    host.dataset.modelLoaded='true';host.dataset.interactive3d='v14.2';host.dataset.modelSource=source;host.dataset.modelRevision=MODEL_ASSET_REV;
     fallback.hidden=true;
-    status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'')+'Photo 3D · Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
+    status.textContent=(source==='procedural'?'Built-in 3D fallback active · ':'Detailed GLB · ')+'Photo 3D v14.2 · Drag to rotate · Shift/right-drag to pan · Scroll to zoom';
     draw();observer=new ResizeObserver(draw);observer.observe(canvas);
-    window.__practical3DInteractive={version:'14.1',renderQuality:'photoreal-pbr',modelSource:source,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
+    window.__practical3DInteractive={version:'14.2',renderQuality:'photoreal-pbr',modelSource:source,modelRevision:MODEL_ASSET_REV,host,objects,state,listObjects:()=>objects.map(o=>o.name),selectByName:name=>{const o=objects.find(x=>x.name.toLowerCase().includes(String(name).toLowerCase()));if(o)displayInfo(o);return !!o;},pickAt:(x,y)=>pick(x,y)?.name||null,screenPoint:screenPointFor,offsetOf:name=>{const o=matchObject(name);return o?[...o.offset]:null;},angleOf:name=>matchObject(name)?.angle||0,scaleOf:name=>matchObject(name)?.scaleZ??1,setGroupOffset,nudgeGroup,setGroupAngle,setGroupTransform,animateGroup,toggleXray:()=>{state.xray=!state.xray;draw();return state.xray;},toggleExplode:()=>{state.exploded=!state.exploded;draw();return state.exploded;},setTool:t=>{state.tool=t;return state.tool;},tutorialNext,quizNext,draw};try{window.installPractical3DPhysicalActions?.(config,window.__practical3DInteractive);}catch(actionError){console.warn('3D physical actions:',actionError);}
   };
   loadModel(config.file).then(model=>installGeometry(geometry(model),'glb')).catch(e=>{
     if(disposed)return;
-    console.warn('Primary GLB unavailable; using built-in apparatus geometry:',config.file,e);
+    console.warn('Primary GLB unavailable:',config.file,e);
+    host.dataset.modelError=e?.message||'Primary GLB unavailable';
+    // Practicals 1-6 must never silently regress to the old box scene.
+    if(config.id<=6){
+      host.dataset.modelSource='error';
+      host.dataset.modelLoaded='false';
+      status.textContent='Detailed 3D model failed to load · click Retry 3D model';
+      fallback.hidden=false;
+      let retry=host.querySelector('[data-3d-retry]');
+      if(!retry){
+        retry=document.createElement('button');retry.type='button';retry.dataset['3dRetry']='1';retry.textContent='Retry 3D model';
+        retry.onclick=()=>{modelPromises.delete(config.file);host.dataset.modelError='';retry.remove();fallback.hidden=true;status.textContent='Reloading detailed 3D model…';mount(config);};
+        host.querySelector('.young3d-controls')?.appendChild(retry);
+      }
+      console.error('Detailed apparatus GLB required for P1-P6:',config.file,e);
+      return;
+    }
+    console.warn('Using built-in apparatus geometry for later practical:',config.file,e);
     try{
-      host.dataset.modelError=e?.message||'Primary GLB unavailable';
       installGeometry(fallbackScene(config.id,config.mode),'procedural');
       status.textContent='Built-in 3D fallback active · primary model unavailable · all interaction tools still work';
     }catch(fallbackError){
