@@ -31,6 +31,8 @@ const { chromium } = require('playwright');
       if(!info.file||!info.canvas)throw new Error(`P${id} mode ${mode}: 3D config/canvas missing`);
       if(info.download!==info.file)throw new Error(`P${id} mode ${mode}: GLB download link mismatch`);
       if(!/Drag to rotate/.test(info.status||''))throw new Error(`P${id} mode ${mode}: model did not finish loading`);
+      const health=await page.locator(selector+' [data-3d-reload]').textContent();
+      if(info.source==='glb'&&!/3D ready/.test(health||''))throw new Error(`P${id} mode ${mode}: 3D health control did not report ready`);
       if(id<=6&&info.source!=='glb')throw new Error(`P${id} mode ${mode}: first-six practical regressed from detailed GLB to ${info.source}`);
       if(id<=6&&info.revision!=='20260920-p1p6-walkthrough-r3')throw new Error(`P${id} mode ${mode}: stale model revision ${info.revision}`);
       checked.add(info.file);
