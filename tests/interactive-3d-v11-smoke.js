@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
     for(let mode=0;mode<modes;mode++){
       await page.evaluate(mode=>{currentMode=mode;renderModeTabs();renderPractical();},mode);
       const selector=id===2?'#doubleSlit3d':id===4?'#young3d':'#practical3d';
-      await page.waitForFunction(sel=>document.querySelector(sel)?.dataset.interactive3d==='v14'&&window.__practical3DInteractive?.version==='14.1',selector,{timeout:16000});
+      await page.waitForFunction(sel=>document.querySelector(sel)?.dataset.interactive3d==='v14.2'&&window.__practical3DInteractive?.version==='14.2',selector,{timeout:16000});
       await page.locator(selector).evaluate(el=>{const d=el.closest('details');if(d)d.open=true;});
       await page.waitForTimeout(40);
 
@@ -86,7 +86,7 @@ const { chromium } = require('playwright');
   // Pointer movement itself is exercised by the free-move drag below; using the
   // selection API here avoids false failures when projected mesh centres overlap.
   await page.evaluate(()=>{navigate('practical',3);currentMode=0;renderModeTabs();renderPractical();});
-  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.interactive3d==='v14');
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.interactive3d==='v14.2');
   await page.locator('#practical3d').evaluate(el=>el.closest('details').open=true);
   const selectable=await page.evaluate(()=>{
     const api=window.__practical3DInteractive;
@@ -103,7 +103,7 @@ const { chromium } = require('playwright');
 
   // Real free-move pointer drag on isolated P3 data logger.
   await page.evaluate(()=>{navigate('practical',3);currentMode=0;renderModeTabs();renderPractical();});
-  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.interactive3d==='v14');
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.interactive3d==='v14.2');
   await page.locator('#practical3d').evaluate(el=>el.closest('details').open=true);
   const beforePhysics=await page.evaluate(()=>JSON.stringify(theoretical()));
   const dataName=await page.evaluate(()=>window.__practical3DInteractive.listObjects().find(n=>/data\s*logger|datalogger/i.test(n)));
