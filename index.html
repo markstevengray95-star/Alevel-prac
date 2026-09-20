@@ -90,7 +90,7 @@
     if(!hadController||!navigator.onLine||reloaded||sessionStorage.getItem('pl_sw_reload_141'))return;
     reloaded=true;sessionStorage.setItem('pl_sw_reload_140','1');location.reload();
   });
-  navigator.serviceWorker.register('./sw.js?v=20260919-photoreal3d-v141',{scope:'./'}).then(r=>r.update()).catch(console.error);
+  navigator.serviceWorker.register('./sw.js?v=20260919-photoreal3d-v141',{scope:'./'}).then(r=>r?.update?.()).catch(err=>console.warn('Service worker unavailable:',err));
 })();
 </script>
 </body>
