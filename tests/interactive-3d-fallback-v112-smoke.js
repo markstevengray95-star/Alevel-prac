@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
   await page.waitForFunction(()=>window.__enhancementStackReady===true,{timeout:20000});
   await page.evaluate(()=>navigate('practical',3));
 
-  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelSource==='procedural'&&window.__practical3DInteractive?.version==='11.2',{timeout:16000});
+  await page.waitForFunction(()=>document.querySelector('#practical3d')?.dataset.modelSource==='procedural'&&window.__practical3DInteractive?.version==='14.1',{timeout:16000});
   const state=await page.evaluate(()=>({
     source:window.__practical3DInteractive.modelSource,
     names:window.__practical3DInteractive.listObjects(),
