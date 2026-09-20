@@ -157,7 +157,7 @@ function actionsFor(id,mode){
       action('Move screen nearer','Decrease the slit/grating-to-screen separation visually.',['projection screen','screen'],async(api,name)=>{boundedNudge(api,name,[-.42,0,0],[1.45,.2,.2]);nudgeMatching(api,/interference fringe|diffraction maximum/i,[-.42,0,0],[1.45,.2,.2]);status(api,'Screen moved nearer · compare the pattern spacing');})
     ];
     case 3:return[
-      action('Run free fall','Release the ball and show the detector sequence.',['ball bearing','ball'],async(api,name)=>{
+      action('Release ball · run free fall','Release the ball and show the detector sequence.',['ball bearing','ball'],async(api,name)=>{
         api.setGroupOffset(name,[0,0,0]);status(api,'Ball released from rest…');
         if(Number(mode)===0){
           await api.animateGroup(name,{offset:[0,0,-1.30]},390,'gravity');await pulseMatching(api,/light gate 1 (emitter|detector|bridge)/i,[.95,.05,.02],220);
