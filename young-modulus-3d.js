@@ -251,19 +251,25 @@ function mount(config){
         if(matchesGroup(q))return q;
       }
     }
-    // Wider local search around the projected equipment centre. This is slower
-    // than the fast path above, but only used by explicit API calls such as
-    // automated checks and accessibility/free-move helpers.
+    // Wider local search around the projected equipment centre.
     const p0=projectObject(o);
-    for(let radius=18;radius<=90;radius+=18){
-      for(let deg=0;deg<360;deg+=30){
+    for(let radius=18;radius<=126;radius+=18){
+      for(let deg=0;deg<360;deg+=24){
         const a=deg*Math.PI/180,q={x:p0.x+Math.cos(a)*radius,y:p0.y+Math.sin(a)*radius,localX:p0.localX+Math.cos(a)*radius,localY:p0.localY+Math.sin(a)*radius};
         if(matchesGroup(q))return q;
       }
     }
-    // If the equipment is completely covered by a UI panel, return null rather
-    // than a misleading coordinate that cannot receive pointer input.
-    return null;
+    // Final unobstructed search across the whole visible canvas. This makes the
+    // point useful for real pointer dragging even when an overlay covers the
+    // geometric centre of a large instrument.
+    for(let gy=1;gy<20;gy++)for(let gx=1;gx<30;gx++){
+      const q={x:r.left+r.width*gx/30,y:r.top+r.height*gy/20,localX:r.width*gx/30,localY:r.height*gy/20};
+      if(matchesGroup(q))return q;
+    }
+    // Some equipment may be completely behind an information/tool overlay.
+    // Return its mathematically valid projected point for focus/selection APIs;
+    // pointer-driven callers should prefer the unobstructed points above.
+    return projectObject(o);
   };
   const matchObject=name=>{
     const query=String(name||'').toLowerCase();
