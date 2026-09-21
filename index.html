@@ -89,7 +89,7 @@
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
     document.documentElement.dataset.swUpdated='true';
   });
-  navigator.serviceWorker.register('./sw.js?v=20260920-final3d-r6',{scope:'./'}).then(r=>r?.update?.()).catch(err=>console.warn('Service worker unavailable:',err));
+  navigator.serviceWorker.register('./sw.js?v=20260921-labgraphs-r1',{scope:'./'}).then(r=>r?.update?.()).catch(err=>console.warn('Service worker unavailable:',err));
 })();
 </script>
 </body>
