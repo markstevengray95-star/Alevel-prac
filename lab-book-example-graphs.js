@@ -26,10 +26,10 @@ const CFG={
   9:[
     {title:'Capacitor voltage against time',series:[
       {table:/Discharge.*processed results/i,x:/^t \/ s$/i,y:/Mean V/i,label:'Discharge'},
-      {table:/Charge.*processed results/i,x:/^t \/ s$/i,y:/Mean V/i,label:'Charge'}
+      {table:/^Charge:.*processed results/i,x:/^t \/ s$/i,y:/Mean V/i,label:'Charge'}
     ],xLabel:'t / s',yLabel:'Mean V / V',connect:true},
     {title:'Discharge log-linear plot',table:/Discharge.*processed results/i,x:/^t \/ s$/i,y:/ln\(V \/ 1 V\)/i,xLabel:'t / s',yLabel:'ln(V / 1 V)',fit:true},
-    {title:'Charging log-linear plot',table:/Charge.*processed results/i,x:/^t \/ s$/i,y:/ln\(\(6\.00 − V\) \/ 1 V\)/i,xLabel:'t / s',yLabel:'ln((6.00 − V) / 1 V)',fit:true}
+    {title:'Charging log-linear plot',table:/^Charge:.*processed results/i,x:/^t \/ s$/i,y:/ln.*6\.00.*V.*1 V/i,xLabel:'t / s',yLabel:'ln((6.00 − V) / 1 V)',fit:true}
   ],
   10:[
     {title:'Magnetic force against current',table:/Vary current.*processed results/i,x:/^I \/ A$/i,y:/F = Δm g \/ N|F \/ N/i,xLabel:'I / A',yLabel:'F / N',fit:true},
