@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__labBookInlineSwitch&&window.__labBookExampleDetailV2&&window.__labBookExampleDetailV3&&typeof window.navigate==='function',{timeout:12000});
+  await page.waitForFunction(()=>window.__enhancementStackReady===true&&window.__labBookInlineSwitch&&window.__labBookExampleDetailV2&&window.__labBookExampleDetailV3&&window.__labBookExampleGraphs&&typeof window.navigate==='function',{timeout:12000});
   await page.evaluate(()=>navigate('labbook'));
   await page.waitForTimeout(200);
 
@@ -17,6 +17,7 @@ const { chromium } = require('playwright');
   if(await page.locator('#lbMinePane').isHidden())throw new Error('My lab book pane should be visible by default');
   if(await page.evaluate(()=>window.__labBookExampleDetailV2.count)!==12)throw new Error('Detailed example data should cover all 12 practicals');
   if(await page.evaluate(()=>window.__labBookExampleDetailV3.count)!==12)throw new Error('Sketch/reporting detail should cover all 12 practicals');
+  if(await page.evaluate(()=>window.__labBookExampleGraphs.count)!==12)throw new Error('Completed-example graphs should cover all 12 practicals');
 
   await page.locator('#lbModeExample').click();
   await page.waitForTimeout(220);
@@ -41,6 +42,12 @@ const { chromium } = require('playwright');
     if(await pane.locator('.ex-cpac span').count()<3)throw new Error(`P${id}: practical-skills evidence is too sparse`);
     if(await pane.locator('.ex-sketch-list span').count()<4)throw new Error(`P${id}: apparatus sketch labels are too sparse`);
     if(await pane.locator('.ex-mistakes div').count()<3)throw new Error(`P${id}: common-mistake guidance is too sparse`);
+    const expectedGraphs=({1:3,2:2,3:1,4:1,5:1,6:1,7:2,8:2,9:3,10:3,11:1,12:1})[id];
+    const graphCards=pane.locator('.ex-graph-card');
+    if(await graphCards.count()!==expectedGraphs)throw new Error(`P${id}: expected ${expectedGraphs} completed-data graph(s)`);
+    const points=await pane.locator('[data-ex-graph-point="1"]').count();
+    if(points<5)throw new Error(`P${id}: completed-data graphs contain too few plotted points (${points})`);
+    if(!(await pane.innerText()).includes('Plotted directly from the completed-example data table above.'))throw new Error(`P${id}: graph data-source note missing`);
     const txt=await pane.innerText();
     for(const heading of requiredDetail)if(!txt.includes(heading))throw new Error(`P${id}: missing detailed heading ${heading}`);
   }
