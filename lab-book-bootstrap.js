@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const REV='20260920-final3d-r6';
+const REV='20260921-labgraphs-r1';
 const versioned=src=>`${src}?v=${REV}`;
 function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);}
 function addLabView(){
@@ -66,6 +66,7 @@ async function start(){
   await loadScript(versioned('lab-book-examples-complete.js'),'labBookExamplesCompleteScript');
   await loadScript(versioned('lab-book-example-detail-v2b.js'),'labBookExampleDetailV2');
   await loadScript(versioned('lab-book-example-detail-v3.js'),'labBookExampleDetailV3');
+  await loadScript(versioned('lab-book-example-graphs.js'),'labBookExampleGraphs');
   await loadScript(versioned('lab-book-inline-switch.js'),'labBookInlineSwitch');
   await loadScript(versioned('learning-tools-core.js'),'learningToolsCore');
   try{if(document.querySelector('#view-labbook.active')&&window.renderLabBook)window.renderLabBook();}catch(e){console.error(e);}
