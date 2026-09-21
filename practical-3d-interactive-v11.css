@@ -56,3 +56,12 @@
 .practical3d-tools .p3d-health.ready{border-color:#5c9b76;background:rgba(226,246,234,.94);color:#174d32}
 .practical3d-tools .p3d-health.error{border-color:#bd6b6b;background:rgba(255,235,235,.96);color:#7b2020}
 .practical3d-tools .p3d-health.fallback{border-color:#b08a53;background:rgba(255,245,222,.95);color:#6f4a12}
+
+
+/* Free Move is an uncluttered manipulation workspace: overlays cannot steal drags. */
+.p3d-free-move .p3d-physical-actions{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+.p3d-free-move .p3d-physical-actions *{pointer-events:none!important}
+.p3d-free-move .practical3d-info{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+.p3d-free-move .practical3d-label-layer{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+.p3d-free-move .practical3d-tools button:not([data-3d-mode]):not([data-3d-reset-objects]){display:none!important}
+.p3d-free-move .practical3d-tools{width:auto;right:auto;max-width:240px}
