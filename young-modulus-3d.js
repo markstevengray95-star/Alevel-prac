@@ -229,20 +229,41 @@ function mount(config){
       const off=effectiveOffset(obj),p=projectPoint(lastMVP,[obj.center[0]+off[0],obj.center[1]+off[1],obj.center[2]+off[2]],r.width,r.height);
       return{x:r.left+p[0],y:r.top+p[1],localX:p[0],localY:p[1]};
     };
-    // Prefer a projected point that the real picking routine resolves back to
-    // this equipment group. This avoids overlapping apparatus meshes stealing
-    // pointer-down events in Free move 3D.
+    const canvasOwns=p=>{
+      if(!p||p.x<r.left+2||p.x>r.right-2||p.y<r.top+2||p.y>r.bottom-2)return false;
+      const top=document.elementFromPoint(p.x,p.y);
+      return top===canvas;
+    };
+    const matchesGroup=p=>{
+      if(!canvasOwns(p))return false;
+      const hit=pick(p.x,p.y);
+      return !!hit&&hit.group===o.group;
+    };
+    // Prefer a point that is both selectable by the 3D picker and physically
+    // unobstructed in the DOM. This keeps Free move reliable beneath labels,
+    // guided-action controls and information overlays.
     const baseCandidates=[o,...members.filter(x=>x!==o)];
+    const offsets=[[0,0],[14,0],[-14,0],[0,14],[0,-14],[24,0],[-24,0],[0,24],[0,-24],[22,14],[-22,14],[22,-14],[-22,-14],[36,0],[-36,0],[0,36],[0,-36]];
     for(const obj of baseCandidates){
-      const p=projectObject(obj),hit=pick(p.x,p.y);
-      if(hit&&hit.group===o.group)return p;
-      for(const [dx,dy] of [[18,0],[-18,0],[0,18],[0,-18],[28,16],[-28,16],[28,-16],[-28,-16]]){
+      const p=projectObject(obj);
+      for(const [dx,dy] of offsets){
         const q={x:p.x+dx,y:p.y+dy,localX:p.localX+dx,localY:p.localY+dy};
-        const h=pick(q.x,q.y);
-        if(h&&h.group===o.group)return q;
+        if(matchesGroup(q))return q;
       }
     }
-    return projectObject(o);
+    // Wider local search around the projected equipment centre. This is slower
+    // than the fast path above, but only used by explicit API calls such as
+    // automated checks and accessibility/free-move helpers.
+    const p0=projectObject(o);
+    for(let radius=18;radius<=90;radius+=18){
+      for(let deg=0;deg<360;deg+=30){
+        const a=deg*Math.PI/180,q={x:p0.x+Math.cos(a)*radius,y:p0.y+Math.sin(a)*radius,localX:p0.localX+Math.cos(a)*radius,localY:p0.localY+Math.sin(a)*radius};
+        if(matchesGroup(q))return q;
+      }
+    }
+    // If the equipment is completely covered by a UI panel, return null rather
+    // than a misleading coordinate that cannot receive pointer input.
+    return null;
   };
   const matchObject=name=>{
     const query=String(name||'').toLowerCase();
